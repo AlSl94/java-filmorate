@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,18 +27,9 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
-        if (film.getName().isBlank() || film.getName() == null) {
-            throw new ValidationException("Название не может быть пустым");
-        }
-        if (film.getDescription().length() > MAX_LENGTH) {
-            throw new ValidationException("Максимальная длина не может превышать" + MAX_LENGTH + "символов");
-        }
+    public Film addFilm(@Valid @RequestBody Film film) {
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
             throw new ValidationException("Дата создания должна быть не раньше " + OLDEST_RELEASE_DATE);
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность фильма должна быть больше 0");
         }
         film.setId(++id);
         films.put(film.getId(), film);
@@ -47,17 +39,8 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        if (film.getName().isBlank() || film.getName() == null) {
-            throw new ValidationException("Название не может быть пустым");
-        }
-        if (film.getName().length() > MAX_LENGTH) {
-            throw new ValidationException("Максимальная длина не может превышать" + MAX_LENGTH + "символов");
-        }
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
             throw new ValidationException("Дата создания должна быть не раньше " + OLDEST_RELEASE_DATE);
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность фильма должна быть больше 0");
         }
         if (!films.containsKey(film.getId())) {
             throw new ValidationException(("Id " + film.getId() + " не существует."));
