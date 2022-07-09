@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import ru.yandex.practicum.filmorate.validation.AfterCustomDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
+@RequiredArgsConstructor
 public class Film {
     private int id;
 
@@ -19,5 +22,6 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть больше 0")
     private double duration;
 
+    @AfterCustomDate
     private LocalDate releaseDate;
 }
