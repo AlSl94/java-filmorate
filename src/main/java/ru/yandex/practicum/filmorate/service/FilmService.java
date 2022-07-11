@@ -2,20 +2,25 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     private final InMemoryFilmStorage filmStorage;
+    private final InMemoryUserStorage userStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage) {
+    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     /**
@@ -41,6 +46,9 @@ public class FilmService {
      * @return фильм
      */
     public Film getFilm(Long id) {
+        if (filmStorage.getFilm(id) == null) {
+            throw new ValidationException("Фильма с " + id + " не существует");
+        }
         return filmStorage.getFilm(id);
     }
 
@@ -50,6 +58,7 @@ public class FilmService {
      * @return новый фильм
      */
     public Film add(Film film) {
+        final LocalDate OLDEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (getFilms().containsKey(film.getId())) {
             throw new ValidationException("Id " + film.getId() + "уже существует. " +
                     "Чтобы внести изменения воспользуйтесь методом PUT");
@@ -58,6 +67,9 @@ public class FilmService {
                 && f.getReleaseDate().equals(film.getReleaseDate()))) {
             throw new ValidationException("Фильм с названием " + film.getName()
                     + " и годом выпуска " + film.getReleaseDate() + " уже существует");
+        }
+        if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
+            throw new WrongParameterException("Дата создания должна быть не раньше 1895-12-28");
         }
         return filmStorage.add(film);
     }
@@ -81,9 +93,10 @@ public class FilmService {
      * @return фильм, который мы нашли по айди
      */
     public Film likeFilm(Long filmId, Long userId) {
-        Set<Long> users = filmStorage.getFilms().get(filmId).getUserLikes();
-        users.add(userId);
-        filmStorage.getFilm(filmId).setUserLikes(users);
+        if (userStorage.getUser(userId) == null) {
+            throw new ValidationException("Такого пользователя не существует");
+        }
+        filmStorage.getFilm(filmId).getUserLikes().add(userId);
         return filmStorage.getFilms().get(filmId);
     }
 
@@ -94,6 +107,9 @@ public class FilmService {
      * @return фильм, у которого мы убрали лайк
      */
     public Film unlikeFilm(Long filmId, Long userId) {
+        if (!filmStorage.getFilm(filmId).getUserLikes().contains(userId)) {
+            throw new ValidationException("Пользователся с " + userId + " не существует");
+        }
         filmStorage.getFilm(filmId).getUserLikes().remove(userId);
         return filmStorage.getFilms().get(filmId);
     }
@@ -101,16 +117,16 @@ public class FilmService {
     /**
      * Метод для сортировки и получения списка фильмов по количеству лайков
      * @param count какое количество фильмов мы показать пользователю
-     * @return HashSet, в котором нужное нам количество фильмов, отсортированных по количеству лайков
+     * @return List, в котором нужное нам количество фильмов, отсортированных по количеству лайков
      */
     public Collection<Film> filmsByLikeCount(Integer count) {
 
-        List<Film> films = new ArrayList<>(filmStorage.getFilms().values());
+        List<Film> sortedFilms = filmStorage.getFilms().values().stream()
+                .sorted(Comparator.<Film>comparingInt(i -> i.getUserLikes().size()).reversed())
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        List<Film> sortedFilms = films.stream()
-                .sorted(Comparator.comparingInt(i -> i.getUserLikes().size()))
-                .collect(Collectors.toCollection(LinkedList::new));
-
-        return sortedFilms.stream().limit(count).collect(Collectors.toCollection(LinkedList::new));
+        return sortedFilms.stream()
+                .limit(count)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

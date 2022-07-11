@@ -68,6 +68,9 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User getUser(Long id) {
+        if (userStorage.getUser(id) == null) {
+            throw new ValidationException("Пользователся с " + id + " не существует");
+        }
         return userStorage.getUser(id);
     }
 
@@ -110,7 +113,7 @@ public class UserService {
      * @return коллекция с друзьями пользователя
      */
     public Collection<User> getFriends(Long id) {
-        Set<User> users = new HashSet<>();
+        List<User> users = new ArrayList<>();
         userStorage.getUser(id).getFriends()
                 .forEach(i -> users.add(userStorage.getUser(i)));
         return users;
@@ -125,8 +128,8 @@ public class UserService {
      * @return коллекция с общими друзьями этих двух юзеров
      */
     public Collection<User> commonFriends(Long id, Long otherId) {
-        Set<User> userList = new HashSet<>();
-        Set<User> userList2 = new HashSet<>();
+        List<User> userList = new ArrayList<>();
+        List<User> userList2 = new ArrayList<>();
         userStorage.getUser(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));
         userStorage.getUser(otherId).getFriends().forEach(i -> userList2.add(userStorage.getUsers().get(i)));
         userList.retainAll(userList2);
