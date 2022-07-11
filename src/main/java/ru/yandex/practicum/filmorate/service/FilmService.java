@@ -35,6 +35,10 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
+    public Film getFilm(Long id) {
+        return filmStorage.getFilm(id);
+    }
+
     /**
      * Метод для создания нового фильма, основная логика находится в InMemoryFilmStorage
      * @param film новый фильм
@@ -82,7 +86,7 @@ public class FilmService {
      * @param userId айди пользователя
      * @return фильм, у которого мы убрали лайк
      */
-    public Film returnLikeFilm(Long filmId, Long userId) {
+    public Film unlikeFilm(Long filmId, Long userId) {
         filmStorage.getFilm(filmId).getUserLikes().remove(userId);
         return filmStorage.getFilms().get(filmId);
     }

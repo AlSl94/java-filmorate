@@ -31,48 +31,43 @@ public class UserController {
         return userService.findAll();
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public User create(@Valid @RequestBody User userDto) {
         log.info("Создан пользователь: {}", userDto);
         return userService.create(userDto);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping
     public User update(@Valid @RequestBody User userDto) {
         log.info("Обновлен пользователь: {}", userDto);
         return userService.update(userDto);
     }
 
-    @PutMapping(value = "/{id}/friends/{friendId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}/friends/{friendId}")
     public User addFriend(@Valid @PathVariable Integer id, @PathVariable Integer friendId){
         //TODO Logging
         return userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping(value = "/{id}/friends/{friendId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
     public User deleteFriend(@Valid @PathVariable Integer id, @PathVariable Integer friendId) {
         //TODO Logging
         return userService.removeFriend(id, friendId);
     }
 
-    @GetMapping(value = "/{id}/friends",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}/friends")
     public Collection<User> getFriends(@Valid @PathVariable Integer id) {
         //TODO logging
         return userService.getFriends(id);
     }
 
-    @GetMapping(value = "/{id}/friends/common/{otherId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@Valid @PathVariable Integer id, @PathVariable Integer otherId) {
         //TODO logging
         return userService.commonFriends(id, otherId);
     }
 
-    @GetMapping(value = "/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}")
     public User getUser(@Valid @PathVariable Integer id) {
         //TODO logging
         return userService.getUser(id);

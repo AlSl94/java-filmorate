@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -32,23 +33,39 @@ public class FilmController {
         return filmService.findAll();
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public Film add(@Valid @RequestBody Film filmDto) {
         log.info("Добавлен фильм: {}", filmDto);
         return filmService.add(filmDto);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping
     public Film update(@Valid @RequestBody Film filmDto) {
         log.info("Фильм обновлен: {}", filmDto);
         return filmService.update(filmDto);
     }
 
-    @PutMapping(value = "/{id}/like/{userId}")
-    public Film likeFilm(@Valid @PathVariable Long id, Long userId) {
-        //TODO log
-        return filmService.likeFilm(id, userId);
+    @GetMapping(value = "/{id}")
+    public Film getFilm(@Valid @PathVariable Long id) {
+        //TODO logging
+        return filmService.getFilm(id);
     }
 
+    @PutMapping(value = "/{filmId}/like/{userId}")
+    public Film likeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
+        //TODO logging
+        return filmService.likeFilm(filmId, userId);
+    }
 
+    @DeleteMapping(value = "/{filmId}/like/{userId}")
+    public Film unlikeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
+        //TODO logging
+        return filmService.unlikeFilm(filmId, userId);
+    }
+
+    @GetMapping(value = "/popular?count={count}")
+    //TODO logging
+    public Set<Film> filmsByLikes(@Valid @PathVariable Integer count) {
+        return filmService.filmsByLikeCount(count);
+    }
 }
