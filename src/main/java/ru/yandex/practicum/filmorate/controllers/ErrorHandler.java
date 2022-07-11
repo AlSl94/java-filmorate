@@ -12,15 +12,20 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleWrongParameterException(final WrongParameterException e) {
         return new ErrorResponse(e.getMessage(), "Неверное значение");
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
         return new ErrorResponse(e.getMessage(), "Неверный запрос");
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleRuntimeException(final RuntimeException e) {
+        return new ErrorResponse(e.getMessage(), "Runtime exception");
+    }
 }

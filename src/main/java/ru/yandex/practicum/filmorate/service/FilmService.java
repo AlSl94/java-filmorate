@@ -47,7 +47,7 @@ public class FilmService {
      */
     public Film getFilm(Long id) {
         if (filmStorage.getFilm(id) == null) {
-            throw new ValidationException("Фильма с " + id + " не существует");
+            throw new WrongParameterException("Фильма с " + id + " не существует");
         }
         return filmStorage.getFilm(id);
     }
@@ -69,7 +69,7 @@ public class FilmService {
                     + " и годом выпуска " + film.getReleaseDate() + " уже существует");
         }
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
-            throw new WrongParameterException("Дата создания должна быть не раньше 1895-12-28");
+            throw new ValidationException("Дата создания должна быть не раньше 1895-12-28");
         }
         return filmStorage.add(film);
     }
@@ -81,7 +81,7 @@ public class FilmService {
      */
     public Film update(Film film) {
         if (!getFilms().containsKey(film.getId())) {
-            throw new ValidationException(("Id " + film.getId() + " не существует."));
+            throw new WrongParameterException(("Id " + film.getId() + " не существует."));
         }
         return filmStorage.update(film);
     }
@@ -108,7 +108,7 @@ public class FilmService {
      */
     public Film unlikeFilm(Long filmId, Long userId) {
         if (!filmStorage.getFilm(filmId).getUserLikes().contains(userId)) {
-            throw new ValidationException("Пользователся с " + userId + " не существует");
+            throw new WrongParameterException("Пользователся с " + userId + " не существует");
         }
         filmStorage.getFilm(filmId).getUserLikes().remove(userId);
         return filmStorage.getFilms().get(filmId);

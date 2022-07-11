@@ -17,4 +17,3 @@ public class AfterCustomDateValidator implements ConstraintValidator<AfterCustom
         } else return true;
     }
 }
-

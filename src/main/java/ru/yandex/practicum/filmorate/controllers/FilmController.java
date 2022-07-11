@@ -46,27 +46,27 @@ public class FilmController {
 
     @GetMapping(value = "/{id}")
     public Film getFilm(@Valid @PathVariable Long id) {
-        //TODO logging
+        log.info("Найден фильм по id: {}", filmService.getFilm(id));
         return filmService.getFilm(id);
     }
 
     @PutMapping(value = "/{filmId}/like/{userId}")
     public Film likeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
-        //TODO logging
+        log.info("Поставлен лайку фильм с id: {}, от пользователя с id: {}", filmId, userId);
         filmService.likeFilm(filmId, userId);
         return filmService.getFilm(filmId);
     }
 
     @DeleteMapping(value = "/{filmId}/like/{userId}")
     public Integer unlikeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
-        //TODO logging
+        log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
         filmService.unlikeFilm(filmId, userId);
         return filmService.getFilm(filmId).getUserLikes().size();
     }
 
     @GetMapping(value = "/popular")
-    //TODO logging
     public Collection<Film> filmsByLikesDefault(@RequestParam(defaultValue = "10", required = false) Integer count) {
+        log.info("Получен топ {} фильмов по количеству лайков", count);
         return filmService.filmsByLikeCount(count);
     }
 }

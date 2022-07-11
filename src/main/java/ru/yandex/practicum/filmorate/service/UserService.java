@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -57,7 +58,7 @@ public class UserService {
      */
     public User update(User user) {
         if (!getUsers().containsKey(user.getId())) {
-            throw new ValidationException(("Id " + user.getId() + " не существует."));
+            throw new WrongParameterException(("Id " + user.getId() + " не существует."));
         }
         return userStorage.update(user);
     }
@@ -69,7 +70,7 @@ public class UserService {
      */
     public User getUser(Long id) {
         if (userStorage.getUser(id) == null) {
-            throw new ValidationException("Пользователся с " + id + " не существует");
+            throw new WrongParameterException("Пользователся с " + id + " не существует");
         }
         return userStorage.getUser(id);
     }
@@ -84,7 +85,7 @@ public class UserService {
      */
     public User addFriend(Long id, Long friendId) {
         if (userStorage.getUser(id) == null || userStorage.getUser(friendId) == null) {
-            throw new ValidationException("DOESNT WORK");
+            throw new WrongParameterException("DOESNT WORK");
         }
         userStorage.getUser(id).getFriends().add(friendId);
         userStorage.getUser(friendId).getFriends().add(id);
