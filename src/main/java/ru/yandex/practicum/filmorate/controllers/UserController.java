@@ -44,31 +44,31 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
-    public User addFriend(@Valid @PathVariable Integer id, @PathVariable Integer friendId){
+    public User addFriend(@Valid @PathVariable Long id, @PathVariable Long friendId){
         //TODO Logging
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
-    public User deleteFriend(@Valid @PathVariable Integer id, @PathVariable Integer friendId) {
+    public User deleteFriend(@Valid @PathVariable Long id, @PathVariable Long friendId) {
         //TODO Logging
         return userService.removeFriend(id, friendId);
     }
 
     @GetMapping(value = "/{id}/friends")
-    public Collection<User> getFriends(@Valid @PathVariable Integer id) {
+    public Collection<User> getFriends(@Valid @PathVariable Long id) {
         //TODO logging
         return userService.getFriends(id);
     }
 
     @GetMapping(value = "/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@Valid @PathVariable Integer id, @PathVariable Integer otherId) {
+    public Collection<User> getCommonFriends(@Valid @PathVariable Long id, @PathVariable Long otherId) {
         //TODO logging
         return userService.commonFriends(id, otherId);
     }
 
     @GetMapping(value = "/{id}")
-    public User getUser(@Valid @PathVariable Integer id) {
+    public User getUser(@Valid @PathVariable Long id) {
         //TODO logging
         return userService.getUser(id);
     }

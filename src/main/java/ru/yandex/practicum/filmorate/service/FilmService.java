@@ -23,7 +23,7 @@ public class FilmService {
      * Нужен, в первую очередь, для логгирования в контроллере
      * @return мапа со всеми фильмами
      */
-    public Map<Integer, Film> getFilms() {
+    public Map<Long, Film> getFilms() {
         return filmStorage.getFilms();
     }
 
@@ -35,6 +35,11 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
+    /**
+     * Метод для получения фильма по id
+     * @param id айди фильма
+     * @return фильм
+     */
     public Film getFilm(Long id) {
         return filmStorage.getFilm(id);
     }
@@ -76,7 +81,9 @@ public class FilmService {
      * @return фильм, который мы нашли по айди
      */
     public Film likeFilm(Long filmId, Long userId) {
-        filmStorage.getFilm(filmId).getUserLikes().add(userId);
+        Set<Long> users = filmStorage.getFilms().get(filmId).getUserLikes();
+        users.add(userId);
+        filmStorage.getFilm(filmId).setUserLikes(users);
         return filmStorage.getFilms().get(filmId);
     }
 
@@ -96,16 +103,14 @@ public class FilmService {
      * @param count какое количество фильмов мы показать пользователю
      * @return HashSet, в котором нужное нам количество фильмов, отсортированных по количеству лайков
      */
-    public Set<Film> filmsByLikeCount(Integer count) {
-        Set<Film> films = new HashSet<>();
-        filmStorage.getFilms().keySet()
-                .forEach(i -> films.add(filmStorage.getFilms().get(i)));
-        if (count == 0) {
-            count = 10;
-        }
-        Set<Film> sortedFilms = films.stream()
+    public Collection<Film> filmsByLikeCount(Integer count) {
+
+        List<Film> films = new ArrayList<>(filmStorage.getFilms().values());
+
+        List<Film> sortedFilms = films.stream()
                 .sorted(Comparator.comparingInt(i -> i.getUserLikes().size()))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        return sortedFilms.stream().limit(count).collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        return sortedFilms.stream().limit(count).collect(Collectors.toCollection(LinkedList::new));
     }
 }

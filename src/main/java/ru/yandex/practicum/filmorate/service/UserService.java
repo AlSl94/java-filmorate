@@ -22,7 +22,7 @@ public class UserService {
      * В первую очередь нужен, чтобы правильно работало логирование в контроллерах
      * @return Map из InMemoryUserStorage
      */
-    public Map<Integer, User> getUsers() {
+    public Map<Long, User> getUsers() {
         return userStorage.getUsers();
     }
 
@@ -67,7 +67,7 @@ public class UserService {
      * @param id айди пользователя
      * @return пользователь, которого мы нашли по id
      */
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         return userStorage.getUser(id);
     }
 
@@ -79,11 +79,12 @@ public class UserService {
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      * @return второго пользователя, которого добавили в друзья
      */
-    public User addFriend(Integer id, Integer friendId) {
-
+    public User addFriend(Long id, Long friendId) {
+        if (userStorage.getUser(id) == null || userStorage.getUser(friendId) == null) {
+            throw new ValidationException("DOESNT WORK");
+        }
         userStorage.getUser(id).getFriends().add(friendId);
         userStorage.getUser(friendId).getFriends().add(id);
-
         return userStorage.getUser(friendId);
     }
 
@@ -93,7 +94,7 @@ public class UserService {
      * @param friendId айди второго пользователя
      * @return пользователь, которого мы удалили
      */
-    public User removeFriend(Integer id, Integer friendId) {
+    public User removeFriend(Long id, Long friendId) {
 
         userStorage.getUser(id).getFriends().remove(friendId);
         userStorage.getUser(friendId).getFriends().remove(id);
@@ -108,10 +109,10 @@ public class UserService {
      * @param id айди пользователя
      * @return коллекция с друзьями пользователя
      */
-    public Collection<User> getFriends(Integer id) {
+    public Collection<User> getFriends(Long id) {
         Set<User> users = new HashSet<>();
         userStorage.getUser(id).getFriends()
-                .forEach(i -> users.add(userStorage.getUser(id)));
+                .forEach(i -> users.add(userStorage.getUser(i)));
         return users;
     }
 
@@ -123,7 +124,7 @@ public class UserService {
      * @param otherId айди второго пользователя
      * @return коллекция с общими друзьями этих двух юзеров
      */
-    public Collection<User> commonFriends(Integer id, Integer otherId) {
+    public Collection<User> commonFriends(Long id, Long otherId) {
         Set<User> userList = new HashSet<>();
         Set<User> userList2 = new HashSet<>();
         userStorage.getUser(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));

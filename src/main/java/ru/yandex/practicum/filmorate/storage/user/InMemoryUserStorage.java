@@ -11,8 +11,8 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage{
     @Getter
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id = 0;
+    private final Map<Long, User> users = new HashMap<>();
+    private long id = 0;
 
     /**
      * Возвращает всех пользователей
@@ -52,7 +52,7 @@ public class InMemoryUserStorage implements UserStorage{
      * @return пользователя, которого мы нашли по id
      */
     @Override
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         return users.get(id);
     }
 }
