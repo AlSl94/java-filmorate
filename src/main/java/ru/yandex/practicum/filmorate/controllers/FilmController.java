@@ -1,16 +1,14 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.core.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -21,39 +19,36 @@ import java.util.Map;
 )
 
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int id = 0;
+
+    private final FilmService filmService;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", films.size());
-        return films.values();
+        log.info("Текущее количество фильмов: {}", filmService.getFilms().size());
+        return filmService.findAll();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Film add(@Valid @RequestBody Film filmDto) {
-        if (films.containsKey(filmDto.getId())) {
-            throw new ValidationException("Id " + filmDto.getId() + "уже существует. " +
-                    "Чтобы внести изменения воспользуйтесь методом PUT");
-        }
-        if (films.values().stream().anyMatch(f -> f.getName().equals(filmDto.getName())
-                && f.getReleaseDate().equals(filmDto.getReleaseDate()))) {
-            throw new ValidationException("Фильм с названием " + filmDto.getName()
-                    + " и годом выпуска " + filmDto.getReleaseDate() + " уже существует");
-        }
-        filmDto.setId(++id);
-        films.put(filmDto.getId(), filmDto);
         log.info("Добавлен фильм: {}", filmDto);
-        return filmDto;
+        return filmService.add(filmDto);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Film update(@Valid @RequestBody Film filmDto) {
-        if (!films.containsKey(filmDto.getId())) {
-            throw new ValidationException(("Id " + filmDto.getId() + " не существует."));
-        }
-        films.put(filmDto.getId(), filmDto);
         log.info("Фильм обновлен: {}", filmDto);
-        return filmDto;
+        return filmService.update(filmDto);
     }
+
+    @PutMapping(value = "/{id}/like/{userId}")
+    public Film likeFilm(@Valid @PathVariable Long id, Long userId) {
+        //TODO log
+        return filmService.likeFilm(id, userId);
+    }
+
+
 }
