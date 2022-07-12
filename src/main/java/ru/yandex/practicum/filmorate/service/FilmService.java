@@ -2,17 +2,20 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 public class FilmService {
     private final InMemoryFilmStorage filmStorage;
     private final InMemoryUserStorage userStorage;
@@ -45,7 +48,7 @@ public class FilmService {
      * @param id айди фильма
      * @return фильм
      */
-    public Film getFilm(Long id) {
+    public Film getFilm(@Valid Long id) {
         if (filmStorage.film(id) == null) {
             throw new WrongParameterException("Фильма с " + id + " не существует");
         }
@@ -57,7 +60,7 @@ public class FilmService {
      * @param film новый фильм
      * @return новый фильм
      */
-    public Film add(Film film) {
+    public Film add(@Valid Film film) {
         final LocalDate OLDEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (getFilms().containsKey(film.getId())) {
             throw new ValidationException("Id " + film.getId() + "уже существует. " +
@@ -79,7 +82,7 @@ public class FilmService {
      * @param id айди фильма
      * @return удаленный фильм
      */
-    public Film delete(Integer id) {
+    public Film delete(@Valid Integer id) {
         return filmStorage.delete(id);
     }
 
@@ -88,7 +91,7 @@ public class FilmService {
      * @param film обновленный фильм
      * @return обновленный фильм
      */
-    public Film update(Film film) {
+    public Film update(@Valid Film film) {
         if (!getFilms().containsKey(film.getId())) {
             throw new WrongParameterException(("Id " + film.getId() + " не существует."));
         }
@@ -101,7 +104,7 @@ public class FilmService {
      * @param userId айди пользователя, которое заносим в HashSet
      * @return фильм, который мы нашли по айди
      */
-    public Film likeFilm(Long filmId, Long userId) {
+    public Film likeFilm(@Valid Long filmId, @Valid Long userId) {
         if (userStorage.user(userId) == null) {
             throw new ValidationException("Такого пользователя не существует");
         }
@@ -115,7 +118,7 @@ public class FilmService {
      * @param userId айди пользователя
      * @return фильм, у которого мы убрали лайк
      */
-    public Film unlikeFilm(Long filmId, Long userId) {
+    public Film unlikeFilm(@Valid Long filmId, @Valid Long userId) {
         if (!filmStorage.film(filmId).getUserLikes().contains(userId)) {
             throw new WrongParameterException("Пользователся с " + userId + " не существует");
         }

@@ -2,14 +2,20 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
-import java.util.*;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@Validated
 public class UserService {
     private final InMemoryUserStorage userStorage;
 
@@ -40,7 +46,7 @@ public class UserService {
      * @param user новый пользователь
      * @return нового пользователя
      */
-    public User create(User user) {
+    public User create(@Valid User user) {
         if (getUsers().values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
             throw new ValidationException("Пользователь с электронной почтой " +
                     user.getEmail() + " уже зарегистрирован.");
@@ -56,7 +62,7 @@ public class UserService {
      * @param id айди пользователя
      * @return удаленного пользователя
      */
-    public User delete(Integer id) {
+    public User delete(@Valid Integer id) {
         return userStorage.delete(id);
     }
 
@@ -65,7 +71,7 @@ public class UserService {
      * @param user обновленный пользователь
      * @return обновленный пользователь
      */
-    public User update(User user) {
+    public User update(@Valid User user) {
         if (!getUsers().containsKey(user.getId())) {
             throw new WrongParameterException(("Id " + user.getId() + " не существует."));
         }
@@ -77,7 +83,7 @@ public class UserService {
      * @param id айди пользователя
      * @return пользователь, которого мы нашли по id
      */
-    public User getUser(Long id) {
+    public User getUser(@Valid Long id) {
         if (userStorage.user(id) == null) {
             throw new WrongParameterException("Пользователся с " + id + " не существует");
         }
@@ -92,7 +98,7 @@ public class UserService {
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      * @return второго пользователя, которого добавили в друзья
      */
-    public User addFriend(Long id, Long friendId) {
+    public User addFriend(@Valid Long id, @Valid Long friendId) {
         // Проверка, что такой пользователь существует
         if (userStorage.user(id) == null || userStorage.user(friendId) == null) {
             throw new WrongParameterException("DOESNT WORK");
@@ -108,7 +114,7 @@ public class UserService {
      * @param friendId айди второго пользователя
      * @return пользователь, которого мы удалили
      */
-    public User removeFriend(Long id, Long friendId) {
+    public User removeFriend(@Valid Long id, @Valid Long friendId) {
 
         userStorage.user(id).getFriends().remove(friendId);
         userStorage.user(friendId).getFriends().remove(id);
@@ -123,7 +129,7 @@ public class UserService {
      * @param id айди пользователя
      * @return коллекция с друзьями пользователя
      */
-    public Collection<User> getFriends(Long id) {
+    public Collection<User> getFriends(@Valid Long id) {
         List<User> users = new ArrayList<>();
         userStorage.user(id).getFriends()
                 .forEach(i -> users.add(userStorage.user(i)));
@@ -138,7 +144,7 @@ public class UserService {
      * @param otherId айди второго пользователя
      * @return коллекция с общими друзьями этих двух юзеров
      */
-    public Collection<User> commonFriends(Long id, Long otherId) {
+    public Collection<User> commonFriends(@Valid Long id, @Valid Long otherId) {
         List<User> userList = new ArrayList<>();
         List<User> userList2 = new ArrayList<>();
         userStorage.user(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));

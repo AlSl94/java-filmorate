@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 @Slf4j
@@ -33,38 +32,38 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film add(@Valid @RequestBody Film filmDto) {
+    public Film add(@RequestBody Film filmDto) {
         log.info("Добавлен фильм: {}", filmDto);
         return filmService.add(filmDto);
     }
 
     @DeleteMapping
-    public Film delete(@Valid @RequestBody Integer id) {
+    public Film delete(@RequestBody Integer id) {
         log.info("Удален фильм c id: {}", id);
         return filmService.delete(id);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film filmDto) {
+    public Film update(@RequestBody Film filmDto) {
         log.info("Фильм обновлен: {}", filmDto);
         return filmService.update(filmDto);
     }
 
     @GetMapping(value = "/{id}")
-    public Film getFilm(@Valid @PathVariable Long id) {
+    public Film getFilm(@PathVariable Long id) {
         log.info("Найден фильм по id: {}", filmService.getFilm(id));
         return filmService.getFilm(id);
     }
 
     @PutMapping(value = "/{filmId}/like/{userId}")
-    public Film likeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
+    public Film likeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
         log.info("Поставлен лайку фильм с id: {}, от пользователя с id: {}", filmId, userId);
         filmService.likeFilm(filmId, userId);
         return filmService.getFilm(filmId);
     }
 
     @DeleteMapping(value = "/{filmId}/like/{userId}")
-    public Integer unlikeFilm(@Valid @PathVariable Long filmId, @PathVariable Long userId) {
+    public Integer unlikeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
         log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
         filmService.unlikeFilm(filmId, userId);
         return filmService.getFilm(filmId).getUserLikes().size();
