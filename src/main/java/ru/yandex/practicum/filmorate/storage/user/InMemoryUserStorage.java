@@ -36,6 +36,16 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     /**
+     * Удаляет пользователя
+     * @param id айди пользователя
+     * @return удаленного пользователя
+     */
+    @Override
+    public User delete(long id) {
+        return users.remove(id);
+    }
+
+    /**
      * Обновляет существующего пользователя
      * @param user обновленный пользователь
      * @return обновленного пользователя
@@ -52,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage{
      * @return пользователя, которого мы нашли по id
      */
     @Override
-    public User getUser(Long id) {
+    public User user(long id) {
         return users.get(id);
     }
 }

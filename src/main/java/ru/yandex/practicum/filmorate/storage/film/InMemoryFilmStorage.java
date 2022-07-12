@@ -36,6 +36,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     /**
+     * Удаляет фильм
+     * @param id айди фильма
+     * @return айди фильма
+     */
+    @Override
+    public Film delete(long id) {
+        return films.remove(id);
+    }
+
+    /**
      * Обновляет фильм
      * @param film обновленный фильм
      * @return обновленный фильм
@@ -52,7 +62,7 @@ public class InMemoryFilmStorage implements FilmStorage {
      * @return фильм, который получили по айди
      */
     @Override
-    public Film getFilm(Long id) {
+    public Film film(Long id) {
         return films.get(id);
     }
 }

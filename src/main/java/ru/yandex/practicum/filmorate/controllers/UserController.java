@@ -43,6 +43,12 @@ public class UserController {
         return userService.update(userDto);
     }
 
+    @DeleteMapping
+    public User delete(@Valid @RequestBody Integer id) {
+        log.info("Удален пользователь c id: {}", id);
+        return userService.delete(id);
+    }
+
     @PutMapping(value = "/{id}/friends/{friendId}")
     public User addFriend(@Valid @PathVariable Long id, @PathVariable Long friendId){
         log.info("Пользователи с id {} и с id {} стали друзьями", id, friendId);

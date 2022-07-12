@@ -52,6 +52,15 @@ public class UserService {
     }
 
     /**
+     * Метод для удаления пользователья, логика находится в InMemoryUserStorage
+     * @param id айди пользователя
+     * @return удаленного пользователя
+     */
+    public User delete(Integer id) {
+        return userStorage.delete(id);
+    }
+
+    /**
      * Метод для обновления пользователя, основная логика находится в InMemoryUserStorage
      * @param user обновленный пользователь
      * @return обновленный пользователь
@@ -69,10 +78,10 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User getUser(Long id) {
-        if (userStorage.getUser(id) == null) {
+        if (userStorage.user(id) == null) {
             throw new WrongParameterException("Пользователся с " + id + " не существует");
         }
-        return userStorage.getUser(id);
+        return userStorage.user(id);
     }
 
     /**
@@ -84,12 +93,13 @@ public class UserService {
      * @return второго пользователя, которого добавили в друзья
      */
     public User addFriend(Long id, Long friendId) {
-        if (userStorage.getUser(id) == null || userStorage.getUser(friendId) == null) {
+        // Проверка, что такой пользователь существует
+        if (userStorage.user(id) == null || userStorage.user(friendId) == null) {
             throw new WrongParameterException("DOESNT WORK");
         }
-        userStorage.getUser(id).getFriends().add(friendId);
-        userStorage.getUser(friendId).getFriends().add(id);
-        return userStorage.getUser(friendId);
+        userStorage.user(id).getFriends().add(friendId);
+        userStorage.user(friendId).getFriends().add(id);
+        return userStorage.user(friendId);
     }
 
     /**
@@ -100,8 +110,8 @@ public class UserService {
      */
     public User removeFriend(Long id, Long friendId) {
 
-        userStorage.getUser(id).getFriends().remove(friendId);
-        userStorage.getUser(friendId).getFriends().remove(id);
+        userStorage.user(id).getFriends().remove(friendId);
+        userStorage.user(friendId).getFriends().remove(id);
 
         return userStorage.getUsers().get(friendId);
     }
@@ -115,8 +125,8 @@ public class UserService {
      */
     public Collection<User> getFriends(Long id) {
         List<User> users = new ArrayList<>();
-        userStorage.getUser(id).getFriends()
-                .forEach(i -> users.add(userStorage.getUser(i)));
+        userStorage.user(id).getFriends()
+                .forEach(i -> users.add(userStorage.user(i)));
         return users;
     }
 
@@ -131,8 +141,8 @@ public class UserService {
     public Collection<User> commonFriends(Long id, Long otherId) {
         List<User> userList = new ArrayList<>();
         List<User> userList2 = new ArrayList<>();
-        userStorage.getUser(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));
-        userStorage.getUser(otherId).getFriends().forEach(i -> userList2.add(userStorage.getUsers().get(i)));
+        userStorage.user(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));
+        userStorage.user(otherId).getFriends().forEach(i -> userList2.add(userStorage.getUsers().get(i)));
         userList.retainAll(userList2);
         return userList;
     }

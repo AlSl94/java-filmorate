@@ -38,6 +38,12 @@ public class FilmController {
         return filmService.add(filmDto);
     }
 
+    @DeleteMapping
+    public Film delete(@Valid @RequestBody Integer id) {
+        log.info("Удален фильм c id: {}", id);
+        return filmService.delete(id);
+    }
+
     @PutMapping
     public Film update(@Valid @RequestBody Film filmDto) {
         log.info("Фильм обновлен: {}", filmDto);

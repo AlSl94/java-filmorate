@@ -46,10 +46,10 @@ public class FilmService {
      * @return фильм
      */
     public Film getFilm(Long id) {
-        if (filmStorage.getFilm(id) == null) {
+        if (filmStorage.film(id) == null) {
             throw new WrongParameterException("Фильма с " + id + " не существует");
         }
-        return filmStorage.getFilm(id);
+        return filmStorage.film(id);
     }
 
     /**
@@ -75,6 +75,15 @@ public class FilmService {
     }
 
     /**
+     * Метод для удаления фильма, логика находится в InMemoryFilmStorage
+     * @param id айди фильма
+     * @return удаленный фильм
+     */
+    public Film delete(Integer id) {
+        return filmStorage.delete(id);
+    }
+
+    /**
      * Метод для обновления существующего фильма, основная логика находится в InMemoryFilmStorage
      * @param film обновленный фильм
      * @return обновленный фильм
@@ -93,10 +102,10 @@ public class FilmService {
      * @return фильм, который мы нашли по айди
      */
     public Film likeFilm(Long filmId, Long userId) {
-        if (userStorage.getUser(userId) == null) {
+        if (userStorage.user(userId) == null) {
             throw new ValidationException("Такого пользователя не существует");
         }
-        filmStorage.getFilm(filmId).getUserLikes().add(userId);
+        filmStorage.film(filmId).getUserLikes().add(userId);
         return filmStorage.getFilms().get(filmId);
     }
 
@@ -107,10 +116,10 @@ public class FilmService {
      * @return фильм, у которого мы убрали лайк
      */
     public Film unlikeFilm(Long filmId, Long userId) {
-        if (!filmStorage.getFilm(filmId).getUserLikes().contains(userId)) {
+        if (!filmStorage.film(filmId).getUserLikes().contains(userId)) {
             throw new WrongParameterException("Пользователся с " + userId + " не существует");
         }
-        filmStorage.getFilm(filmId).getUserLikes().remove(userId);
+        filmStorage.film(filmId).getUserLikes().remove(userId);
         return filmStorage.getFilms().get(filmId);
     }
 
