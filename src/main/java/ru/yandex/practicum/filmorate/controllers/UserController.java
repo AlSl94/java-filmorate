@@ -1,53 +1,79 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping(
+        value = "/users",
+        consumes = MediaType.ALL_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
+
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id = 0;
+    private final UserService userService;
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> findAll() {
-        log.debug("Текущее количество пользователей: " + users.size());
-        return users.values();
+        log.info("Текущее количество пользователей: {}", userService.getUsers().size());
+        return userService.findAll();
+    }
+
+    @GetMapping(value = "/{id}")
+    public User getUser(@PathVariable Long id) {
+        log.info("Получен пользователь с id: {}", id);
+        return userService.getUser(id);
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            throw new ValidationException("Пользователь с электронной почтой " +
-                    user.getEmail() + " уже зарегистрирован.");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.debug("Создан пользователь: " + user);
-        return user;
+    public User create(@RequestBody User userDto) {
+        log.info("Создан пользователь: {}", userDto);
+        return userService.create(userDto);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException(("Id " + user.getId() + " не существует."));
-        }
-        log.debug("Обновлен пользователь: " + user);
-        users.put(user.getId(), user);
-        return user;
+    public User update(@RequestBody User userDto) {
+        log.info("Обновлен пользователь: {}", userDto);
+        return userService.update(userDto);
+    }
+    @DeleteMapping
+    public User delete(@RequestBody Integer id) {
+        log.info("Удален пользователь c id: {}", id);
+        return userService.delete(id);
+    }
+
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable Long id, @PathVariable Long friendId){
+        log.info("Пользователи с id {} и с id {} стали друзьями", id, friendId);
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("Пользователи с id {} и с id {} перестали быть друзьями", id, friendId);
+        return userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping(value = "/{id}/friends")
+    public Collection<User> getFriends(@PathVariable Long id) {
+        log.info("Получен список друзей у пользователя с id {}", id);
+        return userService.getFriends(id);
+    }
+
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        log.info("Получен список общих друзей у пользователей с id {} и {}", id, otherId);
+        return userService.commonFriends(id, otherId);
     }
 }
