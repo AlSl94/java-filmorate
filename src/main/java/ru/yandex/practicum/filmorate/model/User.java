@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 @Data
 @AllArgsConstructor
@@ -28,6 +27,6 @@ public class User {
     @Past
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
+    private HashMap<Long, Boolean> friends = new HashMap<>();
 
 }

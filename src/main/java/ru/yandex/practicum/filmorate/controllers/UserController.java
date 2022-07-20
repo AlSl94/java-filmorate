@@ -53,11 +53,24 @@ public class UserController {
         return userService.delete(id);
     }
 
-    @PutMapping(value = "/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable Long id, @PathVariable Long friendId){
-        log.info("Пользователи с id {} и с id {} стали друзьями", id, friendId);
-        return userService.addFriend(id, friendId);
+    @PostMapping(value = "/{id}/friends/{friendId}")
+    public User sendFriendRequest(@PathVariable Long id, @PathVariable Long friendId){
+        log.info("Пользователь с id {} отправил запрос на дружбу пользователю с id {}", id, friendId);
+        return userService.sendFriendRequest(id, friendId);
     }
+
+    @PutMapping(value = "/{id}/friends/request/{friendId}")
+    public User acceptFriendRequest(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("Пользователь с id {} принял запрос на дружбу от пользователя с id {}", id, friendId);
+        return userService.acceptFriendRequest(id, friendId);
+    }
+
+    @DeleteMapping(value = "/{id}/friends/request/{friendId}")
+    public User denyFriendRequest(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("Пользователь с id {} отказал на запрос на дружбу от пользователя с id {}", id, friendId);
+        return userService.denyFriendRequest(id, friendId);
+    }
+
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
     public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {

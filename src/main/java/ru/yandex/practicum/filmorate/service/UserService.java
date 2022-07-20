@@ -91,23 +91,48 @@ public class UserService {
     }
 
     /**
-     * Метод для добавления друзей. Логика завязана на HashSet'e.
+     * Метод для добавления друзей. Используется хешмапа для хранение ключа и статуса дружбы
      * Сет хранится в экземпляре класса User. Сет нужен, чтобы так хранились только уникальные значения.
      * Если пользователь A добавил пользователя B, то и B добавит пользователя A
      * @param id айди первого пользователя
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      * @return второго пользователя, которого добавили в друзья
      */
-    public User addFriend(Long id, Long friendId) {
+    public User sendFriendRequest(Long id, Long friendId) {
         // Проверка, что такой пользователь существует
-        if (userStorage.user(id) == null) {
-            throw new WrongParameterException("Пользователся с " + id + " не существует");
+        checkIfUsersExist(id, friendId);
+        userStorage.user(id).getFriends().put(friendId, false); // По умолчанию дружба не подтверждается
+        return userStorage.user(friendId);
+    }
+
+    /**
+     * Метод для подтверждения дружбы между пользователями
+     * @param id id пользователя, который должен принять запрос на дружбу
+     * @param friendId id пользователя, который отправил запрос на дружбу
+     * @return пользователя, которого приняли в друзья
+     */
+    public User acceptFriendRequest (Long id, Long friendId) {
+        checkIfUsersExist(id, friendId);
+        if (userStorage.user(friendId).getFriends().get(id) == null) {
+            throw new WrongParameterException("Запроса на дружбу от пользователя " + friendId + " не найдено");
         }
-        if (userStorage.user(friendId) == null) {
-            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
+        userStorage.user(friendId).getFriends().replace(id, true);
+        userStorage.user(id).getFriends().put(friendId, true);
+        return userStorage.user(id);
+    }
+
+    /**
+     * Метод для отказа от дружбы с пользователем
+     * @param id id пользователя, который отказывается от запроса на дружбу
+     * @param friendId id пользователя, который отправил запрос на дружбу
+     * @return пользователя, который отказался от дружбы
+     */
+    public User denyFriendRequest (Long id, Long friendId) {
+        checkIfUsersExist(id, friendId);
+        if (userStorage.user(friendId).getFriends().get(id) == null) {
+            throw new WrongParameterException("Запроса на дружбу от пользователя " + friendId + " не найдено");
         }
-        userStorage.user(id).getFriends().add(friendId);
-        userStorage.user(friendId).getFriends().add(id);
+        userStorage.user(friendId).getFriends().remove(id);
         return userStorage.user(friendId);
     }
 
@@ -118,12 +143,7 @@ public class UserService {
      * @return пользователь, которого мы удалили
      */
     public User removeFriend(Long id, Long friendId) {
-        if (userStorage.user(id) == null) {
-            throw new WrongParameterException("Пользователся с " + id + " не существует");
-        }
-        if (userStorage.user(friendId) == null) {
-            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
-        }
+        checkIfUsersExist(id, friendId);
         userStorage.user(id).getFriends().remove(friendId);
         userStorage.user(friendId).getFriends().remove(id);
         return userStorage.getUsers().get(friendId);
@@ -138,7 +158,7 @@ public class UserService {
      */
     public Collection<User> getFriends(Long id) {
         List<User> users = new ArrayList<>();
-        userStorage.user(id).getFriends()
+        userStorage.user(id).getFriends().keySet()
                 .forEach(i -> users.add(userStorage.user(i)));
         return users;
     }
@@ -152,17 +172,28 @@ public class UserService {
      * @return коллекция с общими друзьями этих двух юзеров
      */
     public Collection<User> commonFriends(Long id, Long otherId) {
+        checkIfUsersExist(id, otherId);
+        List<User> userList = new ArrayList<>();
+        List<User> userList2 = new ArrayList<>();
+        userStorage.user(id).getFriends().keySet()
+                .forEach(i -> userList.add(userStorage.getUsers().get(i)));
+        userStorage.user(otherId).getFriends().keySet()
+                .forEach(i -> userList2.add(userStorage.getUsers().get(i)));
+        userList.retainAll(userList2);
+        return userList;
+    }
+
+    /**
+     * Проверка, что пользователи существуют
+     * @param id id первого пользователя
+     * @param friendId id второго пользователя
+     */
+    private void checkIfUsersExist(Long id, Long friendId) {
         if (userStorage.user(id) == null) {
             throw new WrongParameterException("Пользователся с " + id + " не существует");
         }
-        if (userStorage.user(otherId) == null) {
-            throw new WrongParameterException("Пользователся с " + otherId + " не существует");
+        if (userStorage.user(friendId) == null) {
+            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
         }
-        List<User> userList = new ArrayList<>();
-        List<User> userList2 = new ArrayList<>();
-        userStorage.user(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));
-        userStorage.user(otherId).getFriends().forEach(i -> userList2.add(userStorage.getUsers().get(i)));
-        userList.retainAll(userList2);
-        return userList;
     }
 }
