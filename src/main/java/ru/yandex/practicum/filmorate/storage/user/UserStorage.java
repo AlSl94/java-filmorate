@@ -10,9 +10,9 @@ public interface UserStorage {
 
     User create(User user);
 
-    User delete(long id);
+    void delete(Long id);
 
     User update(User user);
 
-    User user(long id);
+    User findUserById(Long id);
 }

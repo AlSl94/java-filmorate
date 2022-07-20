@@ -27,51 +27,35 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", filmService.getFilms().size());
-        return filmService.findAll();
+        Collection<Film> films = filmService.findAll();
+        log.info("Текущее количество фильмов: {}", films.size());
+        return films;
     }
 
     @PostMapping
     public Film add(@RequestBody Film filmDto) {
+        filmService.add(filmDto);
         log.info("Добавлен фильм: {}", filmDto);
-        return filmService.add(filmDto);
+        return filmDto;
     }
 
     @DeleteMapping
-    public Film delete(@RequestBody Integer id) {
+    public void delete(@RequestBody Long id) {
         log.info("Удален фильм c id: {}", id);
-        return filmService.delete(id);
+        filmService.delete(id);
     }
 
     @PutMapping
     public Film update(@RequestBody Film filmDto) {
+        Film film = filmService.update(filmDto);
         log.info("Фильм обновлен: {}", filmDto);
-        return filmService.update(filmDto);
+        return film;
     }
 
     @GetMapping(value = "/{id}")
-    public Film getFilm(@PathVariable Long id) {
-        log.info("Найден фильм по id: {}", filmService.getFilm(id));
-        return filmService.getFilm(id);
-    }
-
-    @PutMapping(value = "/{filmId}/like/{userId}")
-    public Film likeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("Поставлен лайку фильм с id: {}, от пользователя с id: {}", filmId, userId);
-        filmService.likeFilm(filmId, userId);
-        return filmService.getFilm(filmId);
-    }
-
-    @DeleteMapping(value = "/{filmId}/like/{userId}")
-    public Integer unlikeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
-        filmService.unlikeFilm(filmId, userId);
-        return filmService.getFilm(filmId).getUserLikes().size();
-    }
-
-    @GetMapping(value = "/popular")
-    public Collection<Film> filmsByLikesDefault(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        log.info("Получен топ {} фильмов по количеству лайков", count);
-        return filmService.filmsByLikeCount(count);
+    public Film findFilmById(@PathVariable Long id) {
+        Film film = filmService.findFilmById(id);
+        log.info("Найден фильм по id: {}", film);
+        return film;
     }
 }
