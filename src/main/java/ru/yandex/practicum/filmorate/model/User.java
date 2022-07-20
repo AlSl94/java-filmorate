@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class User {
-    private Long id;
+    private Long userId;
 
     @Email(message = "Неверный email")
     private String email;
@@ -29,4 +29,5 @@ public class User {
     private LocalDate birthday;
 
     private Set<Long> friends = new HashSet<>();
+
 }

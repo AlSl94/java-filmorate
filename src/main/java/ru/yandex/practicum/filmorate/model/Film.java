@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Film {
-    private Long id;
+    private Long filmId;
 
     @NotNull(message = "Название не может быть пустым")
     @NotBlank(message = "Название не может быть пустым")
@@ -24,6 +21,12 @@ public class Film {
 
     @Size(max = 200, message = "Максимальная длина описания не может превышать 200 символов")
     private String description;
+
+    @Pattern(regexp = "^\\S*$")
+    private Set<Integer> genres = new HashSet<>();
+
+    @NotBlank(message = "Рейтинг не может быть пустым")
+    private String rating;
 
     @Positive(message = "Продолжительность фильма должна быть больше 0")
     private double duration;

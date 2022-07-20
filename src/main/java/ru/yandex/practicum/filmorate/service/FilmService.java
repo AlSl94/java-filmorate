@@ -62,8 +62,8 @@ public class FilmService {
      */
     public Film add(@Valid Film film) {
         final LocalDate OLDEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-        if (getFilms().containsKey(film.getId())) {
-            throw new ValidationException("Id " + film.getId() + "уже существует. " +
+        if (getFilms().containsKey(film.getFilmId())) {
+            throw new ValidationException("Id " + film.getFilmId() + "уже существует. " +
                     "Чтобы внести изменения воспользуйтесь методом PUT");
         }
         if (getFilms().values().stream().anyMatch(f -> f.getName().equals(film.getName())
@@ -73,6 +73,10 @@ public class FilmService {
         }
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
             throw new ValidationException("Дата создания должна быть не раньше 1895-12-28");
+        }
+        if (!film.getRating().equals("G") || !film.getRating().equals("PG") || !film.getRating().equals("PG-13")
+                || !film.getRating().equals("R") || !film.getRating().equals("NC-17")) {
+            throw new ValidationException("Рейтинг фильма может быть одним из: G, PG, PG-13, R, NC-17");
         }
         return filmStorage.add(film);
     }
@@ -92,8 +96,8 @@ public class FilmService {
      * @return обновленный фильм
      */
     public Film update(@Valid Film film) {
-        if (!getFilms().containsKey(film.getId())) {
-            throw new WrongParameterException(("Id " + film.getId() + " не существует."));
+        if (!getFilms().containsKey(film.getFilmId())) {
+            throw new WrongParameterException(("Id " + film.getFilmId() + " не существует."));
         }
         return filmStorage.update(film);
     }
@@ -104,7 +108,7 @@ public class FilmService {
      * @param userId айди пользователя, которое заносим в HashSet
      * @return фильм, который мы нашли по айди
      */
-    public Film likeFilm(@Valid Long filmId, @Valid Long userId) {
+    public Film likeFilm(Long filmId, Long userId) {
         if (userStorage.user(userId) == null) {
             throw new ValidationException("Такого пользователя не существует");
         }
@@ -118,7 +122,7 @@ public class FilmService {
      * @param userId айди пользователя
      * @return фильм, у которого мы убрали лайк
      */
-    public Film unlikeFilm(@Valid Long filmId, @Valid Long userId) {
+    public Film unlikeFilm(Long filmId, Long userId) {
         if (!filmStorage.film(filmId).getUserLikes().contains(userId)) {
             throw new WrongParameterException("Пользователся с " + userId + " не существует");
         }

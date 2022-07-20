@@ -30,8 +30,8 @@ public class InMemoryFilmStorage implements FilmStorage {
      */
     @Override
     public Film add(Film film) {
-        film.setId(++id);
-        films.put(film.getId(), film);
+        film.setFilmId(++id);
+        films.put(film.getFilmId(), film);
         return film;
     }
 
@@ -52,7 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
      */
     @Override
     public Film update(Film film) {
-        films.put(film.getId(), film);
+        films.put(film.getFilmId(), film);
         return film;
     }
 

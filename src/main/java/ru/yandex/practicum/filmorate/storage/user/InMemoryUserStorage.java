@@ -30,8 +30,8 @@ public class InMemoryUserStorage implements UserStorage{
      */
     @Override
     public User create(User user) {
-        user.setId(++id);
-        users.put(user.getId(), user);
+        user.setUserId(++id);
+        users.put(user.getUserId(), user);
         return user;
     }
 
@@ -52,7 +52,7 @@ public class InMemoryUserStorage implements UserStorage{
      */
     @Override
     public User update(User user) {
-        users.put(user.getId(), user);
+        users.put(user.getUserId(), user);
         return user;
     }
 

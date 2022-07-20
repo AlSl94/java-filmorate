@@ -72,8 +72,8 @@ public class UserService {
      * @return обновленный пользователь
      */
     public User update(@Valid User user) {
-        if (!getUsers().containsKey(user.getId())) {
-            throw new WrongParameterException(("Id " + user.getId() + " не существует."));
+        if (!getUsers().containsKey(user.getUserId())) {
+            throw new WrongParameterException(("Id " + user.getUserId() + " не существует."));
         }
         return userStorage.update(user);
     }
@@ -83,7 +83,7 @@ public class UserService {
      * @param id айди пользователя
      * @return пользователь, которого мы нашли по id
      */
-    public User getUser(@Valid Long id) {
+    public User getUser(Long id) {
         if (userStorage.user(id) == null) {
             throw new WrongParameterException("Пользователся с " + id + " не существует");
         }
@@ -98,10 +98,13 @@ public class UserService {
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      * @return второго пользователя, которого добавили в друзья
      */
-    public User addFriend(@Valid Long id, @Valid Long friendId) {
+    public User addFriend(Long id, Long friendId) {
         // Проверка, что такой пользователь существует
-        if (userStorage.user(id) == null || userStorage.user(friendId) == null) {
-            throw new WrongParameterException("DOESNT WORK");
+        if (userStorage.user(id) == null) {
+            throw new WrongParameterException("Пользователся с " + id + " не существует");
+        }
+        if (userStorage.user(friendId) == null) {
+            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
         }
         userStorage.user(id).getFriends().add(friendId);
         userStorage.user(friendId).getFriends().add(id);
@@ -114,11 +117,15 @@ public class UserService {
      * @param friendId айди второго пользователя
      * @return пользователь, которого мы удалили
      */
-    public User removeFriend(@Valid Long id, @Valid Long friendId) {
-
+    public User removeFriend(Long id, Long friendId) {
+        if (userStorage.user(id) == null) {
+            throw new WrongParameterException("Пользователся с " + id + " не существует");
+        }
+        if (userStorage.user(friendId) == null) {
+            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
+        }
         userStorage.user(id).getFriends().remove(friendId);
         userStorage.user(friendId).getFriends().remove(id);
-
         return userStorage.getUsers().get(friendId);
     }
 
@@ -129,7 +136,7 @@ public class UserService {
      * @param id айди пользователя
      * @return коллекция с друзьями пользователя
      */
-    public Collection<User> getFriends(@Valid Long id) {
+    public Collection<User> getFriends(Long id) {
         List<User> users = new ArrayList<>();
         userStorage.user(id).getFriends()
                 .forEach(i -> users.add(userStorage.user(i)));
@@ -144,7 +151,13 @@ public class UserService {
      * @param otherId айди второго пользователя
      * @return коллекция с общими друзьями этих двух юзеров
      */
-    public Collection<User> commonFriends(@Valid Long id, @Valid Long otherId) {
+    public Collection<User> commonFriends(Long id, Long otherId) {
+        if (userStorage.user(id) == null) {
+            throw new WrongParameterException("Пользователся с " + id + " не существует");
+        }
+        if (userStorage.user(otherId) == null) {
+            throw new WrongParameterException("Пользователся с " + otherId + " не существует");
+        }
         List<User> userList = new ArrayList<>();
         List<User> userList2 = new ArrayList<>();
         userStorage.user(id).getFriends().forEach(i -> userList.add(userStorage.getUsers().get(i)));
