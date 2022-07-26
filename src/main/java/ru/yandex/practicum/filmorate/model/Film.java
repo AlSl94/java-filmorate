@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.yandex.practicum.filmorate.service.MPA_RATING;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
@@ -23,7 +24,7 @@ public class Film {
     private String description;
 
     @Pattern(regexp = "^\\S*$")
-    private Set<Integer> genres = new HashSet<>();
+    private Set<MPA_RATING> genres = new HashSet<>();
 
     @NotBlank(message = "Рейтинг не может быть пустым")
     private String rating;

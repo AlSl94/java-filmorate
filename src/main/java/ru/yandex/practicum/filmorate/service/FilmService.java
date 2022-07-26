@@ -74,10 +74,6 @@ public class FilmService {
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
             throw new ValidationException("Дата создания должна быть не раньше 1895-12-28");
         }
-        if (!film.getRating().equals("G") || !film.getRating().equals("PG") || !film.getRating().equals("PG-13")
-                || !film.getRating().equals("R") || !film.getRating().equals("NC-17")) {
-            throw new ValidationException("Рейтинг фильма может быть одним из: G, PG, PG-13, R, NC-17");
-        }
         return filmStorage.add(film);
     }
 
