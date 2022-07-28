@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.inMemory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import java.util.Map;
 
 @Service
 @Validated
-public class UserService {
+public class InMemoryUserService {
     private final InMemoryUserStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
+    public InMemoryUserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
     }
 

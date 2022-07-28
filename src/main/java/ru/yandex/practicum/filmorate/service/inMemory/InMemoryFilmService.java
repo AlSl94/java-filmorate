@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.inMemory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -6,8 +6,8 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Validated
-public class FilmService {
-    private final FilmDbStorage filmStorage;
-    private final UserDbStorage userStorage;
+public class InMemoryFilmService {
+    private final InMemoryFilmStorage filmStorage;
+    private final InMemoryUserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage) {
+    public InMemoryFilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -32,7 +32,7 @@ public class FilmService {
      * @return мапа со всеми фильмами
      */
     public Map<Long, Film> getFilms() {
-        return null;
+        return filmStorage.getFilms();
     }
 
     /**
@@ -109,7 +109,7 @@ public class FilmService {
             throw new ValidationException("Такого пользователя не существует");
         }
         filmStorage.film(filmId).getUserLikes().add(userId);
-        return filmStorage.film(filmId); // TODO
+        return filmStorage.getFilms().get(filmId);
     }
 
     /**
@@ -123,7 +123,7 @@ public class FilmService {
             throw new WrongParameterException("Пользователся с " + userId + " не существует");
         }
         filmStorage.film(filmId).getUserLikes().remove(userId);
-        return null; // TODO
+        return filmStorage.getFilms().get(filmId);
     }
 
     /**
@@ -133,7 +133,7 @@ public class FilmService {
      */
     public Collection<Film> filmsByLikeCount(Integer count) {
 
-        List<Film> sortedFilms = filmStorage.findAll().stream()
+        List<Film> sortedFilms = filmStorage.getFilms().values().stream()
                 .sorted(Comparator.<Film>comparingInt(i -> i.getUserLikes().size()).reversed())
                 .collect(Collectors.toCollection(ArrayList::new));
 
