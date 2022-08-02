@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -24,15 +25,6 @@ public class FilmService {
     public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-    }
-
-    /**
-     * Getter для доступа к Map<Film> films в InMemoryFilmStorage
-     * Нужен, в первую очередь, для логгирования в контроллере
-     * @return мапа со всеми фильмами
-     */
-    public Map<Long, Film> getFilms() {
-        return null;
     }
 
     /**
@@ -62,15 +54,6 @@ public class FilmService {
      */
     public Film add(@Valid Film film) {
         final LocalDate OLDEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-        if (getFilms().containsKey(film.getFilmId())) {
-            throw new ValidationException("Id " + film.getFilmId() + "уже существует. " +
-                    "Чтобы внести изменения воспользуйтесь методом PUT");
-        }
-        if (getFilms().values().stream().anyMatch(f -> f.getName().equals(film.getName())
-                && f.getReleaseDate().equals(film.getReleaseDate()))) {
-            throw new ValidationException("Фильм с названием " + film.getName()
-                    + " и годом выпуска " + film.getReleaseDate() + " уже существует");
-        }
         if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
             throw new ValidationException("Дата создания должна быть не раньше 1895-12-28");
         }
@@ -92,8 +75,8 @@ public class FilmService {
      * @return обновленный фильм
      */
     public Film update(@Valid Film film) {
-        if (!getFilms().containsKey(film.getFilmId())) {
-            throw new WrongParameterException(("Id " + film.getFilmId() + " не существует."));
+        if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(film.getId(), f.getId()))) {
+            throw new WrongParameterException("film.id не найден");
         }
         return filmStorage.update(film);
     }
@@ -119,9 +102,6 @@ public class FilmService {
      * @return фильм, у которого мы убрали лайк
      */
     public Film unlikeFilm(Long filmId, Long userId) {
-        if (!filmStorage.film(filmId).getUserLikes().contains(userId)) {
-            throw new WrongParameterException("Пользователся с " + userId + " не существует");
-        }
         filmStorage.film(filmId).getUserLikes().remove(userId);
         return null; // TODO
     }
@@ -132,13 +112,22 @@ public class FilmService {
      * @return List, в котором нужное нам количество фильмов, отсортированных по количеству лайков
      */
     public Collection<Film> filmsByLikeCount(Integer count) {
-
         List<Film> sortedFilms = filmStorage.findAll().stream()
                 .sorted(Comparator.<Film>comparingInt(i -> i.getUserLikes().size()).reversed())
                 .collect(Collectors.toCollection(ArrayList::new));
-
         return sortedFilms.stream()
                 .limit(count)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public Mpa mpa(Integer mpaId) {
+        if (mpaId < 0 || mpaId > 5) {
+            throw new WrongParameterException("mpa.id должен быть больше 0 и меньше 5");
+        }
+        return filmStorage.mpa(mpaId);
+    }
+
+    public Collection<Mpa> allMpa() {
+        return filmStorage.allMpa();
     }
 }

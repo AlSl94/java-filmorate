@@ -27,14 +27,16 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", filmService.getFilms().size());
-        return filmService.findAll();
+        Collection<Film> films = filmService.findAll();
+        log.info("Текущее количество фильмов: {}", films.size());
+        return films;
     }
 
     @PostMapping
     public Film add(@RequestBody Film filmDto) {
+        filmService.add(filmDto);
         log.info("Добавлен фильм: {}", filmDto);
-        return filmService.add(filmDto);
+        return filmDto;
     }
 
     @DeleteMapping
@@ -45,14 +47,16 @@ public class FilmController {
 
     @PutMapping
     public Film update(@RequestBody Film filmDto) {
+        filmService.update(filmDto);
         log.info("Фильм обновлен: {}", filmDto);
-        return filmService.update(filmDto);
+        return filmDto;
     }
 
     @GetMapping(value = "/{id}")
     public Film getFilm(@PathVariable Long id) {
-        log.info("Найден фильм по id: {}", filmService.getFilm(id));
-        return filmService.getFilm(id);
+        Film film = filmService.getFilm(id);
+        log.info("Найден фильм по id: {}", film);
+        return film;
     }
 
     @PutMapping(value = "/{filmId}/like/{userId}")

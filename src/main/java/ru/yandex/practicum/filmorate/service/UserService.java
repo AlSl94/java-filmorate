@@ -1,36 +1,24 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
+@Slf4j
 @Service
 @Validated
 public class UserService {
-    private final InMemoryUserStorage userStorage;
+    private final UserDbStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
+    public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
-    }
-
-    /**
-     * Getter, который позволяет обращаться напрямую к Мапе из InMemoryUserStorage
-     * В первую очередь нужен, чтобы правильно работало логирование в контроллерах
-     * @return Map из InMemoryUserStorage
-     */
-    public Map<Long, User> getUsers() {
-        return userStorage.getUsers();
     }
 
     /**
@@ -47,10 +35,6 @@ public class UserService {
      * @return нового пользователя
      */
     public User create(@Valid User user) {
-        if (getUsers().values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            throw new ValidationException("Пользователь с электронной почтой " +
-                    user.getEmail() + " уже зарегистрирован.");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -72,8 +56,9 @@ public class UserService {
      * @return обновленный пользователь
      */
     public User update(@Valid User user) {
-        if (!getUsers().containsKey(user.getUserId())) {
-            throw new WrongParameterException(("Id " + user.getUserId() + " не существует."));
+        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(user.getId(), u.getId()))) {
+            log.info("Попытка обновить пользователя");
+            throw new WrongParameterException("user.id не найден");
         }
         return userStorage.update(user);
     }
@@ -84,8 +69,9 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User getUser(Long id) {
-        if (userStorage.user(id) == null) {
-            throw new WrongParameterException("Пользователся с " + id + " не существует");
+        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
+            log.info("Попытка получить пользователя с неверным user.id");
+            throw new WrongParameterException("user.id не найден");
         }
         return userStorage.user(id);
     }
@@ -100,7 +86,6 @@ public class UserService {
      */
     public User sendFriendRequest(Long id, Long friendId) {
         // Проверка, что такой пользователь существует
-        checkIfUsersExist(id, friendId);
         userStorage.user(id).getFriends().put(friendId, false); // По умолчанию дружба не подтверждается
         return userStorage.user(friendId);
     }
@@ -112,10 +97,6 @@ public class UserService {
      * @return пользователя, которого приняли в друзья
      */
     public User acceptFriendRequest (Long id, Long friendId) {
-        checkIfUsersExist(id, friendId);
-        if (userStorage.user(friendId).getFriends().get(id) == null) {
-            throw new WrongParameterException("Запроса на дружбу от пользователя " + friendId + " не найдено");
-        }
         userStorage.user(friendId).getFriends().put(id, true);
         userStorage.user(id).getFriends().put(friendId, true);
         return userStorage.user(id);
@@ -128,10 +109,6 @@ public class UserService {
      * @return пользователя, который отказался от дружбы
      */
     public User denyFriendRequest (Long id, Long friendId) {
-        checkIfUsersExist(id, friendId);
-        if (userStorage.user(friendId).getFriends().get(id) == null) {
-            throw new WrongParameterException("Запроса на дружбу от пользователя " + friendId + " не найдено");
-        }
         userStorage.user(friendId).getFriends().remove(id);
         return userStorage.user(friendId);
     }
@@ -143,10 +120,9 @@ public class UserService {
      * @return пользователь, которого мы удалили
      */
     public User removeFriend(Long id, Long friendId) {
-        checkIfUsersExist(id, friendId);
         userStorage.user(id).getFriends().remove(friendId);
         userStorage.user(friendId).getFriends().remove(id);
-        return userStorage.getUsers().get(friendId);
+        return null;
     }
 
     /**
@@ -172,15 +148,16 @@ public class UserService {
      * @return коллекция с общими друзьями этих двух юзеров
      */
     public Collection<User> commonFriends(Long id, Long otherId) {
-        checkIfUsersExist(id, otherId);
-        List<User> userList = new ArrayList<>();
-        List<User> userList2 = new ArrayList<>();
-        userStorage.user(id).getFriends().keySet()
-                .forEach(i -> userList.add(userStorage.getUsers().get(i)));
-        userStorage.user(otherId).getFriends().keySet()
-                .forEach(i -> userList2.add(userStorage.getUsers().get(i)));
-        userList.retainAll(userList2);
-        return userList;
+//        checkIfUsersExist(id, otherId);
+//        List<User> userList = new ArrayList<>();
+//        List<User> userList2 = new ArrayList<>();
+//        userStorage.user(id).getFriends().keySet()
+//                .forEach(i -> userList.add(userStorage.getUsers().get(i)));
+//        userStorage.user(otherId).getFriends().keySet()
+//                .forEach(i -> userList2.add(userStorage.getUsers().get(i)));
+//        userList.retainAll(userList2);
+//        return userList;
+        return null;
     }
 
     /**
@@ -189,11 +166,6 @@ public class UserService {
      * @param friendId id второго пользователя
      */
     private void checkIfUsersExist(Long id, Long friendId) {
-        if (userStorage.user(id) == null) {
-            throw new WrongParameterException("Пользователся с " + id + " не существует");
-        }
-        if (userStorage.user(friendId) == null) {
-            throw new WrongParameterException("Пользователся с " + friendId + " не существует");
-        }
+
     }
 }

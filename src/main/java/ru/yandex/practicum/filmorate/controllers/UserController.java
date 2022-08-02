@@ -25,12 +25,13 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() {
-        log.info("Текущее количество пользователей: {}", userService.getUsers().size());
-        return userService.findAll();
+    public Collection<User> findAll() { // TODO починить лог
+        Collection<User> users = userService.findAll();
+        log.info("Текущее количество пользователей: {}", users);
+        return users;
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/{id}") //todo change logging
     public User getUser(@PathVariable Long id) {
         log.info("Получен пользователь с id: {}", id);
         return userService.getUser(id);
@@ -38,8 +39,9 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User userDto) {
-        log.info("Создан пользователь: {}", userDto);
-        return userService.create(userDto);
+        User user = userService.create(userDto);
+        log.info("Создан пользователь: {}", user);
+        return user;
     }
 
     @PutMapping

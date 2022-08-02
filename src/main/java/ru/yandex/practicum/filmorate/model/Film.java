@@ -1,21 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import ru.yandex.practicum.filmorate.service.MPA_RATING;
+import lombok.*;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Data
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
-    private Long filmId;
+    @Positive
+    @EqualsAndHashCode.Include
+    private Long id;
 
     @NotNull(message = "Название не может быть пустым")
     @NotBlank(message = "Название не может быть пустым")
@@ -24,16 +27,13 @@ public class Film {
     @Size(max = 200, message = "Максимальная длина описания не может превышать 200 символов")
     private String description;
 
-    @Pattern(regexp = "^\\S*$")
-    private List<String> genres;
+    private LocalDate releaseDate;
 
-    @NotBlank(message = "Рейтинг не может быть пустым")
-    private MPA_RATING rating;
+    private List<Genre> genres;
+    private Mpa mpa;
 
     @Positive(message = "Продолжительность фильма должна быть больше 0")
     private double duration;
-
-    private LocalDate releaseDate;
 
     private List<Long> userLikes;
 
@@ -41,7 +41,7 @@ public class Film {
         Map<String, Object> values = new HashMap<>();
         values.put("name", name);
         values.put("description", description);
-        values.put("rating", rating);
+        values.put("mpa_rating", mpa);
         values.put("duration", duration);
         values.put("release_date", releaseDate);
         return values;
@@ -49,26 +49,26 @@ public class Film {
 
     public Film asFilm() {
         return Film.builder()
-                .filmId(filmId)
+                .id(id)
                 .name(name)
                 .description(description)
-                .genres(genres)
-                .rating(rating)
-                .duration(duration)
                 .releaseDate(releaseDate)
+                .genres(genres)
+                .mpa(mpa)
+                .duration(duration)
                 .userLikes(userLikes)
                 .build();
     }
 
     public Film fromFilm(Film film) {
         return Film.builder()
-                .filmId(film.getFilmId())
+                .id(film.getId())
                 .name(film.getName())
                 .description(film.getDescription())
-                .genres(film.getGenres())
-                .rating(film.getRating())
-                .duration(film.getDuration())
                 .releaseDate(film.getReleaseDate())
+                .genres(film.getGenres())
+                .mpa(film.getMpa())
+                .duration(film.getDuration())
                 .userLikes(film.getUserLikes())
                 .build();
     }
