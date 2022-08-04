@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Film add(Film film);
 
-    Film delete(long id);
+    void delete(long id);
 
     Film update(Film film);
 

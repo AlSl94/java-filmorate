@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Genre { // TODO разобраться, что тут делать вообще
+public class Genre {
 
     @NotNull
     Integer id;

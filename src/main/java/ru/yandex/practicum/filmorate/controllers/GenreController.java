@@ -7,37 +7,37 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.MpaService;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.Collection;
 
 @Slf4j
 @RestController
 @RequestMapping(
-        value = "/mpa",
+        value = "/genres",
         consumes = MediaType.ALL_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
-public class MpaController {
-    private final MpaService mpaService;
+public class GenreController {
+    private final GenreService genreService;
 
     @Autowired
-    public MpaController(MpaService mpaService) {
-        this.mpaService = mpaService;
+    public GenreController(GenreService genreService) {
+        this.genreService = genreService;
     }
 
     @GetMapping(value = "/{id}")
-    public Mpa getMpa (@PathVariable Long id) {
-        Mpa mpa = mpaService.mpa(id);
-        log.info("Получен mpa {}", id);
-        return mpa;
+    public Genre getGenre(@PathVariable Integer id) {
+        Genre genre = genreService.genre(id);
+        log.info("Получен genre {}", id);
+        return genre;
     }
 
     @GetMapping
-    public Collection<Mpa> allMpa() {
-        Collection<Mpa> mpaCollection = mpaService.allMpa();
-        log.info("Получены все mpa");
-        return mpaCollection;
+    public Collection<Genre> allGenre() {
+        Collection<Genre> genreCollection = genreService.allGenres();
+        log.info("Получены все genres");
+        return genreCollection;
     }
 }

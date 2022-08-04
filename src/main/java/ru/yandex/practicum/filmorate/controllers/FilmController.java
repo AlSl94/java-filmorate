@@ -40,16 +40,16 @@ public class FilmController {
     }
 
     @DeleteMapping
-    public Film delete(@RequestBody Integer id) {
+    public void delete(@RequestBody Integer id) {
         log.info("Удален фильм c id: {}", id);
-        return filmService.delete(id);
+        filmService.delete(id);
     }
 
     @PutMapping
     public Film update(@RequestBody Film filmDto) {
-        filmService.update(filmDto);
+        Film film = filmService.update(filmDto);
         log.info("Фильм обновлен: {}", filmDto);
-        return filmDto;
+        return film;
     }
 
     @GetMapping(value = "/{id}")
@@ -60,22 +60,21 @@ public class FilmController {
     }
 
     @PutMapping(value = "/{filmId}/like/{userId}")
-    public Film likeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("Поставлен лайку фильм с id: {}, от пользователя с id: {}", filmId, userId);
+    public void likeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
         filmService.likeFilm(filmId, userId);
-        return filmService.getFilm(filmId);
+        log.info("Поставлен лайку фильм с id: {}, от пользователя с id: {}", filmId, userId);
     }
 
     @DeleteMapping(value = "/{filmId}/like/{userId}")
-    public Integer unlikeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
+    public void unlikeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
         log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
         filmService.unlikeFilm(filmId, userId);
-        return filmService.getFilm(filmId).getUserLikes().size();
     }
 
     @GetMapping(value = "/popular")
-    public Collection<Film> filmsByLikesDefault(@RequestParam(defaultValue = "10", required = false) Integer count) {
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
+        Collection<Film> topFilms = filmService.getPopularFilms(count);
         log.info("Получен топ {} фильмов по количеству лайков", count);
-        return filmService.filmsByLikeCount(count);
+        return topFilms;
     }
 }

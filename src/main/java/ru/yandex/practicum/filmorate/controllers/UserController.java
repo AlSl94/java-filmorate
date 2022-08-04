@@ -25,16 +25,17 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() { // TODO починить лог
+    public Collection<User> findAll() {
         Collection<User> users = userService.findAll();
         log.info("Текущее количество пользователей: {}", users);
         return users;
     }
 
-    @GetMapping(value = "/{id}") //todo change logging
+    @GetMapping(value = "/{id}")
     public User getUser(@PathVariable Long id) {
+        User user = userService.getUser(id);
         log.info("Получен пользователь с id: {}", id);
-        return userService.getUser(id);
+        return user;
     }
 
     @PostMapping
@@ -50,45 +51,34 @@ public class UserController {
         return userService.update(userDto);
     }
     @DeleteMapping
-    public User delete(@RequestBody Integer id) {
+    public void delete(@RequestBody Integer id) {
         log.info("Удален пользователь c id: {}", id);
-        return userService.delete(id);
+        userService.delete(id);
     }
 
-    @PostMapping(value = "/{id}/friends/{friendId}")
-    public User sendFriendRequest(@PathVariable Long id, @PathVariable Long friendId){
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь с id {} отправил запрос на дружбу пользователю с id {}", id, friendId);
-        return userService.sendFriendRequest(id, friendId);
+        userService.addFriend(id, friendId);
     }
-
-    @PutMapping(value = "/{id}/friends/request/{friendId}")
-    public User acceptFriendRequest(@PathVariable Long id, @PathVariable Long friendId) {
-        log.info("Пользователь с id {} принял запрос на дружбу от пользователя с id {}", id, friendId);
-        return userService.acceptFriendRequest(id, friendId);
-    }
-
-    @DeleteMapping(value = "/{id}/friends/request/{friendId}")
-    public User denyFriendRequest(@PathVariable Long id, @PathVariable Long friendId) {
-        log.info("Пользователь с id {} отказал на запрос на дружбу от пользователя с id {}", id, friendId);
-        return userService.denyFriendRequest(id, friendId);
-    }
-
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.removeFriend(id, friendId);
         log.info("Пользователи с id {} и с id {} перестали быть друзьями", id, friendId);
-        return userService.removeFriend(id, friendId);
     }
 
-    @GetMapping(value = "/{id}/friends")
+    @GetMapping(value = "/{id}/friends") //todo
     public Collection<User> getFriends(@PathVariable Long id) {
+        Collection<User> friends = userService.getFriends(id);
         log.info("Получен список друзей у пользователя с id {}", id);
-        return userService.getFriends(id);
+        return friends;
     }
 
-    @GetMapping(value = "/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    @GetMapping(value = "/{id}/friends/common/{otherId}") //todo
+    public Collection<User> commonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        Collection<User> commonFriends = userService.commonFriends(id, otherId);
         log.info("Получен список общих друзей у пользователей с id {} и {}", id, otherId);
-        return userService.commonFriends(id, otherId);
+        return commonFriends;
     }
 }

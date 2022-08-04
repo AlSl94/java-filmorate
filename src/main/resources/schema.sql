@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-    user_id_1 bigint REFERENCES users(user_id),
-    user_id_2 bigint REFERENCES users(user_id),
-    is_friend boolean
+    user_id bigint REFERENCES users(user_id),
+    friend_id bigint REFERENCES users(user_id),
+    PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE IF NOT EXISTS mpa_rating (
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS films (
     film_id bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255),
     description varchar(200),
-    mpa_rating smallint REFERENCES mpa_rating(mpa_id),
+    mpa_id smallint REFERENCES mpa_rating(mpa_id),
     duration float,
     release_date date
 );
@@ -32,13 +32,13 @@ CREATE TABLE IF NOT EXISTS genres (
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    genre_id smallint REFERENCES genres(genre_id),
     film_id bigint REFERENCES films(film_id),
-    PRIMARY KEY (genre_id, film_id)
+    genre_id smallint REFERENCES genres(genre_id),
+    PRIMARY KEY (film_id, genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS likes (
-    film_id bigint REFERENCES users (user_id),
-    user_id bigint REFERENCES films (film_id),
+    film_id bigint REFERENCES films (film_id),
+    user_id bigint REFERENCES users (user_id),
     PRIMARY KEY (user_id, film_id)
 );
