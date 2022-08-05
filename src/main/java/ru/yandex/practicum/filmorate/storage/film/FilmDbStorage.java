@@ -65,6 +65,7 @@ public class FilmDbStorage implements FilmStorage{
             film.getGenres().forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
         }
         return findFilmById(film.getId());
+
     }
 
     @Override
