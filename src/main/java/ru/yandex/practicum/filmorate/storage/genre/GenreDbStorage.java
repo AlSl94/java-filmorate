@@ -22,7 +22,7 @@ public class GenreDbStorage implements GenreStorage{
         this.jdbcTemplate = jdbcTemplate;
     }
     @Override
-    public Genre genre(Integer id) { // TODO
+    public Genre getGenreById(Integer id) { // TODO
         return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?",
                 this::mapRowToGenre, id);
     }
@@ -34,7 +34,7 @@ public class GenreDbStorage implements GenreStorage{
     public List<Genre> loadFilmGenre(Long id) {
         List<Integer> genreIds = jdbcTemplate.queryForList("SELECT GENRE_ID FROM FILM_GENRE WHERE FILM_ID = ?",
                 Integer.class, id);
-        return genreIds.stream().map(this::genre).collect(Collectors.toList());
+        return genreIds.stream().map(this::getGenreById).collect(Collectors.toList());
     }
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
         return Genre.builder()

@@ -68,60 +68,11 @@ public class UserService {
      * @param id айди пользователя
      * @return пользователь, которого мы нашли по id
      */
-    public User getUser(Long id) {
+    public User findUserById(Long id) {
         if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
             log.info("Попытка получить пользователя с неверным user.id");
             throw new WrongParameterException("user.id не найден");
         }
-        return userStorage.user(id);
-    }
-
-    /**
-     * Метод для добавления дружба
-     * @param id айди первого пользователя
-     * @param friendId айди второго пользователя, которого добавляем в друзья к первому
-     */
-    public void addFriend(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
-        userStorage.addFriend(id, friendId);
-    }
-
-    /**
-     * Метод для удаления друга
-     * @param id айди пользователя
-     * @param friendId айди друга
-     */
-    public void removeFriend(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
-        userStorage.removeFriend(id, friendId);
-    }
-
-    /**
-     * Метод для получения списка друзей у конкретного пользователя.
-     * @param id айди пользователя
-     * @return коллекция с друзьями пользователя
-     */
-    public Collection<User> getFriends(Long id) {
-        return userStorage.getFriends(id);
-    }
-
-    /**
-     * Метод для получения списка общих друзей
-     * @param id айди первого пользователя
-     * @param friendId айди второго пользователя
-     * @return коллекция с общими друзьями двух пользователей
-     */
-    public Collection<User> commonFriends(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
-        return userStorage.commonFriends(id, friendId);
+        return userStorage.findUserById(id);
     }
 }

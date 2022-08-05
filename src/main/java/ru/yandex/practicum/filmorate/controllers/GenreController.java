@@ -28,8 +28,8 @@ public class GenreController {
     }
 
     @GetMapping(value = "/{id}")
-    public Genre getGenre(@PathVariable Integer id) {
-        Genre genre = genreService.genre(id);
+    public Genre getGenreById(@PathVariable Integer id) {
+        Genre genre = genreService.getGenreById(id);
         log.info("Получен genre {}", id);
         return genre;
     }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import java.util.Collection;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @Validated
 public class GenreService {
@@ -26,11 +28,11 @@ public class GenreService {
      * @param id - айди
      * @return - экземпляр класса Genre
      */
-    public Genre genre(Integer id) {
+    public Genre getGenreById(Integer id) {
         if (allGenres().stream().noneMatch(g -> Objects.equals(g.getId(), id))) {
             throw new WrongParameterException("Неверный id");
         }
-        return genreStorage.genre(id);
+        return genreStorage.getGenreById(id);
     }
 
     /**

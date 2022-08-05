@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.util.Collection;
+@Slf4j
 @Service
 @Validated
 public class MpaService {
@@ -24,11 +26,11 @@ public class MpaService {
      * @param mpaId - айди
      * @return - экземпляр класса mpa
      */
-    public Mpa mpa(Long mpaId) {
+    public Mpa getMpaById(Long mpaId) {
         if (mpaId < 0 || mpaId > 5) {
             throw new WrongParameterException("mpa.id должен быть больше 0 и меньше 5");
         }
-        return mpaStorage.getMpa(mpaId);
+        return mpaStorage.getMpaById(mpaId);
     }
 
     /**

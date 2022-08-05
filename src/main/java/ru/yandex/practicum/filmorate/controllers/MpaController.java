@@ -28,8 +28,8 @@ public class MpaController {
     }
 
     @GetMapping(value = "/{id}")
-    public Mpa getMpa (@PathVariable Long id) {
-        Mpa mpa = mpaService.mpa(id);
+    public Mpa getMpaById(@PathVariable Long id) {
+        Mpa mpa = mpaService.getMpaById(id);
         log.info("Получен mpa {}", id);
         return mpa;
     }

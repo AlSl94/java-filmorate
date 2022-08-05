@@ -10,7 +10,6 @@ import java.util.Map;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class User {
     @EqualsAndHashCode.Include
     private Long id;

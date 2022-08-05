@@ -22,7 +22,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpa(Long id) {
+    public Mpa getMpaById(Long id) {
         return jdbcTemplate.queryForObject("SELECT * FROM mpa_rating WHERE mpa_id = ?",
                 this::mapRowToMpa, id);
     }

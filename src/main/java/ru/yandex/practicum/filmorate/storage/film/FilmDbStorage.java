@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,10 +11,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
+import javax.validation.constraints.NotNull;
 import java.sql.*;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -65,7 +64,7 @@ public class FilmDbStorage implements FilmStorage{
             String sqlGenreQuery = "MERGE INTO film_genre VALUES (?, ?)";
             film.getGenres().forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
         }
-        return film(film.getId());
+        return findFilmById(film.getId());
     }
 
     @Override
@@ -96,10 +95,10 @@ public class FilmDbStorage implements FilmStorage{
                 String sqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
                 jdbcTemplate.update(sqlQuery, film.getId());
             }
-        return film(film.getId());
+        return findFilmById(film.getId());
     }
     @Override
-    public Film film(Long id) {
+    public Film findFilmById(Long id) {
         String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, " +
                 "f.RELEASE_DATE, f.DURATION " +
                 "FROM FILMS AS f " +
@@ -112,27 +111,6 @@ public class FilmDbStorage implements FilmStorage{
         return film;
     }
 
-    public void likeFilm (Long filmId, Long userId) {
-        String sqlQuery = "MERGE INTO likes (film_id, user_id) values (?, ?)";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-    }
-
-    public void unlikeFilm(Long filmId, Long userId) {
-        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-    }
-
-    public List<Film> getPopularFilms(Integer count) {
-        String sqlQuery = "SELECT f.film_id " +
-                "FROM FILMS AS f " +
-                "LEFT JOIN LIKES l on f.FILM_ID = l.FILM_ID " +
-                "GROUP BY f.film_id " +
-                "ORDER BY COUNT(l.USER_ID) " +
-                "DESC LIMIT ?";
-        List<Long> popularFilmIds = jdbcTemplate.queryForList(sqlQuery, Long.class, count);
-        return popularFilmIds.stream().map(this::film).collect(Collectors.toList());
-    }
-
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
             return Film.builder()
                     .id(rs.getLong("film_id"))
@@ -142,9 +120,5 @@ public class FilmDbStorage implements FilmStorage{
                     .releaseDate(rs.getDate("release_date").toLocalDate())
                     .duration(rs.getDouble("duration"))
                     .build();
-    }
-    public boolean checkLikePair(Long filmId, Long userId) {
-        String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }
 }

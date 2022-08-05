@@ -10,10 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @Qualifier("userDbStorage")
@@ -58,32 +54,9 @@ public class UserDbStorage implements UserStorage{
     }
 
     @Override
-    public User user(long id) {
+    public User findUserById(long id) {
         return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = ?",
                 this::mapRowToUser, id);
-    }
-    public void addFriend(Long id, Long friendId) {
-        String sqlQuery = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, id, friendId);
-    }
-    public void removeFriend(Long id, Long friendId) {
-        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", id, friendId);
-        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", friendId, id);
-    }
-    public Collection<User> getFriends(Long id) {
-        List<Long> friendIds = jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE user_id = ?",
-                Long.class, id);
-        return friendIds.stream().map(this::user).collect(Collectors.toList());
-    }
-
-    public Collection<User> commonFriends(Long id, Long friendId) {
-        List<Long> commonIds = jdbcTemplate.queryForList("SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID IN (?, ?)"
-                , Long.class, id, friendId);
-        Set<Long> allIds = new HashSet<>();
-        Set<Long> duplicates = commonIds.stream()
-                .filter(l -> !allIds.add(l))
-                .collect(Collectors.toSet());
-        return duplicates.stream().map(this::user).collect(Collectors.toList());
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

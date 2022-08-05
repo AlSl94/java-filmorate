@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +13,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
-
+@Slf4j
 @Service
 @Validated
 public class FilmService {
@@ -36,11 +37,11 @@ public class FilmService {
      * @param id айди фильма
      * @return фильм
      */
-    public Film getFilm(@Valid Long id) {
+    public Film findFilmById(@Valid Long id) {
         if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(f.getId(), id))) {
             throw new WrongParameterException("Фильма с " + id + " не существует");
         }
-        return filmStorage.film(id);
+        return filmStorage.findFilmById(id);
     }
 
     /**
@@ -74,36 +75,5 @@ public class FilmService {
             throw new WrongParameterException("film.id не найден");
         }
         return filmStorage.update(film);
-    }
-
-    /**
-     * Метод для добавления лайков фильму
-     * @param filmId айди фильма
-     * @param userId айди пользователя
-     */
-    public void likeFilm(Long filmId, Long userId) {
-        filmStorage.likeFilm(filmId, userId);
-    }
-
-    /**
-     * Метод для удаление поставленного лайка фильму
-     * Есть валидация методом checkLikePair из класса FilmDbStorage
-     * @param filmId айди фильма
-     * @param userId айди пользователя
-     */
-    public void unlikeFilm(Long filmId, Long userId) {
-        if (!filmStorage.checkLikePair(filmId, userId)) {
-            throw new WrongParameterException("такой пары filmId-userId не сущетвует");
-        }
-        filmStorage.unlikeFilm(filmId, userId);
-    }
-
-    /**
-     * Метод для получения списка фильмов по количеству лайков
-     * @param count - какое количество фильмов мы хотим показать
-     * @return List, в котором нужное нам количество фильмов, отсортированных по количеству лайков
-     */
-    public Collection<Film> getPopularFilms(Integer count) {
-        return filmStorage.getPopularFilms(count);
     }
 }
