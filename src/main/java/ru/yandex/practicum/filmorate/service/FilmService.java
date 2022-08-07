@@ -61,7 +61,7 @@ public class FilmService {
      * Метод для удаления фильма
      * @param id айди фильма
      */
-    public void delete(@Valid Integer id) {
+    public void delete(@Valid Long id) {
         filmStorage.delete(id);
     }
 

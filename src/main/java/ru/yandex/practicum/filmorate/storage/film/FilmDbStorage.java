@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import java.sql.*;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Component
 @Qualifier("filmDbStorage")
@@ -60,16 +59,19 @@ public class FilmDbStorage implements FilmStorage{
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
 
-        if (!film.getGenres().isEmpty()) {
-            String sqlGenreQuery = "MERGE INTO film_genre VALUES (?, ?)";
-            film.getGenres().forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
+        try {
+            if (!film.getGenres().isEmpty()) {
+                String sqlGenreQuery = "MERGE INTO film_genre VALUES (?, ?)";
+                film.getGenres().forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
+            }
+        } catch (NullPointerException e) {
+            e.getMessage();
         }
         return findFilmById(film.getId());
-
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", id);
     }
 
@@ -84,18 +86,25 @@ public class FilmDbStorage implements FilmStorage{
                 , film.getReleaseDate()
                 , film.getId());
 
+        try {
             if (!film.getGenres().isEmpty()) {
                 String sqlDeleteQuery = "DELETE FROM film_genre WHERE film_id = ?";
                 jdbcTemplate.update(sqlDeleteQuery, film.getId());
 
                 String sqlQuery = "MERGE INTO FILM_GENRE (film_id, genre_id) values (?, ?)";
-                IntStream.range(0, film.getGenres().size()).forEach(i -> jdbcTemplate.update(sqlQuery,
-                        film.getId(),
-                        film.getGenres().get(i).getId()));
+                int bound = film.getGenres().size();
+                for (int i = 0; i < bound; i++) {
+                    jdbcTemplate.update(sqlQuery,
+                            film.getId(),
+                            film.getGenres().get(i).getId());
+                }
             } else {
                 String sqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
                 jdbcTemplate.update(sqlQuery, film.getId());
             }
+        } catch (NullPointerException e) {
+            e.getMessage();
+        }
         return findFilmById(film.getId());
     }
     @Override

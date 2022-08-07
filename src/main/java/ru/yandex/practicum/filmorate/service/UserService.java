@@ -46,7 +46,11 @@ public class UserService {
      * Метод для удаления пользователя
      * @param id айди пользователя
      */
-    public void delete(@Valid Integer id) {
+    public void delete(@Valid Long id) {
+        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(id, u.getId()))) {
+            log.info("Попытка удалить пользователя");
+            throw new WrongParameterException("user.id не найден");
+        }
        userStorage.delete(id);
     }
 

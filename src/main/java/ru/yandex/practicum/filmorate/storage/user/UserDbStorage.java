@@ -37,7 +37,7 @@ public class UserDbStorage implements UserStorage{
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
         jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", id);
     }
 
@@ -54,7 +54,7 @@ public class UserDbStorage implements UserStorage{
     }
 
     @Override
-    public User findUserById(long id) {
+    public User findUserById(Long id) {
         return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = ?",
                 this::mapRowToUser, id);
     }

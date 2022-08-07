@@ -40,7 +40,7 @@ public class FilmController {
     }
 
     @DeleteMapping
-    public void delete(@RequestBody Integer id) {
+    public void delete(@RequestBody Long id) {
         log.info("Удален фильм c id: {}", id);
         filmService.delete(id);
     }

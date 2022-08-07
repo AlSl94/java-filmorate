@@ -51,7 +51,7 @@ public class UserController {
         return userService.update(userDto);
     }
     @DeleteMapping
-    public void delete(@RequestBody Integer id) {
+    public void delete(@RequestBody Long id) {
         log.info("Удален пользователь c id: {}", id);
         userService.delete(id);
     }

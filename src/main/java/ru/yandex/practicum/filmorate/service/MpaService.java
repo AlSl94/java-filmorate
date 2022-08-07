@@ -26,7 +26,7 @@ public class MpaService {
      * @param mpaId - айди
      * @return - экземпляр класса mpa
      */
-    public Mpa getMpaById(Long mpaId) {
+    public Mpa getMpaById(Integer mpaId) {
         if (mpaId < 0 || mpaId > 5) {
             throw new WrongParameterException("mpa.id должен быть больше 0 и меньше 5");
         }
