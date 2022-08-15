@@ -17,6 +17,11 @@ CREATE TABLE IF NOT EXISTS mpa_rating (
     mpa varchar(5)
 );
 
+CREATE TABLE IF NOT EXISTS directors (
+    director_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    director varchar(255)
+);
+
 CREATE TABLE IF NOT EXISTS films (
     film_id bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255),
@@ -26,14 +31,20 @@ CREATE TABLE IF NOT EXISTS films (
     release_date date
 );
 
+CREATE TABLE IF NOT EXISTS film_director (
+    film_id bigint REFERENCES films(film_id) ON DELETE CASCADE,
+    director_id int REFERENCES directors(director_id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
+);
+
 CREATE TABLE IF NOT EXISTS genres (
     genre_id smallint NOT NULL PRIMARY KEY,
     genre varchar(50)
 );
 
 CREATE TABLE IF NOT EXISTS film_genre (
-    film_id bigint REFERENCES films(film_id),
-    genre_id smallint REFERENCES genres(genre_id),
+    film_id bigint REFERENCES films(film_id) ON DELETE CASCADE,
+    genre_id smallint REFERENCES genres(genre_id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, genre_id)
 );
 

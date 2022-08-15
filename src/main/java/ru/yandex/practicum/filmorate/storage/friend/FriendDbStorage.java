@@ -51,5 +51,4 @@ public class FriendDbStorage implements FriendStorage {
                 .collect(Collectors.toSet());
         return duplicates.stream().map(userStorage::findUserById).collect(Collectors.toList());
     }
-
 }
