@@ -26,7 +26,7 @@ public class DirectorDbStorage implements DirectorStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
     @Override
-    public Collection<Director> allDirectors() {
+    public Collection<Director> getAllDirectors() {
         return jdbcTemplate.query("SELECT * FROM directors", this::mapRowToDirector);
     }
     @Override

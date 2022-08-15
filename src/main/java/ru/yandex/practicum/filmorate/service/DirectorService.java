@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
@@ -13,21 +13,17 @@ import java.util.Objects;
 
 @Service
 @Validated
+@RequiredArgsConstructor
 public class DirectorService {
 
     private final DirectorDbStorage directorStorage;
-
-    @Autowired
-    public DirectorService(DirectorDbStorage directorStorage) {
-        this.directorStorage = directorStorage;
-    }
 
     /**
      * Метод для получения всех режиссеров
      * @return коллекцию с режиссерами
      */
-    public Collection<Director> allDirectors() {
-        return directorStorage.allDirectors();
+    public Collection<Director> getAllDirectors() {
+        return directorStorage.getAllDirectors();
     }
 
     /**
@@ -36,7 +32,7 @@ public class DirectorService {
      * @return режжисер
      */
     public Director findDirectorById(@Valid Integer id) {
-        if (allDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
+        if (getAllDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
             throw new WrongParameterException("director.id не найден");
         }
         return directorStorage.findDirectorById(id);
@@ -57,7 +53,7 @@ public class DirectorService {
      * @return обновленный режиссер
      */
     public Director update(@Valid Director director) {
-        if (allDirectors().stream().noneMatch(d -> Objects.equals(director.getId(), d.getId()))) {
+        if (getAllDirectors().stream().noneMatch(d -> Objects.equals(director.getId(), d.getId()))) {
             throw new WrongParameterException("director.id не найден");
         }
         return directorStorage.update(director);

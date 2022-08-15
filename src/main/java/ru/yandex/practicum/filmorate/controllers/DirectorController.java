@@ -26,8 +26,8 @@ public class DirectorController {
     }
 
     @GetMapping
-    public Collection<Director> allDirectors() {
-        Collection<Director> directors = directorService.allDirectors();
+    public Collection<Director> getAllDirectors() {
+        Collection<Director> directors = directorService.getAllDirectors();
         log.info("Получены все режиссеры");
         return directors;
     }

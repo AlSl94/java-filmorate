@@ -78,11 +78,11 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public Collection<Film> filmsByDirector(Integer id, String sortBy) {
-        if (directorStorage.allDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
+    public Collection<Film> getFilmsByDirector(Integer id, String sortBy) {
+        if (directorStorage.getAllDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
             throw new WrongParameterException("director.id не найден");
         }
-        return filmStorage.filmsByDirector(id, sortBy);
+        return filmStorage.getFilmsByDirector(id, sortBy);
     }
 
 }

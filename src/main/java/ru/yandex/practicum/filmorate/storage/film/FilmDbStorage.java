@@ -132,8 +132,7 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM FILMS AS f " +
                 "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
                 "WHERE f.FILM_ID = ?";
-        Film film = jdbcTemplate.queryForObject(sqlQuery,
-                this::mapRowToFilm, id);
+        Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
         List<Genre> genres = genreStorage.loadFilmGenre(id);
         List<Director> directors = directorStorage.directorsByFilm(id);
         assert film != null;
@@ -142,7 +141,7 @@ public class FilmDbStorage implements FilmStorage{
         return film;
     }
 
-    public List<Film> filmsByDirector(Integer id, String sortBy) {
+    public List<Film> getFilmsByDirector(Integer id, String sortBy) {
         switch(sortBy) {
             case "year":
                 String sqlQueryByYear =
@@ -176,7 +175,6 @@ public class FilmDbStorage implements FilmStorage{
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
-
             return Film.builder()
                     .id(rs.getLong("film_id"))
                     .name(rs.getString("name"))
