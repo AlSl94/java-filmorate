@@ -34,9 +34,9 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
     }
     @Override
-    public List<Film> getPopularFilms(Integer count) { // Вот этот метод пограничный, использует 2 таблицы из БД
-        String sqlQuery = "SELECT f.film_id " + // Поэтому не знаю, где его использовать, в film или like, решил, что
-                "FROM FILMS AS f " + // будет здесь
+    public List<Film> getPopularFilms(Integer count) {
+        String sqlQuery = "SELECT f.film_id " +
+                "FROM FILMS AS f " +
                 "LEFT JOIN LIKES l on f.FILM_ID = l.FILM_ID " +
                 "GROUP BY f.film_id " +
                 "ORDER BY COUNT(l.USER_ID) " +

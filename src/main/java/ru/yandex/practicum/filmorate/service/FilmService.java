@@ -1,27 +1,28 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
-@Slf4j
 @Service
 @Validated
 public class FilmService {
     private final FilmDbStorage filmStorage;
+    private final DirectorDbStorage directorStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage) {
+    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage) {
         this.filmStorage = filmStorage;
+        this.directorStorage = directorStorage;
     }
 
     /**
@@ -76,4 +77,12 @@ public class FilmService {
         }
         return filmStorage.update(film);
     }
+
+    public Collection<Film> filmsByDirector(Integer id, String sortBy) {
+        if (directorStorage.allDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
+            throw new WrongParameterException("director.id не найден");
+        }
+        return filmStorage.filmsByDirector(id, sortBy);
+    }
+
 }

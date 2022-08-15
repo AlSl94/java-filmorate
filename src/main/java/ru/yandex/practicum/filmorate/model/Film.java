@@ -26,5 +26,6 @@ public class Film {
     private Mpa mpa;
     @Positive(message = "Продолжительность фильма должна быть больше 0")
     private double duration;
+    private List<Director> directors = new ArrayList<>();
     private List<Genre> genres = new ArrayList<>();
 }

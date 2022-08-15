@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import java.util.Collection;
 import java.util.Objects;
 
-@Slf4j
 @Service
 @Validated
 public class GenreService {
