@@ -50,8 +50,8 @@ public class UserController {
         log.info("Обновлен пользователь: {}", userDto);
         return userService.update(userDto);
     }
-    @DeleteMapping
-    public void delete(@RequestBody Long id) {
+    @DeleteMapping(value = "/{id}")
+    public void delete(@PathVariable Long id) {
         log.info("Удален пользователь c id: {}", id);
         userService.delete(id);
     }

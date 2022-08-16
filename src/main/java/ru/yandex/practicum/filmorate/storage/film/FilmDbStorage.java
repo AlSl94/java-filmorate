@@ -6,14 +6,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -22,21 +23,25 @@ public class FilmDbStorage implements FilmStorage{
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreDbStorage genreStorage;
+    private final DirectorDbStorage directorStorage;
+
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreStorage, DirectorDbStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreStorage = genreStorage;
+        this.directorStorage = directorStorage;
     }
 
     @Override
-    public Collection<Film> findAll() {
-        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, " +
-                "f.RELEASE_DATE, f.DURATION, fg.GENRE_ID AS GENRE_ID, g.GENRE AS GENRE " +
+    public List<Film> findAll() {
+        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, f.RELEASE_DATE, " +
+                "f.DURATION " +
                 "FROM FILMS AS f " +
-                "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
-                "LEFT JOIN FILM_GENRE AS fg ON f.FILM_ID = fg.FILM_ID " +
-                "LEFT JOIN GENRES AS g ON g.GENRE_ID = fg.GENRE_ID ";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+                "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID ";
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        films.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
+        films.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+        return films;
     }
 
     @Override
@@ -62,7 +67,13 @@ public class FilmDbStorage implements FilmStorage{
         try {
             if (!film.getGenres().isEmpty()) {
                 String sqlGenreQuery = "MERGE INTO film_genre VALUES (?, ?)";
-                film.getGenres().forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
+                film.getGenres()
+                        .forEach(genre -> jdbcTemplate.update(sqlGenreQuery, film.getId(), genre.getId()));
+            }
+            if (!film.getDirectors().isEmpty()) {
+                String sqlDirectorQuery = "MERGE INTO film_director VALUES (?, ?)";
+                film.getDirectors()
+                        .forEach(director -> jdbcTemplate.update(sqlDirectorQuery, film.getId(), director.getId()));
             }
         } catch (NullPointerException e) {
             e.getMessage();
@@ -87,19 +98,27 @@ public class FilmDbStorage implements FilmStorage{
                 , film.getId());
 
         try {
-            if (!film.getGenres().isEmpty()) {
+            if (!film.getGenres().isEmpty()) { // Проверяем, что жанры не пустые
                 String sqlDeleteQuery = "DELETE FROM film_genre WHERE film_id = ?";
                 jdbcTemplate.update(sqlDeleteQuery, film.getId());
 
-                String sqlQuery = "MERGE INTO FILM_GENRE (film_id, genre_id) values (?, ?)";
-                int bound = film.getGenres().size();
-                for (int i = 0; i < bound; i++) {
-                    jdbcTemplate.update(sqlQuery,
-                            film.getId(),
-                            film.getGenres().get(i).getId());
-                }
-            } else {
+                String sqlQuery = "MERGE INTO film_genre (film_id, genre_id) values (?, ?)";
+                film.getGenres()
+                        .forEach(genre -> jdbcTemplate.update(sqlQuery, film.getId(), genre.getId()));
+            } else { // В противном случае удаляем все из таблицы
                 String sqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
+                jdbcTemplate.update(sqlQuery, film.getId());
+            }
+
+            if (!film.getDirectors().isEmpty()) { // Проверяем, что лист режиссеров не пустой
+                String sqlDeleteQuery = "DELETE FROM film_director WHERE film_id = ?";
+                jdbcTemplate.update(sqlDeleteQuery, film.getId());
+
+                String sqlQuery = "MERGE INTO film_director (film_id, director_id) values (?, ?)";
+                film.getDirectors()
+                        .forEach(director -> jdbcTemplate.update(sqlQuery, film.getId(), director.getId()));
+            } else { // В противном случае удаляем всех режиссеров из таблицы
+                String sqlQuery = "DELETE FROM film_director WHERE film_id = ?";
                 jdbcTemplate.update(sqlQuery, film.getId());
             }
         } catch (NullPointerException e) {
@@ -107,18 +126,54 @@ public class FilmDbStorage implements FilmStorage{
         }
         return findFilmById(film.getId());
     }
+
     @Override
     public Film findFilmById(Long id) {
-        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, " +
+        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
                 "f.RELEASE_DATE, f.DURATION " +
                 "FROM FILMS AS f " +
-                "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
+                "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
                 "WHERE f.FILM_ID = ?";
-        Film film = jdbcTemplate.queryForObject(sqlQuery,
-                this::mapRowToFilm, id);
+        Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
         List<Genre> genres = genreStorage.loadFilmGenre(id);
-        if (film != null) film.setGenres(genres);
+        List<Director> directors = directorStorage.directorsByFilm(id);
+        assert film != null;
+        film.setGenres(genres);
+        film.setDirectors(directors);
         return film;
+    }
+
+    public List<Film> getFilmsByDirector(Integer id, String sortBy) {
+        switch(sortBy) {
+            case "year":
+                String sqlQueryByYear =
+                    "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration " +
+                            "FROM FILMS AS f " +
+                            "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                            "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
+                            "WHERE fd.director_id = ? " +
+                            "ORDER BY f.RELEASE_DATE";
+                List<Film> filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
+                filmsByYear.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
+                filmsByYear.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+                return filmsByYear;
+            case "likes":
+                String sqlQueryByLikes = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
+                        "mr.MPA, f.DURATION, f.RELEASE_DATE " +
+                        "FROM FILMS as f " +
+                        "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                        "LEFT JOIN likes l on f.film_id = l.film_id " +
+                        "LEFT JOIN film_director fd on f.FILM_ID = fd.FILM_ID " +
+                        "WHERE fd.DIRECTOR_ID = ? " +
+                        "GROUP BY f.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+                List<Film> filmsByLikes = jdbcTemplate.query(sqlQueryByLikes, this::mapRowToFilm, id);
+                filmsByLikes.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
+                filmsByLikes.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+                return filmsByLikes;
+            default:
+                return null;
+        }
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {

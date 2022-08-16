@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
 import java.util.Objects;
-
 @Slf4j
 @Service
 @Validated
@@ -57,6 +56,10 @@ public class FriendService {
      * @return коллекция с друзьями пользователя
      */
     public Collection<User> getFriends(Long id) {
+        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
+            log.info("Попытка получить пользователя с неверным user.id");
+            throw new WrongParameterException("user.id не найден");
+        }
         return friendStorage.getFriends(id);
     }
 
