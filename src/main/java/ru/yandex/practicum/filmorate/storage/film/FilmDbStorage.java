@@ -24,6 +24,7 @@ public class FilmDbStorage implements FilmStorage{
     private final JdbcTemplate jdbcTemplate;
     private final GenreDbStorage genreStorage;
     private final DirectorDbStorage directorStorage;
+
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreStorage, DirectorDbStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -125,6 +126,7 @@ public class FilmDbStorage implements FilmStorage{
         }
         return findFilmById(film.getId());
     }
+
     @Override
     public Film findFilmById(Long id) {
         String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
