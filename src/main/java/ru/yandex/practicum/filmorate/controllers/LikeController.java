@@ -38,8 +38,10 @@ public class LikeController {
     }
 
     @GetMapping(value = "/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        Collection<Film> topFilms = likeService.getPopularFilms(count);
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count,
+                                            @RequestParam(required = false) Long genreId,
+                                            @RequestParam(required = false) Integer year) {
+        Collection<Film> topFilms = likeService.getPopularFilms(count, genreId, year);
         log.info("Получен топ {} фильмов по количеству лайков", count);
         return topFilms;
     }
