@@ -20,7 +20,6 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
-
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -65,5 +64,12 @@ public class FilmController {
         Collection<Film> films = filmService.getFilmsByDirector(directorId, sortBy);
         log.info("Найден список фильмов по режиссеру {}", directorId);
         return films;
+    }
+
+    @GetMapping(value = "/common")
+    public Collection<Film> findCommonFilms(@RequestParam Long userId,
+                                            @RequestParam Long friendId) {
+        log.info("Запрос общих фильмов пользователя c id: {} и друга c id: {}", userId, friendId);
+        return filmService.findCommonFilms(userId, friendId);
     }
 }

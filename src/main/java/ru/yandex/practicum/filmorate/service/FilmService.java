@@ -8,10 +8,13 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 @Service
 @Validated
@@ -19,10 +22,13 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final DirectorDbStorage directorStorage;
 
+    private final LikeStorage likeDbStorage;
+
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage) {
+    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage, LikeStorage likeDbStorage) {
         this.filmStorage = filmStorage;
         this.directorStorage = directorStorage;
+        this.likeDbStorage = likeDbStorage;
     }
 
     /**
@@ -85,4 +91,20 @@ public class FilmService {
         return filmStorage.getFilmsByDirector(id, sortBy);
     }
 
+
+    /**
+     * Метод для вывод общих с другом фильмов с сортировкой по их популярности
+     * @param userId - идентификатор пользователя, запрашивающего информацию;
+     * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов;
+     * @return - Возвращает список фильмов, отсортированных по популярности.
+     */
+
+    public Collection<Film> findCommonFilms(Long userId, Long friendId) {
+        List<Long> listFilmId =new ArrayList<>(likeDbStorage.findCommonFilmsId(userId, friendId));
+        List<Film> films = new ArrayList<>();
+        for (Long id : listFilmId) {
+            films.add(this.findFilmById(id));
+        }
+        return films;
+    }
 }
