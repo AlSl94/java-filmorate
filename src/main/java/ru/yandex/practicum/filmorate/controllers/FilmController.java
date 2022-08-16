@@ -20,6 +20,7 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
+
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -39,8 +40,8 @@ public class FilmController {
         return filmDto;
     }
 
-    @DeleteMapping
-    public void delete(@RequestBody Long id) {
+    @DeleteMapping(value = "/{id}")
+    public void delete(@PathVariable Long id) {
         log.info("Удален фильм c id: {}", id);
         filmService.delete(id);
     }
