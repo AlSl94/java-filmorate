@@ -85,4 +85,15 @@ public class FilmService {
         return filmStorage.getFilmsByDirector(id, sortBy);
     }
 
+
+    /**
+     * Метод для вывод общих с другом фильмов с сортировкой по их популярности
+     * @param userId - идентификатор пользователя, запрашивающего информацию;
+     * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов;
+     * @return - Возвращает список фильмов, отсортированных по популярности.
+     */
+
+    public Collection<Film> findCommonFilms(Long userId, Long friendId) {
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
 }

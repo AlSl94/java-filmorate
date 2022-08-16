@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,6 +16,8 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -174,6 +177,21 @@ public class FilmDbStorage implements FilmStorage{
             default:
                 return null;
         }
+    }
+
+    public Collection<Film> findCommonFilms(Long userId, Long friendId) {
+
+        String sqlQuery = "SELECT * FROM FILMS as f JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID WHERE FILM_ID IN " +
+                "(SELECT FILM_ID FROM LIKES WHERE FILM_ID IN " +
+                "(SELECT FILM_ID FROM LIKES WHERE USER_ID = ?" +
+                "AND FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)) " +
+                "GROUP BY FILM_ID " +
+                "ORDER BY COUNT(FILM_ID) DESC)  ";
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId, friendId);
+        films.stream().forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
+        films.stream().forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+        return films;
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
