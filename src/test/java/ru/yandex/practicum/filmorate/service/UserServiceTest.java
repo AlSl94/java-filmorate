@@ -115,4 +115,6 @@ class UserServiceTest {
     void findUserByWrongIdThrowsExceptionTest() {
         assertThatThrownBy(() -> userService.findUserById(-1L)).isInstanceOf(WrongParameterException.class);
     }
+
+
 }

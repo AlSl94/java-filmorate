@@ -15,7 +15,9 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Qualifier("filmDbStorage")
@@ -174,6 +176,13 @@ public class FilmDbStorage implements FilmStorage{
             default:
                 return null;
         }
+    }
+
+    @Override
+    public List<Long> getUsersFilmsIds(List<Long> usersIds) {
+        String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
+        String sqlQuery = String.format("SELECT DISTINCT film_id FROM likes WHERE user_id IN (%s)", ids);
+        return jdbcTemplate.queryForList(sqlQuery, Long.class);
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {

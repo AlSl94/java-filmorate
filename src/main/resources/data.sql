@@ -20,3 +20,4 @@ MERGE INTO genres
     VALUES (5, 'Боевик');
 MERGE INTO genres
     VALUES (6, 'Вестерн');
+
