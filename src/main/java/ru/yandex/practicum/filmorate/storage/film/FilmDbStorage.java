@@ -15,7 +15,9 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Qualifier("filmDbStorage")
@@ -124,7 +126,7 @@ public class FilmDbStorage implements FilmStorage{
         } catch (NullPointerException e) {
             e.getMessage();
         }
-        return findFilmById(film.getId());
+        return findFilmByIdForUpdate(film.getId());
     }
 
     @Override
@@ -176,6 +178,13 @@ public class FilmDbStorage implements FilmStorage{
         }
     }
 
+    @Override
+    public List<Long> getUsersFilmsIds(List<Long> usersIds) {
+        String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
+        String sqlQuery = String.format("SELECT DISTINCT film_id FROM likes WHERE user_id IN (%s)", ids);
+        return jdbcTemplate.queryForList(sqlQuery, Long.class);
+    }
+
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
             return Film.builder()
                     .id(rs.getLong("film_id"))
@@ -185,5 +194,23 @@ public class FilmDbStorage implements FilmStorage{
                     .releaseDate(rs.getDate("release_date").toLocalDate())
                     .duration(rs.getDouble("duration"))
                     .build();
+    }
+
+    private Film findFilmByIdForUpdate(Long id) {
+        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
+                "f.RELEASE_DATE, f.DURATION " +
+                "FROM FILMS AS f " +
+                "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                "WHERE f.FILM_ID = ?";
+        Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+        List<Genre> genres = genreStorage.loadFilmGenre(id);
+        List<Director> directors = directorStorage.directorsByFilm(id);
+        if (directors.isEmpty()) {
+            directors = null;
+        }
+        assert film != null;
+        film.setGenres(genres);
+        film.setDirectors(directors);
+        return film;
     }
 }

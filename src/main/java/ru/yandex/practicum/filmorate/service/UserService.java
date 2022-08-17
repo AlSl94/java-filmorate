@@ -5,17 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
+
 @Slf4j
 @Service
 @Validated
 public class UserService {
     private final UserDbStorage userStorage;
+
 
     @Autowired
     public UserService(UserDbStorage userStorage) {
@@ -78,5 +80,9 @@ public class UserService {
             throw new WrongParameterException("user.id не найден");
         }
         return userStorage.findUserById(id);
+    }
+
+    public Collection<Film> getRecommendations(Long id) {
+        return userStorage.getRecommendations(id);
     }
 }
