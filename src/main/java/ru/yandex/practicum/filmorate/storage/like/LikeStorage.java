@@ -9,5 +9,5 @@ public interface LikeStorage {
 
     void unlikeFilm(Long filmId, Long userId);
 
-    List<Film> getPopularFilms(Integer count);
+    List<Film> getPopularFilms(Integer count, Long genreId, Integer year);
 }

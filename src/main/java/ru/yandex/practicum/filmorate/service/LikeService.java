@@ -43,11 +43,14 @@ public class LikeService {
     }
 
     /**
-     * Метод для получения списка фильмов по количеству лайков
+     * Метод для получения списка фильмов по количеству лайков с возможностью применения фильтров по жанру и году
      * @param count - какое количество фильмов мы хотим показать
-     * @return List, в котором нужное нам количество фильмов, отсортированных по количеству лайков
+     * @param genreId - по какому жанру хотим отфильтровать результат (опционально)
+     * @param year - по какому году хотим отфильтровать результат (опционально)
+     * @return List, в котором нужное нам количество фильмов,
+     * отсортированных по количеству лайков и (опционально) отфильтрованных по условиям
      */
-    public Collection<Film> getPopularFilms(Integer count) {
-        return likeStorage.getPopularFilms(count);
+    public Collection<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
+        return likeStorage.getPopularFilms(count, genreId, year);
     }
 }

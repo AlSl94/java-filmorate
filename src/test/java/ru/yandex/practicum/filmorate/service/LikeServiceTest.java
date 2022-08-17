@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -24,15 +26,26 @@ class LikeServiceTest {
     private final FilmService filmService;
     private final UserService userService;
     private final MpaService mpaService;
+    private final GenreService genreService;
+    private final DirectorService directorService;
 
     @Test
     void likeFilmTest() {
+        Director directorBob = Director.builder().id(1).name("Bob").build();
+        directorService.create(directorBob);
         Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13, null, null);
+                mpaService.getMpaById(4), 2.13,
+                new ArrayList<>(List.of(directorService.findDirectorById(1))),
+                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+
+        Director directorTom = Director.builder().id(2).name("Tom").build();
+        directorService.create(directorTom);
         Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04, null, null);
+                mpaService.getMpaById(5), 2.04,
+                new ArrayList<>(List.of(directorService.findDirectorById(2))),
+                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         Film dieHard = filmService.add(filmOne);
         filmService.add(filmTwo);
 
@@ -44,18 +57,27 @@ class LikeServiceTest {
         userService.create(userTemplateTwo);
 
         likeService.likeFilm(dieHard.getId(), userOne.getId());
-        List<Film> films = (List<Film>) likeService.getPopularFilms(1);
+        List<Film> films = (List<Film>) likeService.getPopularFilms(1, 5L, 1988);
         assertThat(dieHard).isEqualTo(films.get(0));
     }
 
     @Test
     void unlikeFilmTest() {
+        Director directorBob = Director.builder().id(1).name("Bob").build();
+        directorService.create(directorBob);
         Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13, null, null);
+                mpaService.getMpaById(4), 2.13,
+                new ArrayList<>(List.of(directorService.findDirectorById(1))),
+                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+
+        Director directorTom = Director.builder().id(2).name("Tom").build();
+        directorService.create(directorTom);
         Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04, null, null);
+                mpaService.getMpaById(5), 2.04,
+                new ArrayList<>(List.of(directorService.findDirectorById(2))),
+                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         Film dieHard = filmService.add(filmOne);
         Film dieHard2 = filmService.add(filmTwo);
 
@@ -75,24 +97,33 @@ class LikeServiceTest {
         likeService.likeFilm(dieHard2.getId(), userOne.getId());
         likeService.likeFilm(dieHard2.getId(), userTwo.getId());
 
-        List<Film> films = (List<Film>) likeService.getPopularFilms(1);
+        List<Film> films = (List<Film>) likeService.getPopularFilms(1, 5L, 1988);
         assertThat(dieHard).isEqualTo(films.get(0));
 
         likeService.unlikeFilm(dieHard.getId(), userOne.getId());
 
-        List<Film> films2 = (List<Film>) likeService.getPopularFilms(1);
+        List<Film> films2 = (List<Film>) likeService.getPopularFilms(1, 2L, 1988);
 
         assertThat(dieHard).isEqualTo(films2.get(0));
     }
 
     @Test
     void getPopularFilmsTest() {
+        Director directorBob = Director.builder().id(1).name("Bob").build();
+        directorService.create(directorBob);
         Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13, null, null);
+                mpaService.getMpaById(4), 2.13,
+                new ArrayList<>(List.of(directorService.findDirectorById(1))),
+                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+
+        Director directorTom = Director.builder().id(2).name("Tom").build();
+        directorService.create(directorTom);
         Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04, null, null);
+                mpaService.getMpaById(5), 2.04,
+                new ArrayList<>(List.of(directorService.findDirectorById(2))),
+                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         Film dieHard = filmService.add(filmOne);
         Film dieHard2 = filmService.add(filmTwo);
 
@@ -112,12 +143,11 @@ class LikeServiceTest {
         likeService.likeFilm(dieHard2.getId(), userOne.getId());
         likeService.likeFilm(dieHard2.getId(), userTwo.getId());
 
-        List<Film> popularFilms = (List<Film>) likeService.getPopularFilms(2);
+        List<Film> popularFilms = (List<Film>) likeService.getPopularFilms(2, 5L, null);
 
         assertThat(dieHard).isIn(popularFilms);
         assertThat(dieHard2).isIn(popularFilms);
         assertThat(dieHard).isEqualTo(popularFilms.get(0));
         assertThat(dieHard2).isEqualTo(popularFilms.get(1));
-
     }
 }
