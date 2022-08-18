@@ -37,14 +37,14 @@ public class FriendController {
         log.info("Пользователи с id {} и с id {} перестали быть друзьями", id, friendId);
     }
 
-    @GetMapping(value = "/{id}/friends") //todo
+    @GetMapping(value = "/{id}/friends")
     public Collection<User> getFriends(@PathVariable Long id) {
         Collection<User> friends = friendService.getFriends(id);
         log.info("Получен список друзей у пользователя с id {}", id);
         return friends;
     }
 
-    @GetMapping(value = "/{id}/friends/common/{otherId}") //todo
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
     public Collection<User> commonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         Collection<User> commonFriends = friendService.commonFriends(id, otherId);
         log.info("Получен список общих друзей у пользователей с id {} и {}", id, otherId);

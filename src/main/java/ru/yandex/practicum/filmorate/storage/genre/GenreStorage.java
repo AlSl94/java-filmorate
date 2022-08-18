@@ -9,6 +9,4 @@ public interface GenreStorage {
     Genre getGenreById(Integer id);
 
     List<Genre> allGenres();
-
-    List<Genre> loadFilmGenre(Long id);
 }

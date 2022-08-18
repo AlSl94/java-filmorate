@@ -6,11 +6,12 @@ import java.util.stream.Collectors;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-public class FilmRecommendation {
+public class FilmRecommendation {  // TODO тут предлагают добавить приватный конструктор
     public static List<Long> getRecommendation(Map<Long, Double> targetUserFilmsRates, Map<Long,
             Map<Long, Double>> similarUsersFilmsRates) {
-        Set<Long> similarFilmsIds = new HashSet<>();
+        Set<Long> similarFilmsIds = new HashSet<>();  // TODO "содержимое этой коллекции обновляется, но не используется"
         Set<Long> similarFilmsThatNotWatchedByTargetUSerIds = new HashSet<>();
+
         for (Long userId : similarUsersFilmsRates.keySet()) {
             Map<Long, Double> userRates = similarUsersFilmsRates.get(userId);
             for (Long filmId : userRates.keySet()) {
@@ -22,6 +23,7 @@ public class FilmRecommendation {
         }
 
         Map<Long, Double> usersCorrelations = new HashMap<>();
+
         for (Long userId : similarUsersFilmsRates.keySet()) {
             usersCorrelations.put(userId, calculateCorrelation(targetUserFilmsRates,
                     similarUsersFilmsRates.get(userId)));
@@ -51,7 +53,7 @@ public class FilmRecommendation {
             }
         }
 
-        double num = (pSum - (sum1 * sum2 / count));
+        double num = (pSum - (sum1 * sum2 / count));  // TODO предлагают проверить, что не делим на 0 (можем забить, если уверены)
         double den = sqrt((sqSum1 - (pow(sum1, 2)) / count) * (sqSum2 - (pow(sum2, 2)) / count));
 
         if (den == 0.0) {

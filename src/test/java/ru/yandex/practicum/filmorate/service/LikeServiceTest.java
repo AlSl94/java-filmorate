@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -31,30 +32,11 @@ class LikeServiceTest {
 
     @Test
     void likeFilmTest() {
-        Director directorBob = Director.builder().id(1).name("Bob").build();
-        directorService.create(directorBob);
-        Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
-                LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13,
-                new ArrayList<>(List.of(directorService.findDirectorById(1))),
-                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
 
-        Director directorTom = Director.builder().id(2).name("Tom").build();
-        directorService.create(directorTom);
-        Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
-                LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04,
-                new ArrayList<>(List.of(directorService.findDirectorById(2))),
-                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
-        Film dieHard = filmService.add(filmOne);
-        filmService.add(filmTwo);
-
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userOne = userService.create(userTemplateOne);
-        userService.create(userTemplateTwo);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
 
         likeService.likeFilm(dieHard.getId(), userOne.getId());
         List<Film> films = (List<Film>) likeService.getPopularFilms(1, 5L, 1988);
@@ -63,33 +45,12 @@ class LikeServiceTest {
 
     @Test
     void unlikeFilmTest() {
-        Director directorBob = Director.builder().id(1).name("Bob").build();
-        directorService.create(directorBob);
-        Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
-                LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13,
-                new ArrayList<>(List.of(directorService.findDirectorById(1))),
-                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
 
-        Director directorTom = Director.builder().id(2).name("Tom").build();
-        directorService.create(directorTom);
-        Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
-                LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04,
-                new ArrayList<>(List.of(directorService.findDirectorById(2))),
-                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
-        Film dieHard = filmService.add(filmOne);
-        Film dieHard2 = filmService.add(filmTwo);
-
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userTemplateThree = new User(null, "testThree@mail.ru",
-                "TestNameThree", "TestLoginThree", LocalDate.of(1950, 2, 22));
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
-        User userThree = userService.create(userTemplateThree);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
 
         likeService.likeFilm(dieHard.getId(), userOne.getId());
         likeService.likeFilm(dieHard.getId(), userTwo.getId());
@@ -109,33 +70,12 @@ class LikeServiceTest {
 
     @Test
     void getPopularFilmsTest() {
-        Director directorBob = Director.builder().id(1).name("Bob").build();
-        directorService.create(directorBob);
-        Film filmOne = new Film(null, "Крепкий орешек", "Фильм о лысом парне",
-                LocalDate.of(1988, 7, 12),
-                mpaService.getMpaById(4), 2.13,
-                new ArrayList<>(List.of(directorService.findDirectorById(1))),
-                new ArrayList<>(List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
 
-        Director directorTom = Director.builder().id(2).name("Tom").build();
-        directorService.create(directorTom);
-        Film filmTwo = new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
-                LocalDate.of(1990, 7, 2),
-                mpaService.getMpaById(5), 2.04,
-                new ArrayList<>(List.of(directorService.findDirectorById(2))),
-                new ArrayList<>(List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
-        Film dieHard = filmService.add(filmOne);
-        Film dieHard2 = filmService.add(filmTwo);
-
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userTemplateThree = new User(null, "testThree@mail.ru",
-                "TestNameThree", "TestLoginThree", LocalDate.of(1950, 2, 22));
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
-        User userThree = userService.create(userTemplateThree);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
 
         likeService.likeFilm(dieHard.getId(), userOne.getId());
         likeService.likeFilm(dieHard.getId(), userTwo.getId());
@@ -149,5 +89,32 @@ class LikeServiceTest {
         assertThat(dieHard2).isIn(popularFilms);
         assertThat(dieHard).isEqualTo(popularFilms.get(0));
         assertThat(dieHard2).isEqualTo(popularFilms.get(1));
+    }
+
+    private List<User> users() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
+                LocalDate.of(1994, 2, 10)));
+        users.add(new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
+                LocalDate.of(2000, 2, 22)));
+        users.add(new User(null, "testThree@mail.ru", "TestNameThree", "TestLoginThree",
+                LocalDate.of(1950, 2, 22)));
+        return users;
+    }
+
+    private List<Film> films() {
+        List<Film> films = new ArrayList<>();
+        directorService.create(Director.builder().id(1).name("Bob").build());
+        directorService.create(Director.builder().id(2).name("Tom").build());
+
+        films.add(new Film(null, "Крепкий орешек", "Фильм о лысом парне",
+                LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
+                Arrays.asList(directorService.findDirectorById(1)),
+                List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
+        films.add(new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
+                LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
+                Arrays.asList(directorService.findDirectorById(2)),
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
+        return films;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,14 +17,16 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Component
-@Qualifier()
-public class ReviewDbStorage {
+@Qualifier() // TODO ТУТ что-то нужно в скобках?
+public class ReviewDbStorage { // TODO Этому классу нужен интерфейс?
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     public Review createReview(Review review) {
@@ -40,33 +43,35 @@ public class ReviewDbStorage {
             stmt.setLong(4, review.getFilmId());
             return stmt;
         }, keyHolder);
-        review.setReviewId(keyHolder.getKey().longValue());
-        System.out.println(review);
-        System.out.println(review.getReviewId().getClass());
-        System.out.println(review.getReviewId());
+        review.setReviewId(keyHolder.getKey().longValue()); // TODO тут возможно NPE
+        eventStorage.createEvent(review.getUserId(), review.getReviewId(), 3, 1);
         return review;
     }
 
     public Review updateReview(Review review) {
         checkReviewExists(review.getReviewId());
+        Review reviewFromDb = getReviewById(review.getReviewId());
         jdbcTemplate.update("UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? " +
                         "WHERE REVIEW_ID = ?"
                 , review.getContent()
                 , review.getIsPositive()
-                , review.getReviewId());
+                , reviewFromDb.getReviewId());
+        eventStorage.createEvent(reviewFromDb.getUserId(), reviewFromDb.getReviewId(), 3, 2);
         return review;
     }
 
     public void deleteReview(Long id) {
         checkReviewExists(id);
+        final Review review = getReviewById(id);
         jdbcTemplate.update("DELETE FROM REVIEWS WHERE REVIEW_ID = ?", id);
+        eventStorage.createEvent(review.getUserId(), review.getReviewId(), 3, 3);
     }
 
     public Review getReviewById(Long id) {
         checkReviewExists(id);
         Review review = jdbcTemplate.queryForObject("SELECT * FROM REVIEWS WHERE REVIEW_ID = ?"
                 , this::mapRowToReview, id);
-        getReviewUseful(review);
+        getReviewUseful(review);  // TODO тут возможно NPE
         return review;
     }
 
@@ -102,6 +107,7 @@ public class ReviewDbStorage {
                 .build();
     }
 
+    // Валидацию стоит бы вынести в service
     private void checkReviewExists(Long reviewId) {
         Byte countReview = jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
                 Byte.class, reviewId);
@@ -111,11 +117,10 @@ public class ReviewDbStorage {
     }
 
     private void getReviewUseful(Review review) {
-        Integer useful = jdbcTemplate.queryForObject(
+        Integer useful = jdbcTemplate.queryForObject( // TODO queryForObject deprecated!
                 "SELECT SUM(IS_LIKE)" +
                         "FROM REVIEW_LIKES " +
                         "WHERE REVIEW_ID = ? ", Integer.class, review.getReviewId());
-        System.out.println(useful + "useful из базы");
         review.setUseful(Objects.requireNonNullElse(useful, 0));
     }
 
@@ -124,16 +129,15 @@ public class ReviewDbStorage {
             getReviewUseful(review);
         }
     }
-
     private void checkReviewFilmAndUser(Review review) {
         Byte countFilm = jdbcTemplate.queryForObject("SELECT COUNT(FILM_ID) FROM FILMS WHERE FILM_ID = ?",
-                Byte.class, review.getFilmId());
+                Byte.class, review.getFilmId()); // TODO queryForObject deprecated!
         if (countFilm == 0) {
             throw new WrongParameterException(String.format("Ошибка запроса, неверный id фильма: %d",
                     review.getFilmId()));
         }
         Byte countUser = jdbcTemplate.queryForObject("SELECT COUNT(USER_ID) FROM USERS WHERE USER_ID = ?",
-                Byte.class, review.getUserId());
+                Byte.class, review.getUserId()); // TODO queryForObject deprecated!
         if (countUser == 0) {
             throw new WrongParameterException(String.format("Ошибка запроса, неверный id пользователя: %d",
                     review.getUserId()));

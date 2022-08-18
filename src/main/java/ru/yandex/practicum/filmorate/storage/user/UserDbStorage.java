@@ -66,7 +66,7 @@ public class UserDbStorage implements UserStorage{
 
     public Collection<Film> getRecommendations(Long id) {
         List<Long> usersWithSimilarInterestsIds = getUsersWithSimilarInterests(id);
-        if (usersWithSimilarInterestsIds.size() == 0) {
+        if (usersWithSimilarInterestsIds.isEmpty()) {
             // Если пересекающихся пользователей нет, то дальше и считать нечего, выдаем пустой список.
             return Collections.emptyList();
         }

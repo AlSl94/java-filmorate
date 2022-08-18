@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -20,6 +21,7 @@ import java.util.Collection;
 
 public class UserController {
     private final UserService userService;
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -51,10 +53,18 @@ public class UserController {
         log.info("Обновлен пользователь: {}", userDto);
         return userService.update(userDto);
     }
+
     @DeleteMapping(value = "/{id}")
     public void delete(@PathVariable Long id) {
         userService.delete(id);
         log.info("Удален пользователь c id: {}", id);
+    }
+
+    @GetMapping(value = "/{id}/feed")
+    public Collection<Event> findFeedByUserId(@PathVariable(name = "id") Long userId) {
+        Collection<Event> feed = userService.findFeedByUserId(userId);
+        log.info("Получена лента пользователя с id: {}", userId);
+        return feed;
     }
 
     @GetMapping(value = "/{id}/recommendations")

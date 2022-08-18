@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.reviewLike;
+package ru.yandex.practicum.filmorate.storage.reviewlike;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 
 @Component
-@Qualifier("ReviewLikeDbStorage")
+@Qualifier("ReviewLikeDbStorage") // TODO Здесь нужен Qualifier?
 public class ReviewLikeDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -27,12 +27,12 @@ public class ReviewLikeDbStorage {
                 reviewId, userId);
     }
 
-    public void deleteLike(Long reviewId, Long userId) {
+    public void removeLike(Long reviewId, Long userId) {
         checkLikeOrDislike(reviewId, userId, 1);
         jdbcTemplate.update("DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND USER_ID = ?", reviewId, userId);
     }
 
-    public void deleteDislike(Long reviewId, Long userId) {
+    public void removeDislike(Long reviewId, Long userId) {
         checkLikeOrDislike(reviewId, userId, -1);
         jdbcTemplate.update("DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND USER_ID = ?", reviewId, userId);
     }

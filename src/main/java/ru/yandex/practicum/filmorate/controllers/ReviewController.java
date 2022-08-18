@@ -71,14 +71,14 @@ public class ReviewController {
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    public void deleteLike(@PathVariable Long id, @PathVariable Long userId) {
-        reviewLikeService.deleteLike(id, userId);
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        reviewLikeService.removeLike(id, userId);
         log.info("Удален лайк с id {} от пользователя с id {}", id, userId);
     }
 
     @DeleteMapping(value = "/{id}/dislike/{userId}")
-    public void deleteDislike(@PathVariable Long id, @PathVariable Long userId) {
-        reviewLikeService.deleteDislike(id, userId);
+    public void removeDislike(@PathVariable Long id, @PathVariable Long userId) {
+        reviewLikeService.removeDislike(id, userId);
         log.info("Удален дизлайк с id {} от пользователя с id {}", id, userId);
     }
 }

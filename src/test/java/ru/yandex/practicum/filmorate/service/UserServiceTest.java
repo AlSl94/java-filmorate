@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -25,44 +26,31 @@ class UserServiceTest {
 
     @Test
     void findAllTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
 
-        ArrayList<User> users = (ArrayList<User>) userService.findAll();
+        ArrayList<User> allUsers = (ArrayList<User>) userService.findAll();
 
-        assertThat(users.size()).isEqualTo(2);
-        assertThat(userOne).isEqualTo(users.get(0));
-        assertThat(userTwo).isEqualTo(users.get(1));
+        assertThat(allUsers.size()).isEqualTo(2);
+        assertThat(userOne).isEqualTo(allUsers.get(0));
+        assertThat(userTwo).isEqualTo(allUsers.get(1));
 
     }
 
     @Test
     void createUserTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-
-        User userOne = userService.create(userTemplateOne);
-        userService.create(userTemplateTwo);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
 
         assertThat(userOne.getId()).isEqualTo(1);
         assertThat(userService.findAll().size()).isEqualTo(2);
+        assertThat(userTwo.getName()).isEqualTo(users().get(1).getName());
     }
 
     @Test
     void deleteTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-
-        userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
 
         assertThat(userService.findAll().size()).isEqualTo(2);
         assertThat(userService.findUserById(2L).getName()).isEqualTo(userTwo.getName());
@@ -79,32 +67,28 @@ class UserServiceTest {
 
     @Test
     void updateTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(1L, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
+        User userOne = userService.create(users().get(0));
+        User userTwo = users().get(1);
+        userTwo.setId(1L);
 
-        User userOne = userService.create(userTemplateOne);
-        assertThat(userOne.getEmail()).isEqualTo(userTemplateOne.getEmail());
-        userService.update(userTemplateTwo);
+        assertThat(userOne.getEmail()).isEqualTo(users().get(0).getEmail());
+        userService.update(userTwo);
+
         User updatedUser = userService.findUserById(1L);
 
-        assertThat(updatedUser.getEmail()).isNotEqualTo(userTemplateOne.getEmail());
-        assertThat(updatedUser.getEmail()).isEqualTo(userTemplateTwo.getEmail());
+        assertThat(updatedUser.getEmail()).isNotEqualTo(userOne.getEmail());
+        assertThat(updatedUser.getEmail()).isEqualTo(userTwo.getEmail());
     }
 
     @Test
     void updateWrongIdThrowsExceptionTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        assertThatThrownBy(() -> userService.update(userTemplateOne)).isInstanceOf(WrongParameterException.class);
+        User userOne = users().get(0);
+        assertThatThrownBy(() -> userService.update(userOne)).isInstanceOf(WrongParameterException.class);
     }
 
     @Test
     void findUserById() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userOne = userService.create(userTemplateOne);
+        User userOne = userService.create(users().get(0));
 
         User userFoundByIdOne = userService.findUserById(1L);
 
@@ -116,5 +100,12 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.findUserById(-1L)).isInstanceOf(WrongParameterException.class);
     }
 
-
+    private List<User> users() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
+                LocalDate.of(1994, 2, 10)));
+        users.add(new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
+                LocalDate.of(2000, 2, 22)));
+        return users;
+    }
 }

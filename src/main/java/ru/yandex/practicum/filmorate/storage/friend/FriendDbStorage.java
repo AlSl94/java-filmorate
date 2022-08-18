@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
@@ -19,21 +20,29 @@ public class FriendDbStorage implements FriendStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public FriendDbStorage(JdbcTemplate jdbcTemplate, UserDbStorage userStorage) {
+    public FriendDbStorage(JdbcTemplate jdbcTemplate,
+                           UserDbStorage userStorage,
+                           EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
     @Override
     public void addFriend(Long id, Long friendId) {
         String sqlQuery = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
+        eventStorage.createEvent(id, friendId, 2, 1);
+
     }
     @Override
     public void removeFriend(Long id, Long friendId) {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", id, friendId);
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", friendId, id);
+        eventStorage.createEvent(id, friendId, 2, 3);
+
     }
     @Override
     public Collection<User> getFriends(Long id) {
