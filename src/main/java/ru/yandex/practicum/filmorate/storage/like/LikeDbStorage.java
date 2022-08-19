@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,5 +91,17 @@ public class LikeDbStorage implements LikeStorage {
     public boolean checkLikePair(Long filmId, Long userId) {
         String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
+    }
+
+    public Collection<Long> findCommonFilmsId(Long userId, Long friendId) {
+        //Cписок id фильмов, отсортированных по поулярности
+        String sqlQuery = "SELECT FILM_ID, COUNT(USER_ID) FROM LIKES WHERE FILM_ID IN " +
+                "(SELECT L1.FILM_ID FROM LIKES AS L1 JOIN LIKES AS L2 ON L2.FILM_ID = L1.FILM_ID " +
+                "WHERE L1.USER_ID = ? AND L2.USER_ID = ?) " +
+                "GROUP BY FILM_ID " +
+                "ORDER BY COUNT(USER_ID) DESC";
+        List<Long> listFilmId = jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> rs.getLong("FILM_ID"), userId, friendId);
+        return listFilmId;
     }
 }

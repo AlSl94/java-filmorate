@@ -19,7 +19,7 @@ import java.util.List;
 
 @Component
 @Qualifier("filmDbStorage")
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreDbStorage genreStorage;
@@ -144,15 +144,15 @@ public class FilmDbStorage implements FilmStorage{
     }
 
     public List<Film> getFilmsByDirector(Integer id, String sortBy) {
-        switch(sortBy) {
+        switch (sortBy) {
             case "year":
                 String sqlQueryByYear =
-                    "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration " +
-                            "FROM FILMS AS f " +
-                            "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
-                            "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
-                            "WHERE fd.director_id = ? " +
-                            "ORDER BY f.RELEASE_DATE";
+                        "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration " +
+                                "FROM FILMS AS f " +
+                                "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                                "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
+                                "WHERE fd.director_id = ? " +
+                                "ORDER BY f.RELEASE_DATE";
                 List<Film> filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
                 filmsByYear.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
                 filmsByYear.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
@@ -177,13 +177,13 @@ public class FilmDbStorage implements FilmStorage{
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
-            return Film.builder()
-                    .id(rs.getLong("film_id"))
-                    .name(rs.getString("name"))
-                    .description(rs.getString("description"))
-                    .mpa(new Mpa(rs.getShort("mpa_id"), rs.getString("mpa")))
-                    .releaseDate(rs.getDate("release_date").toLocalDate())
-                    .duration(rs.getDouble("duration"))
-                    .build();
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .mpa(new Mpa(rs.getShort("mpa_id"), rs.getString("mpa")))
+                .releaseDate(rs.getDate("release_date").toLocalDate())
+                .duration(rs.getDouble("duration"))
+                .build();
     }
 }
