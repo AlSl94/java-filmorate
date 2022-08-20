@@ -53,8 +53,8 @@ public class UserController {
     }
     @DeleteMapping(value = "/{id}")
     public void delete(@PathVariable Long id) {
-        log.info("Удален пользователь c id: {}", id);
         userService.delete(id);
+        log.info("Удален пользователь c id: {}", id);
     }
 
     @GetMapping(value = "/{id}/recommendations")
