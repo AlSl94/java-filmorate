@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -20,6 +21,7 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
+
     @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -71,5 +73,12 @@ public class FilmController {
                                             @RequestParam Long friendId) {
         log.info("Запрос общих фильмов пользователя c id: {} и друга c id: {}", userId, friendId);
         return filmService.findCommonFilms(userId, friendId);
+    }
+
+    @GetMapping(value = "/search")
+    public Collection<Film> searchFilm(@RequestParam String query, //Обязательные аннотации query и by
+                                       @RequestParam List<String> by) {
+        log.info("Поиск фильмов c параметрами запроса query: {} и by: {}", query, by);
+        return filmService.searchFilm(query, by);
     }
 }

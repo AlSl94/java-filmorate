@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -183,6 +182,54 @@ public class FilmDbStorage implements FilmStorage {
         String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
         String sqlQuery = String.format("SELECT DISTINCT film_id FROM likes WHERE user_id IN (%s)", ids);
         return jdbcTemplate.queryForList(sqlQuery, Long.class);
+    }
+
+    @Override
+    public List<Film> searchFilm(String query, List<String> by) {
+        List<Film> searchedFilms;
+        if (by.contains("director") && by.contains("title")) {
+            String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE " +
+                    "FROM films as f " +
+                    "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
+                    "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                    "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "WHERE f.NAME ilike '%' || ? || '%' OR d.DIRECTOR ilike '%' || ? || '%' " +
+                    "GROUP BY f.film_id " +
+                    "ORDER BY COUNT(l.USER_ID) DESC";
+
+            searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query, query);
+
+        } else if (by.contains("director")) {
+            String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE " +
+                    "FROM films as f " +
+                    "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
+                    "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                    "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "WHERE d.DIRECTOR ilike '%' || ? || '%' " +
+                    "GROUP BY f.film_id " +
+                    "ORDER BY COUNT(l.USER_ID) DESC";
+
+            searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
+
+        } else { //Тогда поиск по названию
+            String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE " +
+                    "FROM films as f " +
+                    "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
+                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "WHERE f.NAME ilike '%' || ? || '%' " +
+                    "GROUP BY f.film_id " +
+                    "ORDER BY COUNT(l.USER_ID) DESC";
+            searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
+        }
+
+        searchedFilms.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+        searchedFilms.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
+        return searchedFilms;
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {

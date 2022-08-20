@@ -107,4 +107,13 @@ public class FilmService {
         }
         return films;
     }
+    public Collection<Film> searchFilm(String query, List<String> by) {
+        //валидация
+        if (query.length() < 3) throw new WrongParameterException("Количество символов запроса поиска меньше 3-х");
+        if (query.isBlank()) throw new WrongParameterException("Строка запроса поиска пустая");
+        if (!by.contains("director") && !by.contains("title"))
+            throw new WrongParameterException("Параметр поиска указан не верно");
+
+        return filmStorage.searchFilm(query, by);
+    }
 }
