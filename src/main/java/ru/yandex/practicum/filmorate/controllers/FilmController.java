@@ -43,8 +43,8 @@ public class FilmController {
 
     @DeleteMapping(value = "/{id}")
     public void delete(@PathVariable Long id) {
-        log.info("Удален фильм c id: {}", id);
         filmService.delete(id);
+        log.info("Удален фильм c id: {}", id);
     }
 
     @PutMapping
