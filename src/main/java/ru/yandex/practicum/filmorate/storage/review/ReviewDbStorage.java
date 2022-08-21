@@ -100,8 +100,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     private void checkReviewExists(Long reviewId) {
-        Byte countReview = jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
-                Byte.class, reviewId);
+        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
+                Byte.class, reviewId));
         if (countReview == 0) {
             throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
         }
@@ -116,13 +116,5 @@ public class ReviewDbStorage implements ReviewStorage {
                 .filmId(rs.getLong("film_id"))
                 .useful(rs.getInt("useful"))
                 .build();
-    }
-
-    private void checkReviewExists(Long reviewId) {
-        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
-                Byte.class, reviewId));
-        if (countReview == 0) {
-            throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
-        }
     }
 }
