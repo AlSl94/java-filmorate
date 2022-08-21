@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.friend;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -15,16 +14,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-@Qualifier("friendDbStorage")
 public class FriendDbStorage implements FriendStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserDbStorage userStorage;
+    private final UserStorage userStorage;
     private final EventStorage eventStorage;
 
     @Autowired
     public FriendDbStorage(JdbcTemplate jdbcTemplate,
-                           UserDbStorage userStorage,
+                           UserStorage userStorage,
                            EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;

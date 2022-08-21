@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@Qualifier("userDbStorage")
 public class UserDbStorage implements UserStorage{
     private final FilmStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;

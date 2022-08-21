@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -16,7 +17,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DirectorService {
 
-    private final DirectorDbStorage directorStorage;
+    private final DirectorStorage directorStorage;
 
     /**
      * Метод для получения всех режиссеров
