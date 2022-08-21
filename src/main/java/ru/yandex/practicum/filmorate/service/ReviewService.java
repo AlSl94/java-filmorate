@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
+import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -13,30 +13,40 @@ import java.util.Collection;
 @Validated
 public class ReviewService {
 
-    private final ReviewDbStorage reviewDbStorage;
+    private final ReviewStorage reviewStorage;
+    private final FilmService filmService;
+    private final UserService userService;
 
     @Autowired
-    public ReviewService(ReviewDbStorage reviewDbStorage) {
-        this.reviewDbStorage = reviewDbStorage;
+    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService) {
+        this.reviewStorage = reviewStorage;
+        this.filmService = filmService;
+        this.userService = userService;
     }
 
     public Review createReview(@Valid Review review) {
-        return reviewDbStorage.createReview(review);
+        checkReviewFilmAndUser(review);
+        return reviewStorage.createReview(review);
     }
 
     public Review updateReview(@Valid Review review) {
-        return reviewDbStorage.updateReview(review);
+        return reviewStorage.updateReview(review);
     }
 
     public void deleteReview(Long id) {
-        reviewDbStorage.deleteReview(id);
+        reviewStorage.deleteReview(id);
     }
 
     public Review getReviewById(Long id) {
-        return reviewDbStorage.getReviewById(id);
+        return reviewStorage.getReviewById(id);
     }
 
     public Collection<Review> getMostUsefulReviews(Integer count, Long filmId) {
-        return reviewDbStorage.getMostUsefulReviews(count, filmId);
+        return reviewStorage.getMostUsefulReviews(count, filmId);
+    }
+
+    private void checkReviewFilmAndUser(Review review) {
+        filmService.findFilmById(review.getFilmId());
+        userService.findUserById(review.getUserId());
     }
 }
