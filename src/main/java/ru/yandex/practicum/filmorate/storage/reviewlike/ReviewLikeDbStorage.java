@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 
+import java.util.Objects;
+
 @Component
 public class ReviewLikeDbStorage implements ReviewLikeStorage{
 
@@ -40,9 +42,9 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage{
     }
 
     private void checkLikeOrDislike(Long reviewId, Long userId, Integer isLike) {
-        Byte countReviewLike = jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEW_LIKES " +
+        Byte countReviewLike = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEW_LIKES " +
                         "WHERE REVIEW_ID = ? AND USER_ID = ? AND IS_LIKE = ?",
-                Byte.class, reviewId, userId, isLike);
+                Byte.class, reviewId, userId, isLike));
         if (countReviewLike == 0) {
             throw new WrongParameterException(String.format
                     ("Лайк/дизлайк отзыва с id %d от пользователя с id %d не найден", reviewId, userId));

@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -20,13 +19,11 @@ import java.util.Objects;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final DirectorStorage directorStorage;
-    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage, LikeStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage) {
         this.filmStorage = filmStorage;
         this.directorStorage = directorStorage;
-        this.likeStorage = likeStorage;
     }
 
     /**
@@ -90,7 +87,7 @@ public class FilmService {
     }
 
     /**
-     * Метод для вывод общих с другом фильмов с сортировкой по их популярности
+     * Метод для вывода общих с другом фильмов с сортировкой по их популярности
      *
      * @param userId   - идентификатор пользователя, запрашивающего информацию
      * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов
@@ -105,7 +102,7 @@ public class FilmService {
      *
      * @param query искомые символы
      * @param by    выбор, где искать
-     * @return коллекция найденых фильмов
+     * @return коллекция найденных фильмов
      */
     public Collection<Film> searchFilm(String query, List<String> by) {
         //валидация

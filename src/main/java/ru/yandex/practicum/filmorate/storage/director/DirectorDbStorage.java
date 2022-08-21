@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,8 +42,8 @@ public class DirectorDbStorage implements DirectorStorage {
                 stmt.setString(1, director.getName());
                 return stmt;
             }, keyHolder);
-            director.setId(keyHolder.getKey().intValue());
-            return findDirectorById(director.getId());
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        return findDirectorById(director.getId());
     }
     @Override
     public Director update(Director director) {

@@ -8,7 +8,6 @@ import java.util.*;
 
 class FilmRecommendationTest {
 
-
     @Test
     void getRecommendationTest_standardDeviation() {
         Map<Long, Double> targetUserRates = initializeTargetUserData();

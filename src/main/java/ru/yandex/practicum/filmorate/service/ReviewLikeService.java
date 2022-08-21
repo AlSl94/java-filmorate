@@ -15,7 +15,7 @@ public class ReviewLikeService {
     }
 
     /**
-     * Метод, для лайка отзыва
+     * Метод для "лайка" отзыва
      * @param reviewId айди отзыва
      * @param userId айди пользователя
      */

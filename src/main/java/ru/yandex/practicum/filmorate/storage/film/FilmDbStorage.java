@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -61,7 +62,7 @@ public class FilmDbStorage implements FilmStorage {
             }
             return stmt;
         }, keyHolder);
-        film.setId(keyHolder.getKey().longValue()); // TODO тут возможно NPE
+        film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
         try {
             if (!film.getGenres().isEmpty()) {

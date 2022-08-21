@@ -1,18 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorResponse {
-    String error; // название ошибки
-    String description; // подробное описание
+    String error;
+    String description;
 
     public ErrorResponse(String error, String description) {
         this.error = error;
         this.description = description;
-    }
-
-    public String getError() {
-        return error;
-    }  // геттеры необходимы, чтобы Spring Boot мог получить значения полей
-    public String getDescription() {
-        return description;
     }
 }
