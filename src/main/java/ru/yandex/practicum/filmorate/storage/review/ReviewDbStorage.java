@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Objects;
 
 @Component
 public class ReviewDbStorage implements ReviewStorage {
@@ -40,7 +41,7 @@ public class ReviewDbStorage implements ReviewStorage {
             stmt.setLong(4, review.getFilmId());
             return stmt;
         }, keyHolder);
-        review.setReviewId(keyHolder.getKey().longValue());
+        review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         eventStorage.createEvent(review.getUserId(), review.getReviewId(), 3, 1);
         return review;
     }
@@ -117,4 +118,11 @@ public class ReviewDbStorage implements ReviewStorage {
                 .build();
     }
 
+    private void checkReviewExists(Long reviewId) {
+        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
+                Byte.class, reviewId));
+        if (countReview == 0) {
+            throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
+        }
+    }
 }
