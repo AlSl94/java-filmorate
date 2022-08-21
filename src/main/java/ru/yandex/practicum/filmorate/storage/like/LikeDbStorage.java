@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
@@ -29,7 +30,7 @@ public class LikeDbStorage implements LikeStorage {
 
     @Override
     public void likeFilm(Long filmId, Long userId) {
-        String sqlQuery = "MERGE INTO likes (film_id, user_id) values (?, ?)";
+        final String sqlQuery = "MERGE INTO likes (film_id, user_id) values (?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         eventStorage.createEvent(userId, filmId, 1, 1);
     }
@@ -39,7 +40,7 @@ public class LikeDbStorage implements LikeStorage {
         if (!checkLikePair(filmId, userId)) {
             throw new WrongParameterException("такой пары filmId-userId не существует");
         }
-        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         eventStorage.createEvent(userId, filmId, 1, 3);
     }
@@ -95,19 +96,7 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     private boolean checkLikePair(Long filmId, Long userId) {
-        String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
+        final String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
-    }
-
-    public Collection<Long> findCommonFilmsId(Long userId, Long friendId) {
-        String sqlQuery = "SELECT FILM_ID, COUNT(USER_ID) " +
-                "FROM LIKES " +
-                "WHERE FILM_ID IN " +
-                "(SELECT L1.FILM_ID FROM LIKES AS L1 JOIN LIKES AS L2 ON L2.FILM_ID = L1.FILM_ID " +
-                "WHERE L1.USER_ID = ? AND L2.USER_ID = ?) " +
-                "GROUP BY FILM_ID " +
-                "ORDER BY COUNT(USER_ID) DESC";
-        return jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> rs.getLong("FILM_ID"), userId, friendId);
     }
 }

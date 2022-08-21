@@ -90,7 +90,7 @@ public class UserDbStorage implements UserStorage{
     }
 
     private List<Long> getUsersWithSimilarInterests(Long id) {
-        String sqlQuery = "SELECT DISTINCT l2.user_id FROM likes AS l2" +
+        final String sqlQuery = "SELECT DISTINCT l2.user_id FROM likes AS l2" +
                 " JOIN likes AS l1 on l1.film_id = l2.film_id" +
                 " WHERE l1.user_id = ?1 AND l2.user_id <> ?1";
 

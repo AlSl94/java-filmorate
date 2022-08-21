@@ -28,26 +28,27 @@ public class FriendDbStorage implements FriendStorage {
         this.userStorage = userStorage;
         this.eventStorage = eventStorage;
     }
+
     @Override
     public void addFriend(Long id, Long friendId) {
-        String sqlQuery = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
-        jdbcTemplate.update(sqlQuery, id, friendId);
+        jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) VALUES (?, ?)", id, friendId);
         eventStorage.createEvent(id, friendId, 2, 1);
-
     }
+
     @Override
     public void removeFriend(Long id, Long friendId) {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", id, friendId);
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", friendId, id);
         eventStorage.createEvent(id, friendId, 2, 3);
-
     }
+
     @Override
     public Collection<User> getFriends(Long id) {
         List<Long> friendIds = jdbcTemplate.queryForList("SELECT friend_id FROM friends WHERE user_id = ?",
                 Long.class, id);
         return friendIds.stream().map(userStorage::findUserById).collect(Collectors.toList());
     }
+
     @Override
     public Collection<User> commonFriends(Long id, Long friendId) {
         List<Long> commonIds = jdbcTemplate.queryForList("SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID IN (?, ?)"

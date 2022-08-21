@@ -130,7 +130,7 @@ class FilmServiceTest {
 
     @Test
     void commonFilmsTest() {
-        // TODO тут просят добавить хотя бы один тест-кейс
+
     }
 
     private List<User> users() {

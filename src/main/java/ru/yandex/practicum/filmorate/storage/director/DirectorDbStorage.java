@@ -34,7 +34,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
     @Override
     public Director create(Director director) {
-        String sqlQuery = "INSERT INTO directors (director) VALUES (?)";
+        final String sqlQuery = "INSERT INTO directors (director) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"director_id"});
@@ -58,7 +58,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     public List<Director> directorsByFilm(Long id) {
-        String sqlQuery = "SELECT director_id FROM film_director WHERE FILM_ID = ?";
+        final String sqlQuery = "SELECT director_id FROM film_director WHERE FILM_ID = ?";
         List<Integer> ids = jdbcTemplate.queryForList(sqlQuery, Integer.class, id);
         return ids.stream().map(this::findDirectorById).collect(Collectors.toList());
     }
