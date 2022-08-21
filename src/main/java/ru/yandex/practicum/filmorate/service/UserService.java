@@ -5,27 +5,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @Validated
 public class UserService {
     private final UserDbStorage userStorage;
+    private final EventStorage eventStorage;
 
 
     @Autowired
-    public UserService(UserDbStorage userStorage) {
+    public UserService(UserDbStorage userStorage, EventStorage eventStorage) {
         this.userStorage = userStorage;
+        this.eventStorage = eventStorage;
     }
 
     /**
      * Возвращает весь список пользователей
+     *
      * @return коллекцию всех пользователей
      */
     public Collection<User> findAll() {
@@ -34,6 +40,7 @@ public class UserService {
 
     /**
      * Метод для создания нового пользователя
+     *
      * @param user новый пользователь
      * @return нового пользователя
      */
@@ -46,6 +53,7 @@ public class UserService {
 
     /**
      * Метод для удаления пользователя
+     *
      * @param id айди пользователя
      */
     public void delete(@Valid Long id) {
@@ -53,11 +61,12 @@ public class UserService {
             log.info("Попытка удалить пользователя");
             throw new WrongParameterException("user.id не найден");
         }
-       userStorage.delete(id);
+        userStorage.delete(id);
     }
 
     /**
      * Метод для обновления пользователя
+     *
      * @param user обновленный пользователь
      * @return обновленный пользователь
      */
@@ -71,6 +80,7 @@ public class UserService {
 
     /**
      * Находим пользователя по id, логика находится в InMemoryUserStorage, геттер
+     *
      * @param id айди пользователя
      * @return пользователь, которого мы нашли по id
      */
@@ -80,6 +90,20 @@ public class UserService {
             throw new WrongParameterException("user.id не найден");
         }
         return userStorage.findUserById(id);
+    }
+
+    /**
+     * Находим ленту пользователя по его id в хранилище событий
+     *
+     * @param userId айди пользователя
+     * @return лента (коллекция событий) пользователя, которую мы нашли по его id
+     */
+    public Collection<Event> findFeedByUserId(Long userId) {
+        if (userStorage.findAll().stream().noneMatch(user -> Objects.equals(user.getId(), userId))) {
+            log.info("Попытка получить пользователя с неверным user.id");
+            throw new WrongParameterException("user.id не найден");
+        }
+        return eventStorage.getFeedByUserId(userId);
     }
 
     public Collection<Film> getRecommendations(Long id) {

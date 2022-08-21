@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import javax.validation.constraints.NotNull;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID ";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         films.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
-        films.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+        films.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
         return films;
     }
 
@@ -63,7 +64,7 @@ public class FilmDbStorage implements FilmStorage {
             }
             return stmt;
         }, keyHolder);
-        film.setId(keyHolder.getKey().longValue());
+        film.setId(keyHolder.getKey().longValue()); // TODO тут возможно NPE
 
         try {
             if (!film.getGenres().isEmpty()) {
@@ -136,7 +137,7 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
                 "WHERE f.FILM_ID = ?";
         Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
-        List<Genre> genres = genreStorage.loadFilmGenre(id);
+        List<Genre> genres = loadFilmGenre(id);
         List<Director> directors = directorStorage.directorsByFilm(id);
         assert film != null;
         film.setGenres(genres);
@@ -156,7 +157,7 @@ public class FilmDbStorage implements FilmStorage {
                                 "ORDER BY f.RELEASE_DATE";
                 List<Film> filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
                 filmsByYear.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
-                filmsByYear.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+                filmsByYear.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
                 return filmsByYear;
             case "likes":
                 String sqlQueryByLikes = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
@@ -170,10 +171,10 @@ public class FilmDbStorage implements FilmStorage {
                         "ORDER BY COUNT(l.USER_ID) DESC";
                 List<Film> filmsByLikes = jdbcTemplate.query(sqlQueryByLikes, this::mapRowToFilm, id);
                 filmsByLikes.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
-                filmsByLikes.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+                filmsByLikes.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
                 return filmsByLikes;
             default:
-                return null;
+                return new ArrayList<>();
         }
     }
 
@@ -227,7 +228,7 @@ public class FilmDbStorage implements FilmStorage {
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
         }
 
-        searchedFilms.forEach(f -> f.setGenres(genreStorage.loadFilmGenre(f.getId())));
+        searchedFilms.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
         searchedFilms.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
         return searchedFilms;
     }
@@ -241,5 +242,11 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getDouble("duration"))
                 .build();
+    }
+
+    private List<Genre> loadFilmGenre(Long id) {
+        List<Integer> genreIds = jdbcTemplate.queryForList("SELECT GENRE_ID FROM FILM_GENRE WHERE FILM_ID = ?",
+                Integer.class, id);
+        return genreIds.stream().map(genreStorage::getGenreById).collect(Collectors.toList());
     }
 }

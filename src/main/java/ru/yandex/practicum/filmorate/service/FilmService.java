@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -22,13 +22,13 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final DirectorDbStorage directorStorage;
 
-    private final LikeStorage likeDbStorage;
+    private final LikeDbStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage, LikeStorage likeDbStorage) {
+    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage, LikeDbStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.directorStorage = directorStorage;
-        this.likeDbStorage = likeDbStorage;
+        this.likeStorage = likeStorage;
     }
 
     /**
@@ -57,8 +57,8 @@ public class FilmService {
      * @return новый фильм
      */
     public Film add(@Valid Film film) {
-        final LocalDate OLDEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate().isBefore(OLDEST_RELEASE_DATE)) {
+        final LocalDate oldestReleaseDate = LocalDate.of(1895, 12, 28);
+        if (film.getReleaseDate().isBefore(oldestReleaseDate)) {
             throw new ValidationException("Дата создания должна быть не раньше 1895-12-28");
         }
         return filmStorage.add(film);
@@ -92,15 +92,10 @@ public class FilmService {
     }
 
 
-    /**
-     * Метод для вывод общих с другом фильмов с сортировкой по их популярности
-     * @param userId - идентификатор пользователя, запрашивающего информацию;
-     * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов;
-     * @return - Возвращает список фильмов, отсортированных по популярности.
-     */
 
+    // TODO рефакторинг - вынести в storage
     public Collection<Film> findCommonFilms(Long userId, Long friendId) {
-        List<Long> listFilmId =new ArrayList<>(likeDbStorage.findCommonFilmsId(userId, friendId));
+        List<Long> listFilmId = new ArrayList<>(likeStorage.findCommonFilmsId(userId, friendId));
         List<Film> films = new ArrayList<>();
         for (Long id : listFilmId) {
             films.add(this.findFilmById(id));

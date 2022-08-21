@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,12 +26,8 @@ class FriendServiceTest {
 
     @Test
     void addFriendTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
 
         friendService.addFriend(userOne.getId(), userTwo.getId());
         friendService.addFriend(userTwo.getId(), userOne.getId());
@@ -42,16 +39,9 @@ class FriendServiceTest {
 
     @Test
     void getFriendsTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userTemplateThree = new User(null, "testThree@mail.ru", "TestNameThree",
-                "TestLoginThree", LocalDate.of(2004, 1, 11));
-
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
-        User userThree = userService.create(userTemplateThree);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
 
         friendService.addFriend(userOne.getId(), userTwo.getId());
         friendService.addFriend(userOne.getId(), userThree.getId());
@@ -65,19 +55,10 @@ class FriendServiceTest {
 
     @Test
     void commonFriendsTest() {
-        User userTemplateOne = new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
-                LocalDate.of(1994, 2, 10));
-        User userTemplateTwo = new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
-                LocalDate.of(2000, 2, 22));
-        User userTemplateThree = new User(null, "testThree@mail.ru", "TestNameThree",
-                "TestLoginThree", LocalDate.of(2004, 1, 11));
-        User userTemplateFour = new User(null, "testFour@mail.ru", "TestNameFour",
-                "TestLoginFour", LocalDate.of(1950, 1, 10));
-
-        User userOne = userService.create(userTemplateOne);
-        User userTwo = userService.create(userTemplateTwo);
-        User userThree = userService.create(userTemplateThree);
-        User userFour = userService.create(userTemplateFour);
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
+        User userFour = userService.create(users().get(3));
 
         friendService.addFriend(userOne.getId(), userThree.getId());
         friendService.addFriend(userOne.getId(), userFour.getId());
@@ -90,5 +71,18 @@ class FriendServiceTest {
         assertThat(userFour).isIn(commonFriends);
         assertThat(commonFriends.size()).isEqualTo(2);
         assertThat(userOne).isNotIn(commonFriends);
+    }
+
+    private List<User> users() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(null, "testOne@mail.ru", "TestNameOne", "TestLoginOne",
+                LocalDate.of(1994, 2, 10)));
+        users.add(new User(null, "testTwo@mail.ru", "TestNameTwo", "TestLoginTwo",
+                LocalDate.of(2000, 2, 22)));
+        users.add(new User(null, "testThree@mail.ru", "TestNameThree", "TestLoginThree",
+                LocalDate.of(1950, 2, 22)));
+        users.add(new User(null, "testFour@mail.ru", "TestNameFour",
+                "TestLoginFour", LocalDate.of(1950, 1, 10)));
+        return users;
     }
 }

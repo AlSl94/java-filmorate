@@ -19,7 +19,7 @@ public class FriendService {
     private final FriendDbStorage friendStorage;
 
     @Autowired
-    public FriendService(UserDbStorage userStorage, FriendDbStorage friendStorage) {
+    public FriendService(UserDbStorage userStorage, FriendDbStorage friendStorage) { // TODO тут краснота
         this.userStorage = userStorage;
         this.friendStorage = friendStorage;
     }

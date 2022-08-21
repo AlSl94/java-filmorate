@@ -6,11 +6,11 @@ import ru.yandex.practicum.filmorate.utilites.FilmRecommendation;
 
 import java.util.*;
 
-public class FilmRecommendationTest {
+class FilmRecommendationTest {
 
 
     @Test
-    public void getRecommendationTest_standardDeviation() {
+    void getRecommendationTest_standardDeviation() {
         Map<Long, Double> targetUserRates = initializeTargetUserData();
         Map<Long, Map<Long, Double>> similarUsersFilmsRates = initializeSimilarUsersData();
 
@@ -20,7 +20,7 @@ public class FilmRecommendationTest {
     }
 
     @Test
-    public void getRecommendationTest_targetUserDontLikeAnyFilm() {
+    void getRecommendationTest_targetUserDontLikeAnyFilm() {
         Map<Long, Double> targetUserRates = new HashMap<>();
         Map<Long, Map<Long, Double>> similarUsersFilmsRates = initializeSimilarUsersData();
 
@@ -30,7 +30,7 @@ public class FilmRecommendationTest {
     }
 
     @Test
-    public void getRecommendationTest_targetUserHasNoIntersections() {
+    void getRecommendationTest_targetUserHasNoIntersections() {
         Map<Long, Double> targetUserRates = initializeTargetUserData();
         Map<Long, Map<Long, Double>> similarUsersFilmsRates = new HashMap<>();
         similarUsersFilmsRates.put(1L, new HashMap<>());

@@ -20,4 +20,15 @@ MERGE INTO genres
     VALUES (5, 'Боевик');
 MERGE INTO genres
     VALUES (6, 'Вестерн');
-
+MERGE INTO event_types
+    VALUES (1, 'LIKE');
+MERGE INTO event_types
+    VALUES (2, 'FRIEND');
+MERGE INTO event_types
+    VALUES (3, 'REVIEW');
+MERGE INTO event_operations
+    VALUES (1, 'ADD');
+MERGE INTO event_operations
+    VALUES (2, 'UPDATE');
+MERGE INTO event_operations
+    VALUES (3, 'REMOVE');
