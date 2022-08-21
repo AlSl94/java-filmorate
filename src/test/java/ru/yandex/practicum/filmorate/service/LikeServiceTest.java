@@ -12,11 +12,10 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -33,10 +32,10 @@ class LikeServiceTest {
     @Test
     void likeFilmTest() {
         Film dieHard = filmService.add(films().get(0));
-        Film dieHard2 = filmService.add(films().get(1));
+        filmService.add(films().get(1));
 
         User userOne = userService.create(users().get(0));
-        User userTwo = userService.create(users().get(1));
+        userService.create(users().get(1));
 
         likeService.likeFilm(dieHard.getId(), userOne.getId());
         List<Film> films = (List<Film>) likeService.getPopularFilms(1, 5L, 1988);
@@ -109,11 +108,11 @@ class LikeServiceTest {
 
         films.add(new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
-                Arrays.asList(directorService.findDirectorById(1)),
+                Collections.singletonList(directorService.findDirectorById(1)),
                 List.of(genreService.getGenreById(2), genreService.getGenreById(5))));
         films.add(new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
-                Arrays.asList(directorService.findDirectorById(2)),
+                Collections.singletonList(directorService.findDirectorById(2)),
                 List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         return films;
     }

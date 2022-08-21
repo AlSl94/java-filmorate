@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -36,6 +35,6 @@ class GenreServiceTest {
         Collection<Genre> genres = genreService.allGenres();
 
         assertThat(genreOne).isIn(genres);
-        assertThat(genres.size()).isEqualTo(6);
+        assertThat(genres).hasSize(6);
     }
 }

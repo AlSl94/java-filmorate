@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -14,10 +14,10 @@ import java.util.Objects;
 @Validated
 public class GenreService {
 
-    private final GenreDbStorage genreStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public GenreService(GenreDbStorage genreStorage) {
+    public GenreService(GenreStorage genreStorage) {
         this.genreStorage = genreStorage;
     }
 
@@ -35,7 +35,7 @@ public class GenreService {
 
     /**
      * Метод для получения коллекции со всеми жанрами
-     * @return колекция с жанрами
+     * @return коллекция с жанрами
      */
     public Collection<Genre> allGenres() {
         return genreStorage.allGenres();

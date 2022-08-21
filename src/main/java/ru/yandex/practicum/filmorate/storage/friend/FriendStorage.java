@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.friend;
 
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 
+@Repository
 public interface FriendStorage {
 
     void addFriend(Long id, Long friendId);

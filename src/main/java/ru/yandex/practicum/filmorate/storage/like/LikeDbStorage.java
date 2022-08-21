@@ -1,27 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@Qualifier("likeDbStorage")
 public class LikeDbStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final FilmDbStorage filmStorage;
+    private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
 
     public LikeDbStorage(JdbcTemplate jdbcTemplate,
-                         FilmDbStorage filmStorage,
+                         FilmStorage filmStorage,
                          EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmStorage = filmStorage;
@@ -30,14 +28,17 @@ public class LikeDbStorage implements LikeStorage {
 
     @Override
     public void likeFilm(Long filmId, Long userId) {
-        String sqlQuery = "MERGE INTO likes (film_id, user_id) values (?, ?)";
+        final String sqlQuery = "MERGE INTO likes (film_id, user_id) values (?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         eventStorage.createEvent(userId, filmId, 1, 1);
     }
 
     @Override
     public void unlikeFilm(Long filmId, Long userId) {
-        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        if (!checkLikePair(filmId, userId)) {
+            throw new WrongParameterException("такой пары filmId-userId не существует");
+        }
+        final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         eventStorage.createEvent(userId, filmId, 1, 3);
     }
@@ -92,20 +93,8 @@ public class LikeDbStorage implements LikeStorage {
                 .collect(Collectors.toList());
     }
 
-    public boolean checkLikePair(Long filmId, Long userId) {
-        String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
+    private boolean checkLikePair(Long filmId, Long userId) {
+        final String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
-    }
-
-    public Collection<Long> findCommonFilmsId(Long userId, Long friendId) {
-        String sqlQuery = "SELECT FILM_ID, COUNT(USER_ID) " +
-                "FROM LIKES " +
-                "WHERE FILM_ID IN " +
-                "(SELECT L1.FILM_ID FROM LIKES AS L1 JOIN LIKES AS L2 ON L2.FILM_ID = L1.FILM_ID " +
-                "WHERE L1.USER_ID = ? AND L2.USER_ID = ?) " +
-                "GROUP BY FILM_ID " +
-                "ORDER BY COUNT(USER_ID) DESC";
-        return jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> rs.getLong("FILM_ID"), userId, friendId);
     }
 }

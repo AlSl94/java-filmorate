@@ -6,29 +6,24 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 @Service
 @Validated
 public class FilmService {
-    private final FilmDbStorage filmStorage;
-    private final DirectorDbStorage directorStorage;
-
-    private final LikeDbStorage likeStorage;
+    private final FilmStorage filmStorage;
+    private final DirectorStorage directorStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage, LikeDbStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage) {
         this.filmStorage = filmStorage;
         this.directorStorage = directorStorage;
-        this.likeStorage = likeStorage;
     }
 
     /**
@@ -91,17 +86,24 @@ public class FilmService {
         return filmStorage.getFilmsByDirector(id, sortBy);
     }
 
-
-
-    // TODO рефакторинг - вынести в storage
+    /**
+     * Метод для вывода общих с другом фильмов с сортировкой по их популярности
+     *
+     * @param userId   - идентификатор пользователя, запрашивающего информацию
+     * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов
+     * @return - Возвращает список фильмов, отсортированных по популярности.
+     */
     public Collection<Film> findCommonFilms(Long userId, Long friendId) {
-        List<Long> listFilmId = new ArrayList<>(likeStorage.findCommonFilmsId(userId, friendId));
-        List<Film> films = new ArrayList<>();
-        for (Long id : listFilmId) {
-            films.add(this.findFilmById(id));
-        }
-        return films;
+        return filmStorage.findCommonFilms(userId, friendId);
     }
+
+    /**
+     * Метод для поиска фильма
+     *
+     * @param query искомые символы
+     * @param by    выбор, где искать
+     * @return коллекция найденных фильмов
+     */
     public Collection<Film> searchFilm(String query, List<String> by) {
         //валидация
         if (query.length() < 3) throw new WrongParameterException("Количество символов запроса поиска меньше 3-х");

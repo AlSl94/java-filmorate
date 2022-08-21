@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.mpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -11,7 +10,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 @Component
-@Primary
 public class MpaDbStorage implements MpaStorage {
 
     private final JdbcTemplate jdbcTemplate;

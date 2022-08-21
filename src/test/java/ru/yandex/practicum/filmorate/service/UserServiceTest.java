@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
@@ -31,7 +31,7 @@ class UserServiceTest {
 
         ArrayList<User> allUsers = (ArrayList<User>) userService.findAll();
 
-        assertThat(allUsers.size()).isEqualTo(2);
+        assertThat(allUsers).hasSize(2);
         assertThat(userOne).isEqualTo(allUsers.get(0));
         assertThat(userTwo).isEqualTo(allUsers.get(1));
 
@@ -43,21 +43,21 @@ class UserServiceTest {
         User userTwo = userService.create(users().get(1));
 
         assertThat(userOne.getId()).isEqualTo(1);
-        assertThat(userService.findAll().size()).isEqualTo(2);
+        assertThat(userService.findAll()).hasSize(2);
         assertThat(userTwo.getName()).isEqualTo(users().get(1).getName());
     }
 
     @Test
     void deleteTest() {
-        User userOne = userService.create(users().get(0));
+        userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
 
-        assertThat(userService.findAll().size()).isEqualTo(2);
+        assertThat(userService.findAll()).hasSize(2);
         assertThat(userService.findUserById(2L).getName()).isEqualTo(userTwo.getName());
 
         userService.delete(2L);
 
-        assertThat(userService.findAll().size()).isEqualTo(1);
+        assertThat(userService.findAll()).hasSize(1);
     }
 
     @Test
