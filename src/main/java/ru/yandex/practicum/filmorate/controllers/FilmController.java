@@ -76,7 +76,7 @@ public class FilmController {
     }
 
     @GetMapping(value = "/search")
-    public Collection<Film> searchFilm(@RequestParam String query, //Обязательные аннотации query и by
+    public Collection<Film> searchFilm(@RequestParam String query,
                                        @RequestParam List<String> by) {
         log.info("Поиск фильмов c параметрами запроса query: {} и by: {}", query, by);
         return filmService.searchFilm(query, by);

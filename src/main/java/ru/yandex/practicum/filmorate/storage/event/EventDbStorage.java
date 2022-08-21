@@ -22,7 +22,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public void createEvent(long userId, long entityId, int eventTypeId, int operationId) {
-        String sqlQuery = "INSERT INTO events (user_id, entity_id, type_id, operation_id, event_timestamp) " +
+        final String sqlQuery = "INSERT INTO events (user_id, entity_id, type_id, operation_id, event_timestamp) " +
                 "VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, userId, entityId, eventTypeId, operationId, LocalDateTime.now());
     }

@@ -129,8 +129,41 @@ class FilmServiceTest {
     }
 
     @Test
-    void commonFilmsTest() {
-        // TODO тут просят добавить хотя бы один тест-кейс
+    void findCommonFilmsTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        likeService.likeFilm(userOne.getId(), dieHard.getId());
+        likeService.likeFilm(userOne.getId(), dieHard2.getId());
+        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+
+        List<Film> commonFilms = (List<Film>) filmService.findCommonFilms(userOne.getId(), userTwo.getId());
+
+        assertThat(commonFilms.size()).isEqualTo(1);
+        assertThat(commonFilms.get(0)).isEqualTo(dieHard);
+    }
+
+    @Test
+    void searchFilmWithDirectorOnlyTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        likeService.likeFilm(userOne.getId(), dieHard.getId());
+        likeService.likeFilm(userOne.getId(), dieHard2.getId());
+        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+
+        List<String> directorOnly = new ArrayList<>(List.of("director"));
+
+        List<Film> films = (List<Film>) filmService.searchFilm("вАсЯ", directorOnly);
+
+        assertThat(films.size()).isEqualTo(2);
+        assertThat(films.get(0)).isEqualTo(dieHard2);
     }
 
     private List<User> users() {

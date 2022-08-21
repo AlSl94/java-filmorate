@@ -14,18 +14,38 @@ public class ReviewLikeService {
         this.reviewLikeStorage = reviewLikeStorage;
     }
 
+    /**
+     * Метод, для лайка отзыва
+     * @param reviewId айди отзыва
+     * @param userId айди пользователя
+     */
     public void putLike(Long reviewId, Long userId) {
         reviewLikeStorage.putLike(reviewId, userId);
     }
 
+    /**
+     * Метод для дизлайка отзыва
+     * @param reviewId айди отзыва
+     * @param userId айди пользователя
+     */
     public void putDislike(Long reviewId, Long userId) {
         reviewLikeStorage.putDislike(reviewId, userId);
     }
 
+    /**
+     * Метод для удаления лайка у отзыва
+     * @param reviewId айди отзыва
+     * @param userId айди пользователя
+     */
     public void removeLike(Long reviewId, Long userId) {
         reviewLikeStorage.removeLike(reviewId, userId);
     }
 
+    /**
+     * Метод для удаления дизлайка у отзыва
+     * @param reviewId айди отзыва
+     * @param userId айди пользователя
+     */
     public void removeDislike(Long reviewId, Long userId) {
         reviewLikeStorage.removeDislike(reviewId, userId);
     }
