@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@Qualifier("likeDbStorage")
 public class LikeDbStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final FilmDbStorage filmStorage;
+    private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
 
     public LikeDbStorage(JdbcTemplate jdbcTemplate,
-                         FilmDbStorage filmStorage,
+                         FilmStorage filmStorage,
                          EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmStorage = filmStorage;
@@ -37,6 +36,9 @@ public class LikeDbStorage implements LikeStorage {
 
     @Override
     public void unlikeFilm(Long filmId, Long userId) {
+        if (!checkLikePair(filmId, userId)) {
+            throw new WrongParameterException("такой пары filmId-userId не существует");
+        }
         String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         eventStorage.createEvent(userId, filmId, 1, 3);
@@ -92,7 +94,7 @@ public class LikeDbStorage implements LikeStorage {
                 .collect(Collectors.toList());
     }
 
-    public boolean checkLikePair(Long filmId, Long userId) {
+    private boolean checkLikePair(Long filmId, Long userId) {
         String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }

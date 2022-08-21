@@ -6,9 +6,9 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -19,13 +19,12 @@ import java.util.Objects;
 @Service
 @Validated
 public class FilmService {
-    private final FilmDbStorage filmStorage;
-    private final DirectorDbStorage directorStorage;
-
-    private final LikeDbStorage likeStorage;
+    private final FilmStorage filmStorage;
+    private final DirectorStorage directorStorage;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, DirectorDbStorage directorStorage, LikeDbStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage, LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.directorStorage = directorStorage;
         this.likeStorage = likeStorage;

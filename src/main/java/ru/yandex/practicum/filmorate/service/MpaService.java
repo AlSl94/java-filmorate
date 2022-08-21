@@ -5,17 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.Collection;
 @Service
 @Validated
 public class MpaService {
 
-    private final MpaDbStorage mpaStorage;
+    private final MpaStorage mpaStorage;
 
     @Autowired
-    public MpaService(MpaDbStorage mpaStorage) {
+    public MpaService(MpaStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
     }
 
