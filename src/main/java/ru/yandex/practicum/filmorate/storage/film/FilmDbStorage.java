@@ -179,8 +179,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Long> getUsersFilmsIds(List<Long> usersIds) {
         String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
-        final String sqlQuery = "SELECT DISTINCT film_id FROM likes WHERE user_id IN ?";
-        return jdbcTemplate.queryForList(sqlQuery, Long.class, ids);
+        String sqlQuery = String.format("SELECT DISTINCT film_id FROM likes WHERE user_id IN (%s)", ids);
+        return jdbcTemplate.queryForList(sqlQuery, Long.class);
     }
 
     @Override

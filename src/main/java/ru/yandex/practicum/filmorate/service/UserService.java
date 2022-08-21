@@ -106,6 +106,11 @@ public class UserService {
         return eventStorage.getFeedByUserId(userId);
     }
 
+    /**
+     * Метод для получения рекоммендаций с помощью алгоритма slope one
+     * @param id айди пользователя
+     * @return коллекция фильмов
+     */
     public Collection<Film> getRecommendations(Long id) {
         return userStorage.getRecommendations(id);
     }
