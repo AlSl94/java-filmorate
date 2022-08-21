@@ -3,30 +3,31 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.storage.reviewlike.ReviewLikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.reviewlike.ReviewLikeStorage;
 
 @Service
 public class ReviewLikeService {
 
-    private final ReviewLikeDbStorage reviewLikeDbStorage;
+    private final ReviewLikeStorage reviewLikeStorage;
 
     @Autowired
-    public ReviewLikeService(ReviewLikeDbStorage reviewLikeDbStorage) {
-        this.reviewLikeDbStorage = reviewLikeDbStorage;
+    public ReviewLikeService(ReviewLikeStorage reviewLikeStorage) {
+        this.reviewLikeStorage = reviewLikeStorage;
     }
 
     public void putLike(Long reviewId, Long userId) {
-        reviewLikeDbStorage.putLike(reviewId, userId);
+        reviewLikeStorage.putLike(reviewId, userId);
     }
 
     public void putDislike(Long reviewId, Long userId) {
-        reviewLikeDbStorage.putDislike(reviewId, userId);
+        reviewLikeStorage.putDislike(reviewId, userId);
     }
 
     public void removeLike(Long reviewId, Long userId) {
-        reviewLikeDbStorage.removeLike(reviewId, userId);
+        reviewLikeStorage.removeLike(reviewId, userId);
     }
 
     public void removeDislike(Long reviewId, Long userId) {
-        reviewLikeDbStorage.removeDislike(reviewId, userId);
+        reviewLikeStorage.removeDislike(reviewId, userId);
     }
 }
