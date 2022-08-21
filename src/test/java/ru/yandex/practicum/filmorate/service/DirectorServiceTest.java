@@ -76,7 +76,7 @@ class DirectorServiceTest {
     private List<Director> directors() {
         List<Director> directors = new ArrayList<>();
         directors.add(new Director(1, "Вася Спилберг"));
-        directors.add(new Director(999, "Петя Шварцнегер"));
+        directors.add(new Director(999, "Петя Шварценеггер"));
         return directors;
     }
 }

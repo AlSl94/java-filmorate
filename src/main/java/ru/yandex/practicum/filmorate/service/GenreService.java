@@ -35,7 +35,7 @@ public class GenreService {
 
     /**
      * Метод для получения коллекции со всеми жанрами
-     * @return колекция с жанрами
+     * @return коллекция с жанрами
      */
     public Collection<Genre> allGenres() {
         return genreStorage.allGenres();
