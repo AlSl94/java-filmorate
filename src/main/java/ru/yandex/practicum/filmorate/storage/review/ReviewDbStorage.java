@@ -28,7 +28,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review createReview(Review review) {
-        String sql = "INSERT INTO REVIEWS (CONTENT, IS_POSITIVE, USER_ID, FILM_ID) VALUES ( ?,?,?,? )";
+        final String sql = "INSERT INTO REVIEWS (CONTENT, IS_POSITIVE, USER_ID, FILM_ID) VALUES ( ?,?,?,? )";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(
@@ -69,36 +69,41 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review getReviewById(Long id) {
         checkReviewExists(id);
-        return jdbcTemplate.queryForObject(
-                "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
-                        "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
-                        "WHERE REVIEWS.REVIEW_ID = ? " +
-                        "GROUP BY REVIEWS.REVIEW_ID "
-                , this::mapRowToReview, id);
+        final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+                "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
+                "WHERE REVIEWS.REVIEW_ID = ? " +
+                "GROUP BY REVIEWS.REVIEW_ID ";
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToReview, id);
     }
 
     @Override
     public Collection<Review> getMostUsefulReviews(Integer count, Long filmId) {
         Collection<Review> reviewCollection;
         if (filmId != null) {
-            reviewCollection = jdbcTemplate.query(
-                    "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
-                            "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
-                            "WHERE REVIEWS.FILM_ID = ? " +
-                            "GROUP BY REVIEWS.REVIEW_ID " +
-                            "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
-                            "LIMIT ?"
-                    , this::mapRowToReview, filmId, count);
+            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+                    "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
+                    "WHERE REVIEWS.FILM_ID = ? " +
+                    "GROUP BY REVIEWS.REVIEW_ID " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "LIMIT ?";
+            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, filmId, count);
         } else {
-            reviewCollection = jdbcTemplate.query(
-                    "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
-                            "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
-                            "GROUP BY REVIEWS.REVIEW_ID " +
-                            "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
-                            "LIMIT ?"
-                    , this::mapRowToReview, count);
+            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+                    "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
+                    "GROUP BY REVIEWS.REVIEW_ID " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "LIMIT ?";
+            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, count);
         }
         return reviewCollection;
+    }
+
+    private void checkReviewExists(Long reviewId) {
+        Byte countReview = jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
+                Byte.class, reviewId);
+        if (countReview == 0) {
+            throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
+        }
     }
 
     private Review mapRowToReview(ResultSet rs, int rowNum) throws SQLException {
@@ -112,11 +117,4 @@ public class ReviewDbStorage implements ReviewStorage {
                 .build();
     }
 
-    private void checkReviewExists(Long reviewId) {
-        Byte countReview = jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
-                Byte.class, reviewId);
-        if (countReview == 0) {
-            throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
-        }
-    }
 }

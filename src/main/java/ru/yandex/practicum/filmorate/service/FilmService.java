@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -92,13 +91,22 @@ public class FilmService {
 
     /**
      * Метод для вывод общих с другом фильмов с сортировкой по их популярности
-     * @param userId - идентификатор пользователя, запрашивающего информацию
+     *
+     * @param userId   - идентификатор пользователя, запрашивающего информацию
      * @param friendId - идентификатор пользователя, с которым необходимо сравнить список фильмов
      * @return - Возвращает список фильмов, отсортированных по популярности.
      */
     public Collection<Film> findCommonFilms(Long userId, Long friendId) {
         return filmStorage.findCommonFilms(userId, friendId);
     }
+
+    /**
+     * Метод для поиска фильма
+     *
+     * @param query искомые символы
+     * @param by    выбор, где искать
+     * @return коллекция найденых фильмов
+     */
     public Collection<Film> searchFilm(String query, List<String> by) {
         //валидация
         if (query.length() < 3) throw new WrongParameterException("Количество символов запроса поиска меньше 3-х");

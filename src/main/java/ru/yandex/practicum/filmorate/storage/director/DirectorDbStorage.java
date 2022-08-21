@@ -41,7 +41,7 @@ public class DirectorDbStorage implements DirectorStorage {
                 stmt.setString(1, director.getName());
                 return stmt;
             }, keyHolder);
-            director.setId(keyHolder.getKey().intValue()); // TODO тут возможно NPE
+            director.setId(keyHolder.getKey().intValue());
             return findDirectorById(director.getId());
     }
     @Override
