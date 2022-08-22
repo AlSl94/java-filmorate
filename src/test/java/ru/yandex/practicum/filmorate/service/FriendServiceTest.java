@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -35,6 +35,26 @@ class FriendServiceTest {
         List<User> friendsOfUserTwo = (List<User>) friendService.getFriends(userTwo.getId());
 
         assertThat(userOne).isEqualTo(friendsOfUserTwo.get(0));
+    }
+
+    @Test
+    void removeFriendTest() {
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
+        friendService.addFriend(userOne.getId(), userTwo.getId());
+        friendService.addFriend(userOne.getId(), userThree.getId());
+
+        List<User> friends = (List<User>) friendService.getFriends(1L);
+        assertThat(friends).hasSize(2);
+        assertThat(friends.get(1)).isEqualTo(userThree);
+
+        friendService.removeFriend(1L, 3L);
+
+        List<User> friendsAfterDelete = (List<User>) friendService.getFriends(1L);
+        assertThat(friendsAfterDelete)
+                .hasSize(1)
+                .doesNotContain(userThree);
     }
 
     @Test
@@ -69,7 +89,7 @@ class FriendServiceTest {
 
         assertThat(userThree).isIn(commonFriends);
         assertThat(userFour).isIn(commonFriends);
-        assertThat(commonFriends.size()).isEqualTo(2);
+        assertThat(commonFriends).hasSize(2);
         assertThat(userOne).isNotIn(commonFriends);
     }
 

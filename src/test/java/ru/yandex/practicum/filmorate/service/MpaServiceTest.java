@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -32,8 +31,7 @@ class MpaServiceTest {
     void allMpaTest() {
         Mpa mpaOne = mpaService.getMpaById(1);
         Collection<Mpa> mpaCollection = mpaService.allMpa();
-        assertThat(mpaCollection.size()).isEqualTo(5);
         assertThat(mpaOne).isIn(mpaCollection);
-        assertThat(mpaCollection.size()).isNotEqualTo(6);
+        assertThat(mpaCollection).hasSize(5);
     }
 }

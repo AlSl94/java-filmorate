@@ -13,12 +13,11 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 @SpringBootTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -40,7 +39,7 @@ class FilmServiceTest {
 
         List<Film> allFilms = (List<Film>) filmService.findAll();
 
-        assertThat(allFilms.size()).isEqualTo(2);
+        assertThat(allFilms).hasSize(2);
         assertThat(allFilms.get(0).getName()).isEqualTo(films().get(0).getName());
     }
 
@@ -68,22 +67,22 @@ class FilmServiceTest {
     @Test
     void deleteTest() {
         Film dieHard = filmService.add(films().get(0));
-        Film dieHard2 = filmService.add(films().get(1));
+        filmService.add(films().get(1));
 
-        assertThat(filmService.findAll().size()).isEqualTo(2);
+        assertThat(filmService.findAll()).hasSize(2);
         assertThat(filmService.findFilmById(1L).getName()).isEqualTo(films().get(0).getName());
 
         filmService.delete(dieHard.getId());
 
         assertThatThrownBy(() -> filmService.findFilmById(1L)).isInstanceOf(WrongParameterException.class);
-        assertThat(filmService.findAll().size()).isEqualTo(1);
+        assertThat(filmService.findAll()).hasSize(1);
     }
 
     @Test
     void updateTest() {
         Film updatedFilm = new Film(1L, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
-                Arrays.asList(new Director(1, "Вася Спилберг")), null);
+                List.of(new Director(1, "Вася Спилберг")), null);
 
         Film dieHard = filmService.add(films().get(0));
         assertThat(filmService.findFilmById(dieHard.getId()).getName()).isEqualTo("Крепкий орешек");
@@ -142,7 +141,7 @@ class FilmServiceTest {
 
         List<Film> commonFilms = (List<Film>) filmService.findCommonFilms(userOne.getId(), userTwo.getId());
 
-        assertThat(commonFilms.size()).isEqualTo(1);
+        assertThat(commonFilms).hasSize(1);
         assertThat(commonFilms.get(0)).isEqualTo(dieHard);
     }
 
@@ -160,10 +159,50 @@ class FilmServiceTest {
 
         List<String> directorOnly = new ArrayList<>(List.of("director"));
 
-        List<Film> films = (List<Film>) filmService.searchFilm("вАсЯ", directorOnly);
+        List<Film> films = (List<Film>) filmService.searchFilm("васЯ", directorOnly);
 
-        assertThat(films.size()).isEqualTo(2);
-        assertThat(films.get(0)).isEqualTo(dieHard2);
+        assertThat(films).hasSize(2);
+        assertThat(films.get(0)).isEqualTo(dieHard);
+    }
+
+    @Test
+    void searchFilmWithTitleOnlyTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        likeService.likeFilm(userOne.getId(), dieHard.getId());
+        likeService.likeFilm(userOne.getId(), dieHard2.getId());
+        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+
+        List<String> titleOnly = new ArrayList<>(List.of("title"));
+
+        List<Film> films = (List<Film>) filmService.searchFilm("ореШ", titleOnly);
+
+        assertThat(films).hasSize(2);
+        assertThat(films.get(0)).isEqualTo(dieHard);
+    }
+
+    @Test
+    void searchFilmWithDirectorAndTitleTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        likeService.likeFilm(userOne.getId(), dieHard.getId());
+        likeService.likeFilm(userOne.getId(), dieHard2.getId());
+        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+
+        List<String> directorAndTitle = new ArrayList<>(List.of("director", "title"));
+
+        List<Film> films = (List<Film>) filmService.searchFilm("шеК", directorAndTitle);
+
+        assertThat(films).hasSize(2);
+        assertThat(films.get(0)).isEqualTo(dieHard);
     }
 
     private List<User> users() {
@@ -176,19 +215,19 @@ class FilmServiceTest {
                 LocalDate.of(1950, 2, 22)));
         return users;
     }
+
     private List<Film> films() {
         List<Film> films = new ArrayList<>();
         directorService.create(new Director(1, "Вася Спилберг"));
 
         films.add(new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
-                Arrays.asList(directorService.findDirectorById(1)),
+                Collections.singletonList(directorService.findDirectorById(1)),
                 List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         films.add(new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
-                Arrays.asList(directorService.findDirectorById(1)),
+                Collections.singletonList(directorService.findDirectorById(1)),
                 List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
         return films;
     }
-
 }

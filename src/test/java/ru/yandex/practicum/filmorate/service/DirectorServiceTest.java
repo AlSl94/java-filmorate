@@ -11,8 +11,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -24,9 +23,9 @@ class DirectorServiceTest {
     @Test
     void getAllDirectorsTest() {
         directorService.create(directors().get(0));
-        assertThat(directorService.getAllDirectors().size()).isEqualTo(1);
+        assertThat(directorService.getAllDirectors()).hasSize(1);
         directorService.create(directors().get(1));
-        assertThat(directorService.getAllDirectors().size()).isEqualTo(2);
+        assertThat(directorService.getAllDirectors()).hasSize(2);
     }
 
     @Test
@@ -67,10 +66,10 @@ class DirectorServiceTest {
         directorService.create(directors().get(0));
         directorService.create(directors().get(1));
 
-        assertThat(directorService.getAllDirectors().size()).isEqualTo(2);
+        assertThat(directorService.getAllDirectors()).hasSize(2);
 
         directorService.delete(1);
-        assertThat(directorService.getAllDirectors().size()).isEqualTo(1);
+        assertThat(directorService.getAllDirectors()).hasSize(1);
     }
 
     private List<Director> directors() {

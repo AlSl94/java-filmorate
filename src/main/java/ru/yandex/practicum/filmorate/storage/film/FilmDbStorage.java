@@ -224,6 +224,7 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE f.NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(l.USER_ID) DESC";
+
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
         }
 
