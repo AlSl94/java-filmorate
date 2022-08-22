@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
                         .forEach(director -> jdbcTemplate.update(sqlDirectorQuery, film.getId(), director.getId()));
             }
         } catch (NullPointerException e) {
-            throw new RuntimeException();
+            e.printStackTrace();
         }
         return findFilmById(film.getId());
     }
@@ -123,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(sqlDeleteQuery, film.getId());
             }
         } catch (NullPointerException e) {
-            throw new RuntimeException();
+            e.printStackTrace();
         }
         return findFilmById(film.getId());
     }
