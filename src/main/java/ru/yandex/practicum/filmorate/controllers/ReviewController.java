@@ -54,31 +54,31 @@ public class ReviewController {
     public Collection<Review> getMostUsefulReviews(@RequestParam(required = false) Long filmId,
                                                    @RequestParam(defaultValue = "10", required = false) Integer count) {
         Collection<Review> reviewCollection = reviewService.getMostUsefulReviews(count, filmId);
-        log.info("Получен список отзывов в количестве: {}, по фильму с id {}", count, filmId);
+        log.info("Получен список отзывов в количестве: {}, по фильму с id: {}", count, filmId);
         return reviewCollection;
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
     public void putLike(@PathVariable Long id, @PathVariable Long userId) {
         reviewLikeService.putLike(id, userId);
-        log.info("Поставлен лайк с id {} от пользователя с id {}", id, userId);
+        log.info("Поставлен лайк с id: {} от пользователя с id: {}", id, userId);
     }
 
     @PutMapping(value = "/{id}/dislike/{userId}")
     public void putDislike(@PathVariable Long id, @PathVariable Long userId) {
         reviewLikeService.putDislike(id, userId);
-        log.info("Поставлен дизлайк с id {} от пользователя с id {}", id, userId);
+        log.info("Поставлен дизлайк с id: {} от пользователя с id: {}", id, userId);
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         reviewLikeService.removeLike(id, userId);
-        log.info("Удален лайк с id {} от пользователя с id {}", id, userId);
+        log.info("Удален лайк с id: {} от пользователя с id: {}", id, userId);
     }
 
     @DeleteMapping(value = "/{id}/dislike/{userId}")
     public void removeDislike(@PathVariable Long id, @PathVariable Long userId) {
         reviewLikeService.removeDislike(id, userId);
-        log.info("Удален дизлайк с id {} от пользователя с id {}", id, userId);
+        log.info("Удален дизлайк с id: {} от пользователя с id: {}", id, userId);
     }
 }

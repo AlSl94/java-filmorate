@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
 @Service
 @Validated
 public class FilmService {
@@ -96,7 +97,6 @@ public class FilmService {
     public Collection<Film> findCommonFilms(Long userId, Long friendId) {
         return filmStorage.findCommonFilms(userId, friendId);
     }
-
     /**
      * Метод для поиска фильма
      *
