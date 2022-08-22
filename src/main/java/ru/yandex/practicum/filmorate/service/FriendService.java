@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -15,11 +15,11 @@ import java.util.Objects;
 @Service
 @Validated
 public class FriendService {
-    private final UserDbStorage userStorage;
-    private final FriendDbStorage friendStorage;
+    private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
 
     @Autowired
-    public FriendService(UserDbStorage userStorage, FriendDbStorage friendStorage) { // TODO тут краснота
+    public FriendService(UserStorage userStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
         this.friendStorage = friendStorage;
     }

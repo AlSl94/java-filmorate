@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DirectorService {
 
-    private final DirectorDbStorage directorStorage;
+    private final DirectorStorage directorStorage;
 
     /**
      * Метод для получения всех режиссеров
@@ -27,9 +27,9 @@ public class DirectorService {
     }
 
     /**
-     * Метод для полечения конкретного режиссера по id
+     * Метод для получения конкретного режиссера по id
      * @param id id режиссера
-     * @return режжисер
+     * @return режиссер
      */
     public Director findDirectorById(@Valid Integer id) {
         if (getAllDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
