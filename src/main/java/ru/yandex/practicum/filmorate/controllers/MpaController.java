@@ -30,14 +30,14 @@ public class MpaController {
     @GetMapping(value = "/{id}")
     public Mpa getMpaById(@PathVariable Integer id) {
         Mpa mpa = mpaService.getMpaById(id);
-        log.info("Получен mpa {}", id);
+        log.info("Получен mpa с id: {}", id);
         return mpa;
     }
 
     @GetMapping
     public Collection<Mpa> allMpa() {
         Collection<Mpa> mpaCollection = mpaService.allMpa();
-        log.info("Получены все mpa");
+        log.info("Получен список всех mpa");
         return mpaCollection;
     }
 }

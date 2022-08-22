@@ -33,8 +33,8 @@ public class LikeController {
 
     @DeleteMapping(value = "/{filmId}/like/{userId}")
     public void unlikeFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
         likeService.unlikeFilm(filmId, userId);
+        log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
     }
 
     @GetMapping(value = "/popular")

@@ -6,16 +6,14 @@ import java.util.stream.Collectors;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-public class FilmRecommendation {  // TODO тут предлагают добавить приватный конструктор
+public class FilmRecommendation {
     public static List<Long> getRecommendation(Map<Long, Double> targetUserFilmsRates, Map<Long,
             Map<Long, Double>> similarUsersFilmsRates) {
-        Set<Long> similarFilmsIds = new HashSet<>();  // TODO "содержимое этой коллекции обновляется, но не используется"
         Set<Long> similarFilmsThatNotWatchedByTargetUSerIds = new HashSet<>();
 
         for (Long userId : similarUsersFilmsRates.keySet()) {
             Map<Long, Double> userRates = similarUsersFilmsRates.get(userId);
             for (Long filmId : userRates.keySet()) {
-                similarFilmsIds.add(filmId);
                 if (!targetUserFilmsRates.containsKey(filmId)) {
                     similarFilmsThatNotWatchedByTargetUSerIds.add(filmId);
                 }
@@ -53,7 +51,7 @@ public class FilmRecommendation {  // TODO тут предлагают доба�
             }
         }
 
-        double num = (pSum - (sum1 * sum2 / count));  // TODO предлагают проверить, что не делим на 0 (можем забить, если уверены)
+        double num = (pSum - (sum1 * sum2 / count));
         double den = sqrt((sqSum1 - (pow(sum1, 2)) / count) * (sqSum2 - (pow(sum2, 2)) / count));
 
         if (den == 0.0) {

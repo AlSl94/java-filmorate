@@ -30,14 +30,14 @@ public class GenreController {
     @GetMapping(value = "/{id}")
     public Genre getGenreById(@PathVariable Integer id) {
         Genre genre = genreService.getGenreById(id);
-        log.info("Получен genre {}", id);
+        log.info("Получен жанр с id: {}", id);
         return genre;
     }
 
     @GetMapping
     public Collection<Genre> allGenre() {
         Collection<Genre> genreCollection = genreService.allGenres();
-        log.info("Получены все genres");
+        log.info("Получен список всех жанров");
         return genreCollection;
     }
 }
