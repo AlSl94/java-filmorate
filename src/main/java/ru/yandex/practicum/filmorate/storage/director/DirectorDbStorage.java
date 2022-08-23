@@ -26,16 +26,16 @@ public class DirectorDbStorage implements DirectorStorage {
     }
     @Override
     public Collection<Director> getAllDirectors() {
-        return jdbcTemplate.query("SELECT * FROM directors", this::mapRowToDirector);
+        return jdbcTemplate.query("SELECT director_id, director_name FROM directors", this::mapRowToDirector);
     }
     @Override
     public Director findDirectorById(Integer id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
+        return jdbcTemplate.queryForObject("SELECT director_id, director_name FROM directors WHERE director_id = ?",
                 this::mapRowToDirector, id);
     }
     @Override
     public Director create(Director director) {
-        final String sqlQuery = "INSERT INTO directors (director) VALUES (?)";
+        final String sqlQuery = "INSERT INTO directors (director_name) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"director_id"});
@@ -47,7 +47,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
     @Override
     public Director update(Director director) {
-        jdbcTemplate.update("UPDATE directors SET director = ? WHERE director_id = ?"
+        jdbcTemplate.update("UPDATE directors SET director_name = ? WHERE director_id = ?"
                 , director.getName()
                 , director.getId());
 
@@ -67,7 +67,7 @@ public class DirectorDbStorage implements DirectorStorage {
     private Director mapRowToDirector(ResultSet rs, int rowNum) throws SQLException {
         return Director.builder()
                 .id(rs.getInt("director_id"))
-                .name(rs.getString("director"))
+                .name(rs.getString("director_name"))
                 .build();
     }
 }

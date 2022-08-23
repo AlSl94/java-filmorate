@@ -19,12 +19,12 @@ public class GenreDbStorage implements GenreStorage{
     }
     @Override
     public Genre getGenreById(Integer id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?",
+        return jdbcTemplate.queryForObject("SELECT GENRE_ID, GENRE FROM genres WHERE genre_id = ?",
                 this::mapRowToGenre, id);
     }
     @Override
     public List<Genre> allGenres() {
-        return jdbcTemplate.query("SELECT * FROM genres", this::mapRowToGenre);
+        return jdbcTemplate.query("SELECT GENRE_ID, GENRE FROM genres", this::mapRowToGenre);
     }
 
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {

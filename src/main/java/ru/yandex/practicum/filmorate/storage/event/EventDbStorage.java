@@ -29,8 +29,11 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Collection<Event> getFeedByUserId(long userId) {
-        return jdbcTemplate.query("SELECT * FROM events WHERE user_id = ? ORDER BY event_id",
-                this::mapRowToEvent, userId);
+        final String sqlQuery = "SELECT event_id, user_id, entity_id, type_id, operation_id, event_timestamp " +
+                "FROM events " +
+                "WHERE user_id = ? " +
+                "ORDER BY event_id";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToEvent, userId);
     }
 
     private String getTypeNameById(int typeId) {

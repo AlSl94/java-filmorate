@@ -37,7 +37,7 @@ public class FilmDbStorage implements FilmStorage {
         final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, f.RELEASE_DATE, " +
                 "f.DURATION " +
                 "FROM FILMS AS f " +
-                "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID ";
+                "JOIN MPA_RATING AS MR on MR.MPA_ID = f.MPA_ID ";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         films.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
         films.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
@@ -134,7 +134,7 @@ public class FilmDbStorage implements FilmStorage {
         final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
                 "f.RELEASE_DATE, f.DURATION " +
                 "FROM FILMS AS f " +
-                "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                "JOIN MPA_RATING AS mr on mr.MPA_ID = f.MPA_ID " +
                 "WHERE f.FILM_ID = ?";
 
         Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
@@ -150,7 +150,7 @@ public class FilmDbStorage implements FilmStorage {
                 final String sqlQueryByYear =
                         "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration " +
                                 "FROM FILMS AS f " +
-                                "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
+                                "JOIN MPA_RATING AS mr on mr.MPA_ID = f.MPA_ID " +
                                 "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
                                 "WHERE fd.director_id = ? " +
                                 "ORDER BY f.RELEASE_DATE";
@@ -190,12 +190,12 @@ public class FilmDbStorage implements FilmStorage {
         if (by.contains("director") && by.contains("title")) {
             final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
                     "mr.MPA, f.DURATION, f.RELEASE_DATE " +
-                    "FROM films as f " +
-                    "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
+                    "FROM films AS f " +
+                    "JOIN MPA_RATING AS MR on MR.MPA_ID = f.MPA_ID " +
                     "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
                     "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
-                    "WHERE f.NAME ilike '%' || ? || '%' OR d.DIRECTOR ilike '%' || ? || '%' " +
+                    "WHERE f.NAME ilike '%' || ? || '%' OR d.DIRECTOR_NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(l.USER_ID) DESC";
 
@@ -209,7 +209,7 @@ public class FilmDbStorage implements FilmStorage {
                     "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
                     "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
-                    "WHERE d.DIRECTOR ilike '%' || ? || '%' " +
+                    "WHERE d.DIRECTOR_NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(l.USER_ID) DESC";
 

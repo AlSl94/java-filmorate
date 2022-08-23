@@ -26,7 +26,8 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public Collection<User> findAll() {
-        return jdbcTemplate.query("SELECT * FROM users", this::mapRowToUser);
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
     @Override
@@ -58,7 +59,8 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public User findUserById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = ?",
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery,
                 this::mapRowToUser, id);
     }
 
