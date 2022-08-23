@@ -70,7 +70,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review getReviewById(Long id) {
         checkReviewExists(id);
-        final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+        final String sqlQuery = "SELECT REVIEWS.*, " +
+                "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                 "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                 "WHERE REVIEWS.REVIEW_ID = ? " +
                 "GROUP BY REVIEWS.REVIEW_ID ";
@@ -81,18 +82,20 @@ public class ReviewDbStorage implements ReviewStorage {
     public Collection<Review> getMostUsefulReviews(Integer count, Long filmId) {
         Collection<Review> reviewCollection;
         if (filmId != null) {
-            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+            final String sqlQuery = "SELECT REVIEWS.*, " +
+                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "WHERE REVIEWS.FILM_ID = ? " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
                     "LIMIT ?";
             reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, filmId, count);
         } else {
-            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+            final String sqlQuery = "SELECT REVIEWS.*, " +
+                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
                     "LIMIT ?";
             reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, count);
         }
@@ -100,7 +103,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     private void checkReviewExists(Long reviewId) {
-        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
+        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject(
+                "SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
                 Byte.class, reviewId));
         if (countReview == 0) {
             throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
