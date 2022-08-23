@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS review_likes
 (
     review_id bigint REFERENCES reviews (review_id) ON DELETE CASCADE,
     user_id   bigint REFERENCES users (user_id) ON DELETE CASCADE,
-    is_like   int default 0
+    is_like   boolean
 );
 
 CREATE TABLE IF NOT EXISTS event_types
