@@ -47,7 +47,7 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage{
                 Byte.class, reviewId, userId, isLike));
         if (countReviewLike == 0) {
             throw new WrongParameterException(String.format
-                    ("Лайк/дизлайк отзыва с id %d от пользователя с id %d не найден", reviewId, userId));
+                    ("Лайк/дизлайк отзыва с id: %d от пользователя с id %d не найден", reviewId, userId));
         }
     }
 }

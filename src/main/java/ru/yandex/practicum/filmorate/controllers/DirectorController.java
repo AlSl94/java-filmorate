@@ -56,7 +56,7 @@ public class DirectorController {
     @DeleteMapping(value = "/{id}")
     public void delete(@PathVariable Integer id) {
         directorService.delete(id);
-        log.info("Режиссер с id {} удален", id);
+        log.info("Режиссер с id: {} удален", id);
     }
 
 }

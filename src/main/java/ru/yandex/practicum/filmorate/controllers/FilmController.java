@@ -64,21 +64,21 @@ public class FilmController {
     @GetMapping(value = "/director/{directorId}")
     public Collection<Film> getFilmsByDirector(@PathVariable Integer directorId, @RequestParam String sortBy) {
         Collection<Film> films = filmService.getFilmsByDirector(directorId, sortBy);
-        log.info("Найден список фильмов по режиссеру {}", directorId);
+        log.info("Выдан список фильмов по режиссеру {}", directorId);
         return films;
     }
 
     @GetMapping(value = "/common")
-    public Collection<Film> findCommonFilms(@RequestParam Long userId,
-                                            @RequestParam Long friendId) {
-        log.info("Запрос общих фильмов пользователя c id: {} и друга c id: {}", userId, friendId);
-        return filmService.findCommonFilms(userId, friendId);
+    public Collection<Film> findCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        Collection<Film> films = filmService.findCommonFilms(userId, friendId);
+        log.info("Выдан список общих фильмов пользователя c id: {} и друга c id: {}", userId, friendId);
+        return films;
     }
 
     @GetMapping(value = "/search")
-    public Collection<Film> searchFilm(@RequestParam String query,
-                                       @RequestParam List<String> by) {
-        log.info("Поиск фильмов c параметрами запроса query: {} и by: {}", query, by);
-        return filmService.searchFilm(query, by);
+    public Collection<Film> searchFilm(@RequestParam String query, @RequestParam List<String> by) {
+        Collection<Film> films = filmService.searchFilm(query, by);
+        log.info("Выдан список фильмов c параметрами запроса query: {} и by: {}", query, by);
+        return films;
     }
 }

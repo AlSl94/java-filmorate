@@ -50,8 +50,9 @@ public class UserController {
 
     @PutMapping
     public User update(@RequestBody User userDto) {
+        User user = userService.update(userDto);
         log.info("Обновлен пользователь: {}", userDto);
-        return userService.update(userDto);
+        return user;
     }
 
     @DeleteMapping(value = "/{id}")
@@ -69,7 +70,8 @@ public class UserController {
 
     @GetMapping(value = "/{id}/recommendations")
     public Collection<Film> getRecommendations(@PathVariable Long id) {
+        Collection<Film> films = userService.getRecommendations(id);
         log.info("Выданы рекомендации для пользователя с id: {}", id);
-        return userService.getRecommendations(id);
+        return films;
     }
 }
