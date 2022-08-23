@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.director;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.sql.PreparedStatement;
@@ -26,16 +28,24 @@ public class DirectorDbStorage implements DirectorStorage {
     }
     @Override
     public Collection<Director> getAllDirectors() {
-        return jdbcTemplate.query("SELECT * FROM directors", this::mapRowToDirector);
+        return jdbcTemplate.query("SELECT director_id, director_name FROM directors", this::mapRowToDirector);
     }
     @Override
     public Director findDirectorById(Integer id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
-                this::mapRowToDirector, id);
+        Director director;
+        try {
+            director = jdbcTemplate.queryForObject("SELECT director_id, director_name " +
+                            "FROM directors " +
+                            "WHERE director_id = ?", this::mapRowToDirector, id);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("director.id не найден");
+        }
+        return director;
     }
+
     @Override
     public Director create(Director director) {
-        final String sqlQuery = "INSERT INTO directors (director) VALUES (?)";
+        final String sqlQuery = "INSERT INTO directors (director_name) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"director_id"});
@@ -47,15 +57,19 @@ public class DirectorDbStorage implements DirectorStorage {
     }
     @Override
     public Director update(Director director) {
-        jdbcTemplate.update("UPDATE directors SET director = ? WHERE director_id = ?"
+        int updatedRows = jdbcTemplate.update("UPDATE directors SET director_name = ? WHERE director_id = ?"
                 , director.getName()
                 , director.getId());
-
+        if (updatedRows == 0) {
+            throw new WrongParameterException("director.id не найден");
+        }
         return director;
     }
     @Override
     public void delete(Integer id) {
-        jdbcTemplate.update("DELETE FROM DIRECTORS WHERE director_id = ?", id);
+        if (jdbcTemplate.update("DELETE FROM DIRECTORS WHERE director_id = ?", id) == 0) {
+            throw new WrongParameterException("director.id не найден");
+        }
     }
 
     public List<Director> directorsByFilm(Long id) {
@@ -67,7 +81,7 @@ public class DirectorDbStorage implements DirectorStorage {
     private Director mapRowToDirector(ResultSet rs, int rowNum) throws SQLException {
         return Director.builder()
                 .id(rs.getInt("director_id"))
-                .name(rs.getString("director"))
+                .name(rs.getString("director_name"))
                 .build();
     }
 }

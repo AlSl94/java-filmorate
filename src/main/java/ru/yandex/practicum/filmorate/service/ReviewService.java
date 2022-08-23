@@ -61,12 +61,12 @@ public class ReviewService {
 
     /**
      * Метод для получения коллекция отсортированной по количеству лайков
-     * @param count количество отзывов
+     * @param limit количество отзывов
      * @param filmId айди фильма, на который получаем отзывы
      * @return - коллекция с отзывами
      */
-    public Collection<Review> getMostUsefulReviews(Integer count, Long filmId) {
-        return reviewStorage.getMostUsefulReviews(count, filmId);
+    public Collection<Review> getMostUsefulReviews(Integer limit, Long filmId) {
+        return reviewStorage.getMostUsefulReviews(limit, filmId);
     }
 
     /**
