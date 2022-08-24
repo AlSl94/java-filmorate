@@ -41,9 +41,6 @@ public class FilmService {
      * @return фильм
      */
     public Film findFilmById(@Valid Long id) {
-        if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(f.getId(), id))) {
-            throw new WrongParameterException("Фильма с " + id + " не существует");
-        }
         return filmStorage.findFilmById(id);
     }
 
@@ -74,9 +71,6 @@ public class FilmService {
      * @return обновленный фильм, который пропустили через метод filmStorage.film()
      */
     public Film update(@Valid Film film) {
-        if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(film.getId(), f.getId()))) {
-            throw new WrongParameterException("film.id не найден");
-        }
         return filmStorage.update(film);
     }
 
@@ -105,7 +99,6 @@ public class FilmService {
      * @return коллекция найденных фильмов
      */
     public Collection<Film> searchFilm(String query, List<String> by) {
-        //валидация
         if (query.length() < 3) throw new WrongParameterException("Количество символов запроса поиска меньше 3-х");
         if (query.isBlank()) throw new WrongParameterException("Строка запроса поиска пустая");
         if (!by.contains("director") && !by.contains("title"))

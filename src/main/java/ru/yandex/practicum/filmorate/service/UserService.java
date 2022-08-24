@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -58,7 +56,6 @@ public class UserService {
      */
     public void delete(@Valid Long id) {
         userStorage.delete(id);
-        log.info("Пользователь с id: {} удален.", id);
     }
 
     /**
@@ -68,9 +65,7 @@ public class UserService {
      * @return обновленный пользователь
      */
     public User update(@Valid User user) {
-        user = userStorage.update(user);
-        log.info("Обновлен пользователь с id: {}", user.getId());
-        return user;
+        return userStorage.update(user);
     }
 
     /**
@@ -80,9 +75,7 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User findUserById(Long id) {
-        User user = userStorage.findUserById(id);
-        log.info("Получен пользователь с id: {}", id);
-        return user;
+        return userStorage.findUserById(id);
     }
 
     /**
@@ -92,9 +85,7 @@ public class UserService {
      * @return лента (коллекция событий) пользователя, которую мы нашли по его id
      */
     public Collection<Event> findFeedByUserId(Long userId) {
-        Collection<Event> events = eventStorage.getFeedByUserId(userId);
-        log.info("Получены события пользователя с id: {}", userId);
-        return events;
+        return eventStorage.getFeedByUserId(userId);
     }
 
     /**

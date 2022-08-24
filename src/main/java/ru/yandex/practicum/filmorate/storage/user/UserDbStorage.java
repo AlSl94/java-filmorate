@@ -67,7 +67,7 @@ public class UserDbStorage implements UserStorage{
     @Override
     public User findUserById(Long id) {
         final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
-        User user = null;
+        User user;
         try {
             user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
         } catch (DataAccessException e) {
