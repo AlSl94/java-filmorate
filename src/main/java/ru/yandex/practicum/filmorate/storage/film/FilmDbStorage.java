@@ -196,14 +196,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> getUsersFilmsIds(List<Long> usersIds) {
-        String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
-        String sqlQuery = String.format("SELECT DISTINCT film_id FROM likes WHERE user_id IN (%s)", ids);
-        return jdbcTemplate.queryForList(sqlQuery, Long.class);
-    }
-
-
-    @Override
     public List<Film> searchFilm(String query, List<String> by) {
         List<Film> searchedFilms;
         if (by.contains("director") && by.contains("title")) {
@@ -264,14 +256,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void checkFilmExistence(Long id) {
-        final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
-                "f.RELEASE_DATE, f.DURATION " +
-                "FROM FILMS AS f " +
-                "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
-                "WHERE f.FILM_ID = ?";
-        try {
-            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
-        } catch (DataAccessException e) {
+        final String sqlQuery = "SELECT COUNT(FILM_ID) FROM FILMS WHERE FILM_ID = ?";
+        int filmsCount = Objects.requireNonNull(jdbcTemplate.queryForObject(sqlQuery, Integer.class, id));
+
+        if (filmsCount == 0) {
             throw new WrongParameterException("film.id не найден");
         }
     }

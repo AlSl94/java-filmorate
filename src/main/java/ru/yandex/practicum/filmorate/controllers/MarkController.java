@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.MarkService;
-
 import java.util.Collection;
 
 @Slf4j
@@ -37,10 +36,10 @@ public class MarkController {
         log.info("Удалена оценка у фильма с id: {}, от пользователя c id: {}", filmId, userId);
     }
 
-    @GetMapping(value = "/score/best")
+    @GetMapping(value = "/popular")
     public Collection<Film> getBestFilms(@RequestParam(defaultValue = "10", required = false) Integer count,
-                                            @RequestParam(required = false) Long genreId,
-                                            @RequestParam(required = false) Integer year) {
+                                         @RequestParam(required = false) Long genreId,
+                                         @RequestParam(required = false) Integer year) {
         Collection<Film> topFilms = markService.getBestFilms(count, genreId, year);
         log.info("Получен топ {} фильмов по средней оценке", count);
         return topFilms;

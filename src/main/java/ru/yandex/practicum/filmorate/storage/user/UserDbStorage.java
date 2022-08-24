@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.mark.MarkStorage;
 import ru.yandex.practicum.filmorate.utilites.FilmRecommendation;
 
 import java.sql.ResultSet;
@@ -20,10 +21,13 @@ import java.util.stream.Collectors;
 public class UserDbStorage implements UserStorage{
     private final FilmStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
+    private final MarkStorage markStorage;
+
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmStorage filmStorage) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmStorage filmStorage, MarkStorage markStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmStorage = filmStorage;
+        this.markStorage = markStorage;
     }
 
     @Override
@@ -82,30 +86,24 @@ public class UserDbStorage implements UserStorage{
             return Collections.emptyList();
         }
 
-        Map<Long, Double> targetUserRates = getUsersRates(Collections.singletonList(id)).get(id);
-        Map<Long, Map<Long, Double>> similarUsersRates = getUsersRates(usersWithSimilarInterestsIds);
+        Map<Long, Integer> targetUserRates = getUsersRates(Collections.singletonList(id)).get(id);
+        Map<Long, Map<Long, Integer>> similarUsersRates = getUsersRates(usersWithSimilarInterestsIds);
 
         List<Long> recommendation = FilmRecommendation.getRecommendation(targetUserRates, similarUsersRates);
-        return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
+
+        return recommendation.stream()
+                .map(filmStorage::findFilmById)
+                .filter(film -> markStorage.averageFilmRating(film.getId())
+                        >= FilmRecommendation.MARK_AT_WHICH_POSITIVE_RATING_STARTS)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void checkUserExistence(Long id) {
-        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
-        try {
-            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
-        } catch (DataAccessException e) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
-    }
+        final String sqlQuery = "SELECT COUNT(USER_ID) FROM USERS WHERE USER_ID = ?";
+        int userCount = Objects.requireNonNull(jdbcTemplate.queryForObject(sqlQuery, Integer.class, id));
 
-    @Override
-    public void checkUserExistence(Long id, Long friendId) {
-        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
-        try {
-            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
-            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, friendId);
-        } catch (DataAccessException e) {
+        if (userCount == 0) {
             throw new WrongParameterException("user.id или friend.id не найден");
         }
     }
@@ -118,20 +116,20 @@ public class UserDbStorage implements UserStorage{
         return jdbcTemplate.queryForList(sqlQuery, Long.class, id);
     }
 
-    private Map<Long, Map<Long, Double>> getUsersRates(List<Long> usersIds) {
+    private Map<Long, Map<Long, Integer>> getUsersRates(List<Long> usersIds) {
         String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
         String sqlQuery = String.format("SELECT user_id, film_id, mark FROM MARKS" +
                 " WHERE user_id IN (%s)", ids);
-        Map<Long, Map<Long, Double>> usersRates = new HashMap<>();
+        Map<Long, Map<Long, Integer>> usersRates = new HashMap<>();
         jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToUsersRates(rs, usersRates));
         return usersRates;
     }
 
-    private long mapRowToUsersRates(ResultSet resultSet,Map<Long, Map<Long, Double>> mapToStock)
+    private long mapRowToUsersRates(ResultSet resultSet,Map<Long, Map<Long, Integer>> mapToStock)
             throws SQLException {
         Long userId = resultSet.getLong("user_id");
         Long filmId = resultSet.getLong("film_id");
-        Double mark = resultSet.getDouble("mark");
+        Integer mark = resultSet.getInt("mark");
         mapToStock.putIfAbsent(userId, new HashMap<>());
         mapToStock.get(userId).put(filmId, mark);
         return userId;

@@ -7,12 +7,14 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 public class FilmRecommendation {
-    public static List<Long> getRecommendation(Map<Long, Double> targetUserFilmsRates, Map<Long,
-            Map<Long, Double>> similarUsersFilmsRates) {
+    public static final Double MARK_AT_WHICH_POSITIVE_RATING_STARTS = 6.0;
+
+    public static List<Long> getRecommendation(Map<Long, Integer> targetUserFilmsRates, Map<Long,
+            Map<Long, Integer>> similarUsersFilmsRates) {
         Set<Long> similarFilmsThatNotWatchedByTargetUSerIds = new HashSet<>();
 
         for (Long userId : similarUsersFilmsRates.keySet()) {
-            Map<Long, Double> userRates = similarUsersFilmsRates.get(userId);
+            Map<Long, Integer> userRates = similarUsersFilmsRates.get(userId);
             for (Long filmId : userRates.keySet()) {
                 if (!targetUserFilmsRates.containsKey(filmId)) {
                     similarFilmsThatNotWatchedByTargetUSerIds.add(filmId);
@@ -30,7 +32,7 @@ public class FilmRecommendation {
         return getCorrelatedRecommendations(similarFilmsThatNotWatchedByTargetUSerIds, similarUsersFilmsRates, usersCorrelations);
     }
 
-    private static Double calculateCorrelation(Map<Long, Double> firstUserRates, Map<Long, Double> secondUserRates) {
+    private static Double calculateCorrelation(Map<Long, Integer> firstUserRates, Map<Long, Integer> secondUserRates) {
         int count = 0;
         double sum1 = 0.0;
         double sum2 = 0.0;
@@ -40,8 +42,8 @@ public class FilmRecommendation {
 
         for (Long filmId : firstUserRates.keySet()) {
             if (secondUserRates.containsKey(filmId)) {
-                Double firstUserRate = firstUserRates.get(filmId);
-                Double secondUserRate = secondUserRates.get(filmId);
+                Integer firstUserRate = firstUserRates.get(filmId);
+                Integer secondUserRate = secondUserRates.get(filmId);
                 count++;
                 sum1 += firstUserRate;
                 sum2 += secondUserRate;
@@ -60,17 +62,17 @@ public class FilmRecommendation {
         return num / den;
     }
 
-    private static List<Long> getCorrelatedRecommendations(Set<Long> filmsIds, Map<Long, Map<Long, Double>> usersFilmRates,
+    private static List<Long> getCorrelatedRecommendations(Set<Long> filmsIds, Map<Long, Map<Long, Integer>> usersFilmRates,
                                                     Map<Long, Double> usersCorrelations) {
         Map<Long, Double> correlatedFilms = new HashMap<>();
         Map<Long, Double> sumCorrelations = new HashMap<>();
 
-        for (Map.Entry<Long, Map<Long, Double>> e : usersFilmRates.entrySet()) {
-            Map<Long, Double> userRates = e.getValue();
+        for (Map.Entry<Long, Map<Long, Integer>> e : usersFilmRates.entrySet()) {
+            Map<Long, Integer> userRates = e.getValue();
             Long userId = e.getKey();
             for (Long filmId : filmsIds) {
                 if (userRates.containsKey(filmId)) {
-                    Double filmRate = userRates.get(filmId);
+                    Integer filmRate = userRates.get(filmId);
                     Double userCorrelation = usersCorrelations.get(userId);
                     double correlatedUserRate = filmRate * userCorrelation;
                     correlatedFilms.put(filmId, correlatedFilms.getOrDefault(filmId, 0.0) + correlatedUserRate);
