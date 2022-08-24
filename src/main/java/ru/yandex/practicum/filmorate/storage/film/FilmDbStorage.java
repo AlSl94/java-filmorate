@@ -224,6 +224,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForList(sqlQuery, Long.class);
     }
 
+
     @Override
     public List<Film> searchFilm(String query, List<String> by) {
         List<Film> searchedFilms;
@@ -234,10 +235,10 @@ public class FilmDbStorage implements FilmStorage {
                     "JOIN MPA_RATING AS MR on MR.MPA_ID = f.MPA_ID " +
                     "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "LEFT JOIN MARK M on f.FILM_ID = M.FILM_ID " +
                     "WHERE f.NAME ilike '%' || ? || '%' OR d.DIRECTOR_NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
-                    "ORDER BY COUNT(l.USER_ID) DESC";
+                    "ORDER BY AVG(M.MARK) DESC";
 
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query, query);
 
@@ -248,10 +249,10 @@ public class FilmDbStorage implements FilmStorage {
                     "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
                     "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                     "WHERE d.DIRECTOR_NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
-                    "ORDER BY COUNT(l.USER_ID) DESC";
+                    "ORDER BY AVG(M.MARK) DESC";
 
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
 
@@ -260,10 +261,10 @@ public class FilmDbStorage implements FilmStorage {
                     "mr.MPA, f.DURATION, f.RELEASE_DATE " +
                     "FROM films as f " +
                     "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
-                    "LEFT JOIN LIKES L on f.FILM_ID = L.FILM_ID " +
+                    "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                     "WHERE f.NAME ilike '%' || ? || '%' " +
                     "GROUP BY f.film_id " +
-                    "ORDER BY COUNT(l.USER_ID) DESC";
+                    "ORDER BY AVG(M.MARK) DESC";
 
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
         }
@@ -273,14 +274,15 @@ public class FilmDbStorage implements FilmStorage {
         return searchedFilms;
     }
 
+    @Override
     public List<Film> findCommonFilms(Long userId, Long friendId) {
-        final String sqlQuery = "SELECT FILM_ID, COUNT(USER_ID) " +
-                "FROM LIKES " +
+        final String sqlQuery = "SELECT FILM_ID" +
+                "FROM MARKS " +
                 "WHERE FILM_ID IN " +
-                "(SELECT L1.FILM_ID FROM LIKES AS L1 JOIN LIKES AS L2 ON L2.FILM_ID = L1.FILM_ID " +
-                "WHERE L1.USER_ID = ? AND L2.USER_ID = ?) " +
+                "(SELECT M1.FILM_ID FROM MARKS AS M1 JOIN MARKS AS M2 ON M2.FILM_ID = M1.FILM_ID " +
+                "WHERE M1.USER_ID = ? AND M2.USER_ID = ?) " +
                 "GROUP BY FILM_ID " +
-                "ORDER BY COUNT(USER_ID) DESC";
+                "ORDER BY AVG(MARK) DESC";
         List<Long> ids = jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> rs.getLong("FILM_ID"), userId, friendId);
         return ids.stream().map(this::findFilmById).collect(Collectors.toList());
