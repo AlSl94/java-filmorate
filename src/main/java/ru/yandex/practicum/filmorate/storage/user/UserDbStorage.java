@@ -103,6 +103,25 @@ public class UserDbStorage implements UserStorage{
         return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
     }
 
+    public void checkUserExistence(Long id) {
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        try {
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("user.id или friend.id не найден");
+        }
+    }
+
+    public void checkUserExistence(Long id, Long friendId) {
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        try {
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, friendId);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("user.id или friend.id не найден");
+        }
+    }
+
     private List<Long> getUsersWithSimilarInterests(Long id) {
         final String sqlQuery = "SELECT DISTINCT l2.user_id FROM likes AS l2" +
                 " JOIN likes AS l1 on l1.film_id = l2.film_id" +

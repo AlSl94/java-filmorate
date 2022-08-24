@@ -4,13 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.Objects;
 @Slf4j
 @Service
 @Validated
@@ -30,10 +28,7 @@ public class FriendService {
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      */
     public void addFriend(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
+        userStorage.checkUserExistence(id, friendId);
         friendStorage.addFriend(id, friendId);
     }
 
@@ -43,10 +38,7 @@ public class FriendService {
      * @param friendId айди друга
      */
     public void removeFriend(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
+        userStorage.checkUserExistence(id, friendId);
         friendStorage.removeFriend(id, friendId);
     }
 
@@ -56,10 +48,7 @@ public class FriendService {
      * @return коллекция с друзьями пользователя
      */
     public Collection<User> getFriends(Long id) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
-            log.info("Попытка получить пользователя с неверным user.id");
-            throw new WrongParameterException("user.id не найден");
-        }
+        userStorage.checkUserExistence(id);
         return friendStorage.getFriends(id);
     }
 
@@ -70,10 +59,7 @@ public class FriendService {
      * @return коллекция с общими друзьями двух пользователей
      */
     public Collection<User> commonFriends(Long id, Long friendId) {
-        if ((userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id)))
-                || (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), friendId)))) {
-            throw new WrongParameterException("user.id или friend.id не найден");
-        }
+        userStorage.checkUserExistence(id, friendId);
         return friendStorage.commonFriends(id, friendId);
     }
 }
