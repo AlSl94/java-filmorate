@@ -103,6 +103,7 @@ public class UserDbStorage implements UserStorage{
         return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
     }
 
+    @Override
     public void checkUserExistence(Long id) {
         final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
         try {
@@ -112,6 +113,7 @@ public class UserDbStorage implements UserStorage{
         }
     }
 
+    @Override
     public void checkUserExistence(Long id, Long friendId) {
         final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
         try {
