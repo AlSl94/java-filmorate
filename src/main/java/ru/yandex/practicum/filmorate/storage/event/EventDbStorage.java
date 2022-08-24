@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
 
 @Component
@@ -25,7 +25,7 @@ public class EventDbStorage implements EventStorage {
     public void createEvent(long userId, long entityId, int eventTypeId, int operationId) {
         final String sqlQuery = "INSERT INTO events (user_id, entity_id, type_id, operation_id, event_timestamp) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, entityId, eventTypeId, operationId, LocalDateTime.now());
+        jdbcTemplate.update(sqlQuery, userId, entityId, eventTypeId, operationId, Instant.now());
     }
 
     @Override
@@ -43,12 +43,12 @@ public class EventDbStorage implements EventStorage {
 
     private String getTypeNameById(int typeId) {
         return jdbcTemplate.queryForObject("SELECT type_name FROM event_types " +
-                                               "WHERE type_id = ?", String.class, typeId);
+                "WHERE type_id = ?", String.class, typeId);
     }
 
     private String getOperationNameById(int operationId) {
         return jdbcTemplate.queryForObject("SELECT operation_name FROM event_operations " +
-                                               "WHERE operation_id = ?", String.class, operationId);
+                "WHERE operation_id = ?", String.class, operationId);
     }
 
     private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
