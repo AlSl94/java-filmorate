@@ -57,11 +57,8 @@ public class UserService {
      * @param id айди пользователя
      */
     public void delete(@Valid Long id) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(id, u.getId()))) {
-            log.info("Попытка удалить пользователя");
-            throw new WrongParameterException("user.id не найден");
-        }
         userStorage.delete(id);
+        log.info("Пользователь с id: {} удален.", id);
     }
 
     /**
@@ -71,11 +68,9 @@ public class UserService {
      * @return обновленный пользователь
      */
     public User update(@Valid User user) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(user.getId(), u.getId()))) {
-            log.info("Попытка обновить пользователя");
-            throw new WrongParameterException("user.id не найден");
-        }
-        return userStorage.update(user);
+        user = userStorage.update(user);
+        log.info("Обновлен пользователь с id: {}", user.getId());
+        return user;
     }
 
     /**
@@ -85,11 +80,9 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User findUserById(Long id) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
-            log.info("Попытка получить пользователя с неверным user.id");
-            throw new WrongParameterException("user.id не найден");
-        }
-        return userStorage.findUserById(id);
+        User user = userStorage.findUserById(id);
+        log.info("Получен пользователь с id: {}", id);
+        return user;
     }
 
     /**
@@ -99,11 +92,9 @@ public class UserService {
      * @return лента (коллекция событий) пользователя, которую мы нашли по его id
      */
     public Collection<Event> findFeedByUserId(Long userId) {
-        if (userStorage.findAll().stream().noneMatch(user -> Objects.equals(user.getId(), userId))) {
-            log.info("Попытка получить пользователя с неверным user.id");
-            throw new WrongParameterException("user.id не найден");
-        }
-        return eventStorage.getFeedByUserId(userId);
+        Collection<Event> events = eventStorage.getFeedByUserId(userId);
+        log.info("Получены события пользователя с id: {}", userId);
+        return events;
     }
 
     /**
