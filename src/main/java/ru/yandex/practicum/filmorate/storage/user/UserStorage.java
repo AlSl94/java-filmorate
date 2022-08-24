@@ -18,4 +18,8 @@ public interface UserStorage {
     User findUserById(Long id);
 
     Collection<Film> getRecommendations(Long id);
+
+    void checkUserExistence(Long id);
+
+    void checkUserExistence(Long id, Long friendId);
 }

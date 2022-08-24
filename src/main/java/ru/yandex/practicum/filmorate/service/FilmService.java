@@ -6,25 +6,20 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Validated
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final DirectorStorage directorStorage;
-
     @Autowired
-    public FilmService(FilmStorage filmStorage, DirectorStorage directorStorage) {
+    public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
-        this.directorStorage = directorStorage;
     }
 
     /**
@@ -41,9 +36,6 @@ public class FilmService {
      * @return фильм
      */
     public Film findFilmById(@Valid Long id) {
-        if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(f.getId(), id))) {
-            throw new WrongParameterException("Фильма с " + id + " не существует");
-        }
         return filmStorage.findFilmById(id);
     }
 
@@ -74,16 +66,10 @@ public class FilmService {
      * @return обновленный фильм, который пропустили через метод filmStorage.film()
      */
     public Film update(@Valid Film film) {
-        if (filmStorage.findAll().stream().noneMatch(f -> Objects.equals(film.getId(), f.getId()))) {
-            throw new WrongParameterException("film.id не найден");
-        }
         return filmStorage.update(film);
     }
 
     public Collection<Film> getFilmsByDirector(Integer id, String sortBy) {
-        if (directorStorage.getAllDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
-            throw new WrongParameterException("director.id не найден");
-        }
         return filmStorage.getFilmsByDirector(id, sortBy);
     }
 
@@ -105,7 +91,6 @@ public class FilmService {
      * @return коллекция найденных фильмов
      */
     public Collection<Film> searchFilm(String query, List<String> by) {
-        //валидация
         if (query.length() < 3) throw new WrongParameterException("Количество символов запроса поиска меньше 3-х");
         if (query.isBlank()) throw new WrongParameterException("Строка запроса поиска пустая");
         if (!by.contains("director") && !by.contains("title"))

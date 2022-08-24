@@ -3,13 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Objects;
 
 @Service
 @Validated
@@ -32,9 +30,6 @@ public class DirectorService {
      * @return режиссер
      */
     public Director findDirectorById(@Valid Integer id) {
-        if (getAllDirectors().stream().noneMatch(d -> Objects.equals(id, d.getId()))) {
-            throw new WrongParameterException("director.id не найден");
-        }
         return directorStorage.findDirectorById(id);
     }
 
@@ -53,9 +48,6 @@ public class DirectorService {
      * @return обновленный режиссер
      */
     public Director update(@Valid Director director) {
-        if (getAllDirectors().stream().noneMatch(d -> Objects.equals(director.getId(), d.getId()))) {
-            throw new WrongParameterException("director.id не найден");
-        }
         return directorStorage.update(director);
     }
 

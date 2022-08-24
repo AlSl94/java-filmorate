@@ -29,7 +29,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review createReview(Review review) {
-        final String sql = "INSERT INTO REVIEWS (CONTENT, IS_POSITIVE, USER_ID, FILM_ID) VALUES ( ?,?,?,? )";
+        final String sql = "INSERT INTO REVIEWS (CONTENT, POSITIVE, USER_ID, FILM_ID) VALUES ( ?,?,?,? )";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(
@@ -50,7 +50,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review updateReview(Review review) {
         checkReviewExists(review.getReviewId());
         Review reviewFromDb = getReviewById(review.getReviewId());
-        jdbcTemplate.update("UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? " +
+        jdbcTemplate.update("UPDATE REVIEWS SET CONTENT = ?, POSITIVE = ? " +
                         "WHERE REVIEW_ID = ?"
                 , review.getContent()
                 , review.getIsPositive()
@@ -70,7 +70,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review getReviewById(Long id) {
         checkReviewExists(id);
-        final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+        final String sqlQuery = "SELECT REVIEWS.*, " +
+                "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                 "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                 "WHERE REVIEWS.REVIEW_ID = ? " +
                 "GROUP BY REVIEWS.REVIEW_ID ";
@@ -78,29 +79,32 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Collection<Review> getMostUsefulReviews(Integer count, Long filmId) {
+    public Collection<Review> getMostUsefulReviews(Integer limit, Long filmId) {
         Collection<Review> reviewCollection;
         if (filmId != null) {
-            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+            final String sqlQuery = "SELECT REVIEWS.*, " +
+                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "WHERE REVIEWS.FILM_ID = ? " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
                     "LIMIT ?";
-            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, filmId, count);
+            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, filmId, limit);
         } else {
-            final String sqlQuery = "SELECT REVIEWS.*, IFNULL(SUM(RL.IS_LIKE), 0) AS USEFUL FROM REVIEWS " +
+            final String sqlQuery = "SELECT REVIEWS.*, " +
+                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE), 0) DESC " +
+                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
                     "LIMIT ?";
-            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, count);
+            reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, limit);
         }
         return reviewCollection;
     }
 
     private void checkReviewExists(Long reviewId) {
-        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
+        Byte countReview = Objects.requireNonNull(jdbcTemplate.queryForObject(
+                "SELECT COUNT(REVIEW_ID) FROM REVIEWS WHERE REVIEW_ID = ?",
                 Byte.class, reviewId));
         if (countReview == 0) {
             throw new WrongParameterException(String.format("Отзыв с id %d не найден", reviewId));
@@ -111,7 +115,7 @@ public class ReviewDbStorage implements ReviewStorage {
         return Review.builder()
                 .reviewId(rs.getLong("review_id"))
                 .content(rs.getString("content"))
-                .isPositive(rs.getBoolean("is_positive"))
+                .isPositive(rs.getBoolean("positive"))
                 .userId(rs.getLong("user_id"))
                 .filmId(rs.getLong("film_id"))
                 .useful(rs.getInt("useful"))

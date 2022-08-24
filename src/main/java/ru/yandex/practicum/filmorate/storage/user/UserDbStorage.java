@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -26,7 +28,8 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public Collection<User> findAll() {
-        return jdbcTemplate.query("SELECT * FROM users", this::mapRowToUser);
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
     @Override
@@ -41,25 +44,36 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public void delete(Long id) {
-        jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", id);
+        if (jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", id) == 0) {
+            throw new WrongParameterException("user.id не найден");
+        }
     }
 
     @Override
     public User update(User user) {
-        jdbcTemplate.update("UPDATE users SET email = ?, login = ?, " +
+        int updatedRows = jdbcTemplate.update("UPDATE users SET email = ?, login = ?, " +
                 "name = ?, birthday = ? WHERE user_id = ?"
                 , user.getEmail()
                 , user.getLogin()
                 , user.getName()
                 , user.getBirthday()
                 , user.getId());
+        if (updatedRows == 0) {
+            throw new WrongParameterException("user.id не найден");
+        }
         return user;
     }
 
     @Override
     public User findUserById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = ?",
-                this::mapRowToUser, id);
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        User user;
+        try {
+            user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("user.id не найден");
+        }
+        return user;
     }
 
     public Collection<Film> getRecommendations(Long id) {
@@ -87,6 +101,25 @@ public class UserDbStorage implements UserStorage{
 
         List<Long> recommendation = FilmRecommendation.getRecommendation(targetUserRates, similarUsersFilmsRates);
         return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
+    }
+
+    public void checkUserExistence(Long id) {
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        try {
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("user.id или friend.id не найден");
+        }
+    }
+
+    public void checkUserExistence(Long id, Long friendId) {
+        final String sqlQuery = "SELECT user_id, email, login, name, birthday FROM users WHERE user_id = ?";
+        try {
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+            jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, friendId);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("user.id или friend.id не найден");
+        }
     }
 
     private List<Long> getUsersWithSimilarInterests(Long id) {

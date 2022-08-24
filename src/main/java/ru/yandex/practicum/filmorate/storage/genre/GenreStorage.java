@@ -9,4 +9,6 @@ public interface GenreStorage {
     Genre getGenreById(Integer id);
 
     List<Genre> allGenres();
+
+    void checkGenreExistence(Integer id);
 }

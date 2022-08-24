@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(of = "id")
 public class Director {
     @NotNull
-    Integer id;
+    private Integer id;
     @NotBlank
     @NotNull
-    String name;
+    private String name;
 }
