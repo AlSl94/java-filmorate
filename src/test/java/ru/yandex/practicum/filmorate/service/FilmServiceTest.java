@@ -28,8 +28,7 @@ class FilmServiceTest {
     private final MpaService mpaService;
     private final DirectorService directorService;
     private final GenreService genreService;
-    private final LikeService likeService;
-
+    private final MarkService markService;
     private final UserService userService;
 
     @Test
@@ -102,26 +101,25 @@ class FilmServiceTest {
     }
 
     @Test
-    void getFilmsByDirectorByLikesTest() {
+    void getFilmsByDirectorByRatingTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
 
-        likeService.likeFilm(dieHard.getId(), userOne.getId());
-        likeService.likeFilm(dieHard.getId(), userTwo.getId());
-        likeService.likeFilm(dieHard2.getId(), userOne.getId());
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 7);
 
-        List<Film> filmsByLikes = (List<Film>) filmService.getFilmsByDirector(1, "likes");
+        List<Film> filmsByLikes = (List<Film>) filmService.getFilmsByDirector(1, "rating");
 
         assertThat(filmsByLikes.get(0)).isEqualTo(dieHard);
         assertThat(filmsByLikes.get(1)).isEqualTo(dieHard2);
 
-        likeService.unlikeFilm(dieHard.getId(), userOne.getId());
-        likeService.likeFilm(dieHard2.getId(), userTwo.getId());
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 10);
 
-        List<Film> filmsByLikes2 = (List<Film>) filmService.getFilmsByDirector(1, "likes");
+        List<Film> filmsByLikes2 = (List<Film>) filmService.getFilmsByDirector(1, "rating");
 
         assertThat(filmsByLikes2.get(0)).isEqualTo(dieHard2);
         assertThat(filmsByLikes2.get(1)).isEqualTo(dieHard);
@@ -135,14 +133,16 @@ class FilmServiceTest {
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
 
-        likeService.likeFilm(userOne.getId(), dieHard.getId());
-        likeService.likeFilm(userOne.getId(), dieHard2.getId());
-        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 9);
+
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 6);
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 5);
 
         List<Film> commonFilms = (List<Film>) filmService.findCommonFilms(userOne.getId(), userTwo.getId());
 
-        assertThat(commonFilms).hasSize(1);
-        assertThat(commonFilms.get(0)).isEqualTo(dieHard);
+        assertThat(commonFilms).hasSize(2);
+        assertThat(commonFilms.get(0)).isEqualTo(dieHard2);
     }
 
     @Test
@@ -151,18 +151,16 @@ class FilmServiceTest {
         Film dieHard2 = filmService.add(films().get(1));
 
         User userOne = userService.create(users().get(0));
-        User userTwo = userService.create(users().get(1));
 
-        likeService.likeFilm(userOne.getId(), dieHard.getId());
-        likeService.likeFilm(userOne.getId(), dieHard2.getId());
-        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 9);
 
         List<String> directorOnly = new ArrayList<>(List.of("director"));
 
         List<Film> films = (List<Film>) filmService.searchFilm("васЯ", directorOnly);
 
         assertThat(films).hasSize(2);
-        assertThat(films.get(0)).isEqualTo(dieHard);
+        assertThat(films.get(0)).isEqualTo(dieHard2);
     }
 
     @Test
@@ -171,11 +169,9 @@ class FilmServiceTest {
         Film dieHard2 = filmService.add(films().get(1));
 
         User userOne = userService.create(users().get(0));
-        User userTwo = userService.create(users().get(1));
 
-        likeService.likeFilm(userOne.getId(), dieHard.getId());
-        likeService.likeFilm(userOne.getId(), dieHard2.getId());
-        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 5);
 
         List<String> titleOnly = new ArrayList<>(List.of("title"));
 
@@ -191,11 +187,9 @@ class FilmServiceTest {
         Film dieHard2 = filmService.add(films().get(1));
 
         User userOne = userService.create(users().get(0));
-        User userTwo = userService.create(users().get(1));
 
-        likeService.likeFilm(userOne.getId(), dieHard.getId());
-        likeService.likeFilm(userOne.getId(), dieHard2.getId());
-        likeService.likeFilm(userTwo.getId(), dieHard.getId());
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 5);
 
         List<String> directorAndTitle = new ArrayList<>(List.of("director", "title"));
 
