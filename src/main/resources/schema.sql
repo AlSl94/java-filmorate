@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS mpa_rating (
 
 CREATE TABLE IF NOT EXISTS directors (
     director_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    director    varchar(255)
+    director_name    varchar(255)
 );
 
 CREATE TABLE IF NOT EXISTS films
@@ -57,11 +57,19 @@ CREATE TABLE IF NOT EXISTS likes
     PRIMARY KEY (user_id, film_id)
 );
 
+CREATE TABLE IF NOT EXISTS marks
+(
+    film_id bigint REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id bigint REFERENCES users (user_id) ON DELETE CASCADE,
+    mark smallint CHECK(mark between 1 and 10) NOT NULL,
+    PRIMARY KEY (user_id, film_id)
+);
+
 CREATE TABLE IF NOT EXISTS reviews
 (
     review_id   bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
     content     varchar(3000) NOT NULL,
-    is_positive boolean,
+    positive    boolean,
     user_id     bigint REFERENCES users (user_id) ON DELETE CASCADE,
     film_id     bigint REFERENCES films (film_id) ON DELETE CASCADE
 );
@@ -70,19 +78,19 @@ CREATE TABLE IF NOT EXISTS review_likes
 (
     review_id bigint REFERENCES reviews (review_id) ON DELETE CASCADE,
     user_id   bigint REFERENCES users (user_id) ON DELETE CASCADE,
-    is_like   int default 0
+    is_like   boolean
 );
 
 CREATE TABLE IF NOT EXISTS event_types
 (
     type_id   smallint NOT NULL PRIMARY KEY,
-    type_name varchar(6)
+    type_name varchar(10)
 );
 
 CREATE TABLE IF NOT EXISTS event_operations
 (
     operation_id   smallint NOT NULL PRIMARY KEY,
-    operation_name varchar(6)
+    operation_name varchar(10)
 );
 
 CREATE TABLE IF NOT EXISTS events

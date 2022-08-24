@@ -94,7 +94,7 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     private boolean checkLikePair(Long filmId, Long userId) {
-        final String sqlQuery = "SELECT EXISTS(SELECT * FROM likes WHERE film_id = ? AND user_id = ?)";
+        final String sqlQuery = "SELECT EXISTS(SELECT FILM_ID, USER_ID FROM likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }
 }

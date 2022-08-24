@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -57,10 +55,6 @@ public class UserService {
      * @param id айди пользователя
      */
     public void delete(@Valid Long id) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(id, u.getId()))) {
-            log.info("Попытка удалить пользователя");
-            throw new WrongParameterException("user.id не найден");
-        }
         userStorage.delete(id);
     }
 
@@ -71,10 +65,6 @@ public class UserService {
      * @return обновленный пользователь
      */
     public User update(@Valid User user) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(user.getId(), u.getId()))) {
-            log.info("Попытка обновить пользователя");
-            throw new WrongParameterException("user.id не найден");
-        }
         return userStorage.update(user);
     }
 
@@ -85,10 +75,6 @@ public class UserService {
      * @return пользователь, которого мы нашли по id
      */
     public User findUserById(Long id) {
-        if (userStorage.findAll().stream().noneMatch(u -> Objects.equals(u.getId(), id))) {
-            log.info("Попытка получить пользователя с неверным user.id");
-            throw new WrongParameterException("user.id не найден");
-        }
         return userStorage.findUserById(id);
     }
 
@@ -99,10 +85,6 @@ public class UserService {
      * @return лента (коллекция событий) пользователя, которую мы нашли по его id
      */
     public Collection<Event> findFeedByUserId(Long userId) {
-        if (userStorage.findAll().stream().noneMatch(user -> Objects.equals(user.getId(), userId))) {
-            log.info("Попытка получить пользователя с неверным user.id");
-            throw new WrongParameterException("user.id не найден");
-        }
         return eventStorage.getFeedByUserId(userId);
     }
 

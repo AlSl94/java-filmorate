@@ -21,12 +21,12 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Mpa getMpaById(Integer id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM mpa_rating WHERE mpa_id = ?",
+        return jdbcTemplate.queryForObject("SELECT MPA_ID, MPA FROM mpa_rating WHERE mpa_id = ?",
                 this::mapRowToMpa, id);
     }
     @Override
     public Collection<Mpa> allMpa() { // NOTHING SPECIAL
-        return jdbcTemplate.query("SELECT * FROM mpa_rating", this::mapRowToMpa);
+        return jdbcTemplate.query("SELECT MPA_ID, MPA FROM mpa_rating", this::mapRowToMpa);
     }
 
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
