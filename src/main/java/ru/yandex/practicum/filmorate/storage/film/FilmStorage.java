@@ -23,4 +23,6 @@ public interface FilmStorage {
     Collection<Film> findCommonFilms(Long userId, Long friendId);
 
     List<Film> getFilmsByDirector(Integer id, String sortBy);
+
+    void checkFilmExistence(Long id);
 }

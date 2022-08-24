@@ -10,5 +10,7 @@ public interface MarkStorage {
 
     void removeFilmScore(Long filmId, Long userId);
 
-    Collection<Film> getPopularFilms(Integer count, Long genreId, Integer year);
+    Collection<Film> getBestFilms(Integer count, Long genreId, Integer year);
+
+    Double averageFilmScore(Long filmId);
 }
