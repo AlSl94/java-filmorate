@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
@@ -33,7 +34,11 @@ public class EventDbStorage implements EventStorage {
                 "FROM events " +
                 "WHERE user_id = ? " +
                 "ORDER BY event_id";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToEvent, userId);
+        Collection<Event> events = jdbcTemplate.query(sqlQuery, this::mapRowToEvent, userId);
+        if (events.isEmpty()) {
+            throw new WrongParameterException("user.id не найден или для него нет событий");
+        }
+        return events;
     }
 
     private String getTypeNameById(int typeId) {
