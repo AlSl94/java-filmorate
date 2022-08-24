@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -83,20 +85,25 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void delete(Long id) {
-        jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", id);
+        if (jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", id) == 0) {
+            throw new WrongParameterException("film.id не найден");        }
     }
 
     @Override
     public Film update(@NotNull Film film) {
         final String sqlQuery = "UPDATE films SET name = ?, description = ?, mpa_id = ?, " +
                 "duration = ?, release_date = ? WHERE film_id = ?";
-        jdbcTemplate.update(sqlQuery
+        int updatedRows = jdbcTemplate.update(sqlQuery
                 , film.getName()
                 , film.getDescription()
                 , film.getMpa().getId()
                 , film.getDuration()
                 , film.getReleaseDate()
                 , film.getId());
+
+        if (updatedRows == 0) {
+            throw new WrongParameterException("film.id не найден");
+        }
 
         try {
             if (!film.getGenres().isEmpty()) { // Проверяем, что жанры не пустые
@@ -130,14 +137,17 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilmById(Long id) {
-
+        Film film;
         final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
                 "f.RELEASE_DATE, f.DURATION " +
                 "FROM FILMS AS f " +
                 "JOIN MPA_RATING AS mr on mr.MPA_ID = f.MPA_ID " +
                 "WHERE f.FILM_ID = ?";
-
-        Film film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+        try {
+            film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+        } catch (DataAccessException e) {
+            throw new WrongParameterException("film.id не найден");
+        }
         assert film != null;
         film.setGenres(loadFilmGenre(id));
         film.setDirectors(directorStorage.directorsByFilm(id));
@@ -147,6 +157,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmsByDirector(Integer id, String sortBy) {
         switch (sortBy) {
             case "year":
+                List<Film> filmsByYear;
                 final String sqlQueryByYear =
                         "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration " +
                                 "FROM FILMS AS f " +
@@ -154,11 +165,17 @@ public class FilmDbStorage implements FilmStorage {
                                 "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
                                 "WHERE fd.director_id = ? " +
                                 "ORDER BY f.RELEASE_DATE";
-                List<Film> filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
+                filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
+
+                if (filmsByYear.isEmpty()) {
+                    throw new WrongParameterException("director.id не найден или у него нет фильмов");
+                }
+
                 filmsByYear.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
                 filmsByYear.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
                 return filmsByYear;
             case "likes":
+                List<Film> filmsByLikes;
                 final String sqlQueryByLikes = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
                         "mr.MPA, f.DURATION, f.RELEASE_DATE " +
                         "FROM FILMS as f " +
@@ -168,7 +185,12 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE fd.DIRECTOR_ID = ? " +
                         "GROUP BY f.FILM_ID " +
                         "ORDER BY COUNT(l.USER_ID) DESC";
-                List<Film> filmsByLikes = jdbcTemplate.query(sqlQueryByLikes, this::mapRowToFilm, id);
+                filmsByLikes = jdbcTemplate.query(sqlQueryByLikes, this::mapRowToFilm, id);
+
+                if (filmsByLikes.isEmpty()) {
+                    throw new WrongParameterException("director.id не найден или у него нет фильмов");
+                }
+
                 filmsByLikes.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
                 filmsByLikes.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
                 return filmsByLikes;
