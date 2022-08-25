@@ -37,12 +37,12 @@ public class MarkController {
         log.info("Удалена оценка у фильма с id: {}, от пользователя c id: {}", filmId, userId);
     }
 
-    @GetMapping(value = "/popular/mark") // todo убрать mark. Сделано, чтобы не было конфликта у бинов
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count,
+    @GetMapping(value = "/score/best")
+    public Collection<Film> getBestFilms(@RequestParam(defaultValue = "10", required = false) Integer count,
                                             @RequestParam(required = false) Long genreId,
                                             @RequestParam(required = false) Integer year) {
-        Collection<Film> topFilms = markService.getPopularFilms(count, genreId, year);
-        log.info("Получен топ {} фильмов по количеству лайков", count);
+        Collection<Film> topFilms = markService.getBestFilms(count, genreId, year);
+        log.info("Получен топ {} фильмов по средней оценке", count);
         return topFilms;
     }
 }
