@@ -130,12 +130,10 @@ public class UserDbStorage implements UserStorage{
     private long mapRowToUsersRates(ResultSet resultSet,Map<Long, Map<Long, Double>> mapToStock)
             throws SQLException {
         Long userId = resultSet.getLong("user_id");
-        Long film_id = resultSet.getLong("film_id");
+        Long filmId = resultSet.getLong("film_id");
         Double mark = resultSet.getDouble("mark");
-        if (!mapToStock.containsKey(userId)) {
-            mapToStock.put(userId, new HashMap<>());
-        }
-        mapToStock.get(userId).put(film_id, mark);
+        mapToStock.putIfAbsent(userId, new HashMap<>());
+        mapToStock.get(userId).put(filmId, mark);
         return userId;
     }
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -20,8 +21,9 @@ import java.util.List;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class UserStorageTest {
+    class UserStorageTest {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final MarkStorage markStorage;
@@ -29,7 +31,7 @@ public class UserStorageTest {
 
     @Test
     @Order(1)
-    public void getRecommendationsTest_standard() {
+    void getRecommendationsTest_standard() {
         createUsers(6);
         createFilms(11);
         createMarks();
@@ -45,7 +47,7 @@ public class UserStorageTest {
     }
 
     @Test
-    public void getRecommendationsTest_userNotExist_thenEmptyList() {
+    void getRecommendationsTest_userNotExist_thenEmptyList() {
         Collection<Film> expected = Collections.emptyList();
         Collection<Film> real = new ArrayList<>(userStorage.getRecommendations(777L));
 
@@ -53,7 +55,7 @@ public class UserStorageTest {
     }
 
     @Test
-    public void getRecommendationsTest_userHasNoSimilarUsers_thenEmptyList() {
+    void getRecommendationsTest_userHasNoSimilarUsers_thenEmptyList() {
         Collection<Film> expected = Collections.emptyList();
         Collection<Film> real = userStorage.getRecommendations(5L);
 
@@ -61,7 +63,7 @@ public class UserStorageTest {
     }
 
     @Test
-    public void getRecommendationsTest_userDoesNotMarkAnyFilm() {
+    void getRecommendationsTest_userDoesNotMarkAnyFilm() {
         Collection<Film> expected = Collections.emptyList();
         Collection<Film> real = userStorage.getRecommendations(6L);
 

@@ -12,5 +12,5 @@ public interface MarkStorage {
 
     Collection<Film> getBestFilms(Integer count, Long genreId, Integer year);
 
-    Double averageFilmScore(Long filmId);
+    Double averageFilmRating(Long filmId);
 }

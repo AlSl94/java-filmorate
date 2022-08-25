@@ -43,7 +43,7 @@ class MarkServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 10);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 5);
 
-        Double filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        Double filmScore = markDbStorage.averageFilmRating(dieHard.getId());
 
         assertThat(filmScore).isEqualTo(7.5);
     }
@@ -58,16 +58,85 @@ class MarkServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 10);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 4);
 
-        Double filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        Double filmScore = markDbStorage.averageFilmRating(dieHard.getId());
         assertThat(filmScore).isEqualTo(7);
 
         markService.removeFilmScore(dieHard.getId(), userTwo.getId());
-        filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        filmScore = markDbStorage.averageFilmRating(dieHard.getId());
         assertThat(filmScore).isEqualTo(10);
     }
 
     @Test
-    void getPopularFilmsTest() { // TODO
+    void getBestFilmsByGenresTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+        User userThree = userService.create(users().get(2));
+
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 7);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 8);
+
+        List<Film> bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, 5L, null);
+
+        assertThat(bestFilmsByGenre).hasSize(2);
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard2);
+
+        markService.scoreFilm(dieHard.getId(), userThree.getId(), 10);
+
+        bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, 5L, null);
+
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard);
+    }
+
+    @Test
+    void getBestFilmsByYearTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 7);
+
+        List<Film> bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, null, 1988);
+
+        assertThat(bestFilmsByGenre).hasSize(1);
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard);
+
+        bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, null, 1990);
+
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard2);
+    }
+
+    @Test
+    void getBestFilmsByGenresAndYearTest() {
+        Film dieHard = filmService.add(films().get(0));
+        Film dieHard2 = filmService.add(films().get(1));
+
+        User userOne = userService.create(users().get(0));
+        User userTwo = userService.create(users().get(1));
+
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 7);
+        markService.scoreFilm(dieHard2.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 8);
+
+        markService.scoreFilm(dieHard.getId(), userOne.getId(), 8);
+        markService.scoreFilm(dieHard.getId(), userTwo.getId(), 7);
+
+        List<Film> bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, 5L, 1988);
+
+        assertThat(bestFilmsByGenre).hasSize(1);
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard);
+
+        bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, 5L, 1990);
+
+        assertThat(bestFilmsByGenre.get(0)).isEqualTo(dieHard2);
     }
 
     private List<User> users() {
