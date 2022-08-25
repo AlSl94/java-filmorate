@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.utilites.FilmRecommendation;
+import ru.yandex.practicum.filmorate.utilites.SlopeOne;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,7 +85,7 @@ public class UserDbStorage implements UserStorage{
         Map<Long, Double> targetUserRates = getUsersRates(Collections.singletonList(id)).get(id);
         Map<Long, Map<Long, Double>> similarUsersRates = getUsersRates(usersWithSimilarInterestsIds);
 
-        List<Long> recommendation = FilmRecommendation.getRecommendation(targetUserRates, similarUsersRates);
+        List<Long> recommendation = new SlopeOne<>(similarUsersRates, targetUserRates).getRecommendations();
         return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
     }
 

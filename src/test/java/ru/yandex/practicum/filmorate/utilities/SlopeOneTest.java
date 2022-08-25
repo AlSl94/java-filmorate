@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.utilities;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.utilites.FilmRecommendation;
+import ru.yandex.practicum.filmorate.utilites.SlopeOne;
 
 import java.util.*;
 
-class FilmRecommendationTest {
+class SlopeOneTest {
 
     @Test
     void getRecommendationTest_standardDeviation() {
@@ -14,7 +14,7 @@ class FilmRecommendationTest {
         Map<Long, Map<Long, Double>> similarUsersFilmsRates = initializeSimilarUsersData();
 
         List<Long> expected = List.of(4L, 5L, 6L);
-        List<Long> calculated = FilmRecommendation.getRecommendation(targetUserRates, similarUsersFilmsRates);
+        List<Long> calculated = new SlopeOne<>(similarUsersFilmsRates, targetUserRates).getRecommendations();
         Assertions.assertEquals(expected, calculated);
     }
 
@@ -24,7 +24,7 @@ class FilmRecommendationTest {
         Map<Long, Map<Long, Double>> similarUsersFilmsRates = initializeSimilarUsersData();
 
         List<Long> expected = List.of(1L, 2L, 3L, 4L, 5L, 6L);
-        List<Long> calculated = FilmRecommendation.getRecommendation(targetUserRates, similarUsersFilmsRates);
+        List<Long> calculated = new SlopeOne<>(similarUsersFilmsRates, targetUserRates).getRecommendations();
         Assertions.assertEquals(expected, calculated);
     }
 
@@ -37,7 +37,7 @@ class FilmRecommendationTest {
         similarUsersFilmsRates.put(3L, new HashMap<>());
 
         List<Long> expected = Collections.emptyList();
-        List<Long> calculated = FilmRecommendation.getRecommendation(targetUserRates, similarUsersFilmsRates);
+        List<Long> calculated = new SlopeOne<>(similarUsersFilmsRates, targetUserRates).getRecommendations();
         Assertions.assertEquals(expected, calculated);
     }
 
