@@ -6,15 +6,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @param <U> User (Пользователь, или любая сущность, ассоциируемая с её возможностью выставить оценку Предмету)
- * @param <I> Item (Предмет, или любая сущность, которая может иметь оценку Пользователя)
+ * @param <U> User (Пользователь, или сущность, выставляющая оценку Предмету)
+ * @param <I> Item (Предмет, или сущность, которая может иметь оценку Пользователя)
  */
 @Slf4j
 public class SlopeOne<U, I> {
     private final Map<I, Map<I, Double>> diffMatrix = new HashMap<>();
     private final Map<I, Map<I, Integer>> freqMatrix = new HashMap<>();
-    HashMap<I, Double> userPredictMap = new HashMap<>();
-    HashMap<I, Integer> userFrequencyMap = new HashMap<>();
+    private final Map<I, Double> userPredictMap = new HashMap<>();
+    private final Map<I, Integer> userFrequencyMap = new HashMap<>();
     private final Map<I, Double> targetUserRates;
     private final Map<U, Map<I, Double>> commonRatesMap = new HashMap<>();
     private List<I> recommendedItemsList = new ArrayList<>();
@@ -27,7 +27,7 @@ public class SlopeOne<U, I> {
     public SlopeOne(Map<U, Map<I, Double>> similarUserRatesMap, Map<I, Double> targetUserRates) {
         this.targetUserRates = targetUserRates;
 
-        Map<U, HashMap<I, Double>> targetUserRatesMap = new HashMap<>();
+        Map<U, Map<I, Double>> targetUserRatesMap = new HashMap<>();
         targetUserRatesMap.put(null, new HashMap<>(targetUserRates));
 
         commonRatesMap.putAll(similarUserRatesMap);
@@ -43,7 +43,7 @@ public class SlopeOne<U, I> {
     }
 
     /**
-     * @return список рекомендуемых Предметов для Целевого пользователя, с учётом алгоритма Slope One
+     * @return список рекомендуемых Предметов для целевого пользователя, с учётом алгоритма Slope One
      */
     public List<I> getRecommendations() {
         buildMatrices();
