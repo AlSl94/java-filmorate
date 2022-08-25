@@ -79,27 +79,13 @@ public class UserDbStorage implements UserStorage{
     public Collection<Film> getRecommendations(Long id) {
         List<Long> usersWithSimilarInterestsIds = getUsersWithSimilarInterests(id);
         if (usersWithSimilarInterestsIds.isEmpty()) {
-            // Если пересекающихся пользователей нет, то дальше и считать нечего, выдаем пустой список.
             return Collections.emptyList();
         }
 
-        List<Long> targetUserRatedFilmsIds = filmStorage.getUsersFilmsIds(Collections.singletonList(id));
-        List<Long> similarFilmsIds = filmStorage.getUsersFilmsIds(usersWithSimilarInterestsIds);
+        Map<Long, Double> targetUserRates = getUsersRates(Collections.singletonList(id)).get(id);
+        Map<Long, Map<Long, Double>> similarUsersRates = getUsersRates(usersWithSimilarInterestsIds);
 
-        // Заполняем таблицу оценок целевого пользователя
-        Map<Long, Double> targetUserRates = new HashMap<>();
-        similarFilmsIds.stream().filter(targetUserRatedFilmsIds::contains).forEach(l -> targetUserRates.put(l, 1.0));
-
-        // Заполняем таблицу оценок пользователей со схожими вкусами
-        Map<Long, Map<Long, Double>> similarUsersFilmsRates = new HashMap<>();
-        for (Long userId : usersWithSimilarInterestsIds) {
-            HashMap<Long, Double> userRates = new HashMap<>();
-            List<Long> userRatedFilmsIds = filmStorage.getUsersFilmsIds(Collections.singletonList(userId));
-            similarFilmsIds.stream().filter(userRatedFilmsIds::contains).forEach(l -> userRates.put(l, 1.0));
-            similarUsersFilmsRates.put(userId, userRates);
-        }
-
-        List<Long> recommendation = FilmRecommendation.getRecommendation(targetUserRates, similarUsersFilmsRates);
+        List<Long> recommendation = FilmRecommendation.getRecommendation(targetUserRates, similarUsersRates);
         return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
     }
 
@@ -125,11 +111,32 @@ public class UserDbStorage implements UserStorage{
     }
 
     private List<Long> getUsersWithSimilarInterests(Long id) {
-        final String sqlQuery = "SELECT DISTINCT l2.user_id FROM likes AS l2" +
-                " JOIN likes AS l1 on l1.film_id = l2.film_id" +
-                " WHERE l1.user_id = ?1 AND l2.user_id <> ?1";
+        final String sqlQuery = "SELECT DISTINCT m2.user_id FROM marks AS m2" +
+                " JOIN MARKS m1 ON m1.film_id = m2.film_id" +
+                " WHERE m1.user_id = ?1 AND m2.user_id <> ?1";
 
         return jdbcTemplate.queryForList(sqlQuery, Long.class, id);
+    }
+
+    private Map<Long, Map<Long, Double>> getUsersRates(List<Long> usersIds) {
+        String ids = usersIds.stream().map(Object::toString).collect(Collectors.joining(", "));
+        String sqlQuery = String.format("SELECT user_id, film_id, mark FROM MARKS" +
+                " WHERE user_id IN (%s)", ids);
+        Map<Long, Map<Long, Double>> usersRates = new HashMap<>();
+        jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToUsersRates(rs, usersRates));
+        return usersRates;
+    }
+
+    private long mapRowToUsersRates(ResultSet resultSet,Map<Long, Map<Long, Double>> mapToStock)
+            throws SQLException {
+        Long userId = resultSet.getLong("user_id");
+        Long film_id = resultSet.getLong("film_id");
+        Double mark = resultSet.getDouble("mark");
+        if (!mapToStock.containsKey(userId)) {
+            mapToStock.put(userId, new HashMap<>());
+        }
+        mapToStock.get(userId).put(film_id, mark);
+        return userId;
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
