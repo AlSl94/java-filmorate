@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,4 +94,15 @@ public class MarkDbStorage implements MarkStorage {
         return jdbcTemplate.queryForObject(sqlQuery, Double.class, filmId);
     }
 
+    public Collection<Film> getFilmsWithHigherMarkAsTarget(double targetMark) {
+        if (targetMark > 0.0) {
+            Collection<Film> allFilms = filmStorage.findAll();
+            return allFilms.stream()
+                    .filter(film -> film.getAverageMark() > targetMark)
+                    .sorted(Comparator.comparingDouble(Film::getAverageMark))
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
 }
