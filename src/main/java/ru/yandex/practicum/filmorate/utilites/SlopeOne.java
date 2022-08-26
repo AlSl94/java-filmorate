@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
  * @param <I> Item (Предмет, или сущность, которая может иметь оценку Пользователя)
  */
 @Slf4j
-public class SlopeOne<U, I> {
+public class SlopeOne<U, I, T extends Number> {
     private final Map<I, Map<I, Double>> diffMatrix = new HashMap<>();
     private final Map<I, Map<I, Integer>> freqMatrix = new HashMap<>();
     private final Map<I, Double> userPredictMap = new HashMap<>();
     private final Map<I, Integer> userFrequencyMap = new HashMap<>();
-    private final Map<I, Double> targetUserRates;
-    private final Map<U, Map<I, Double>> commonRatesMap = new HashMap<>();
+    private final Map<I, T> targetUserRates;
+    private final Map<U, Map<I, T>> commonRatesMap = new HashMap<>();
     private List<I> recommendedItemsList = new ArrayList<>();
     private final List<I> allItems = new ArrayList<>();
 
@@ -24,17 +24,17 @@ public class SlopeOne<U, I> {
      * @param similarUserRatesMap - карта пользователей (без целевого) "с похожими интересами"
      * @param targetUserRates - оценки некоторого целевого пользователя
      */
-    public SlopeOne(Map<U, Map<I, Double>> similarUserRatesMap, Map<I, Double> targetUserRates) {
+    public SlopeOne(Map<U, Map<I, T>> similarUserRatesMap, Map<I, T> targetUserRates) {
         this.targetUserRates = targetUserRates;
 
-        Map<U, Map<I, Double>> targetUserRatesMap = new HashMap<>();
+        Map<U, Map<I, T>> targetUserRatesMap = new HashMap<>();
         targetUserRatesMap.put(null, new HashMap<>(targetUserRates));
 
         commonRatesMap.putAll(similarUserRatesMap);
         commonRatesMap.putAll(targetUserRatesMap);
 
-        for (Map.Entry<U, Map<I, Double>> entry : commonRatesMap.entrySet()) {
-            for (Map.Entry<I, Double> subEntry : entry.getValue().entrySet()) {
+        for (Map.Entry<U, Map<I, T>> entry : commonRatesMap.entrySet()) {
+            for (Map.Entry<I, T> subEntry : entry.getValue().entrySet()) {
                 if (!allItems.contains(subEntry.getKey())) {
                     allItems.add(subEntry.getKey());
                 }
@@ -52,10 +52,10 @@ public class SlopeOne<U, I> {
     }
 
     private void buildMatrices() {
-        for (Map<I, Double> ratingMap : commonRatesMap.values()) {
-            for (Map.Entry<I, Double> entryFirst : ratingMap.entrySet()) {
+        for (Map<I, ? extends Number> ratingMap : commonRatesMap.values()) {
+            for (Map.Entry<I, ? extends Number> entryFirst : ratingMap.entrySet()) {
                 I firstItem = entryFirst.getKey();
-                Double ratingFirst = entryFirst.getValue();
+                double ratingFirst = entryFirst.getValue().doubleValue();
 
                 if (!diffMatrix.containsKey(firstItem)) {
                     putEmptyMaps(firstItem);
@@ -72,10 +72,10 @@ public class SlopeOne<U, I> {
         freqMatrix.put(item, new HashMap<>());
     }
 
-    private void calculateRatings(Map<I, Double> ratingMap, I firstItem, double ratingFirst) {
-        for (Map.Entry<I, Double> entryNext : ratingMap.entrySet()) {
+    private void calculateRatings(Map<I, ? extends Number> ratingMap, I firstItem, double ratingFirst) {
+        for (Map.Entry<I, ? extends Number> entryNext : ratingMap.entrySet()) {
             I nextItem = entryNext.getKey();
-            Double ratingNext = entryNext.getValue();
+            double ratingNext = entryNext.getValue().doubleValue();
 
             int oldCount = 0;
 
@@ -122,7 +122,7 @@ public class SlopeOne<U, I> {
                 I itemFromDiff = diffEntry.getKey();
                 try {
                     double filmDiffRating = diffMatrix.get(itemFromDiff).get(itemFromData);
-                    double filmDataRating = targetUserRates.get(itemFromData);
+                    double filmDataRating = targetUserRates.get(itemFromData).doubleValue();
                     int frequency = freqMatrix.get(itemFromDiff).get(itemFromData);
                     double predictedValue = filmDiffRating + filmDataRating;
                     double finalValue = predictedValue * frequency;
@@ -145,7 +145,7 @@ public class SlopeOne<U, I> {
 
         for (I item : allItems) {
             if (targetUserRates.containsKey(item)) {
-                targetUserCleanMap.put(item, targetUserRates.get(item));
+                targetUserCleanMap.put(item, targetUserRates.get(item).doubleValue());
             } else targetUserCleanMap.putIfAbsent(item, -1.0);
         }
 
