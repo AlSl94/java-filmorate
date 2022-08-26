@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 /**
  * @param <U> User (Пользователь, или сущность, выставляющая оценку Предмету)
  * @param <I> Item (Предмет, или сущность, которая может иметь оценку Пользователя)
+ * @param <T>> Number type (Число, наследующее Number, являющееся оценкой Пользователя)
  */
 @Slf4j
 public class SlopeOne<U, I, T extends Number> {
@@ -134,7 +135,7 @@ public class SlopeOne<U, I, T extends Number> {
             }
         }
 
-        HashMap<I, Double> targetUserCleanMap = new HashMap<>();
+        Map<I, Double> targetUserCleanMap = new HashMap<>();
 
         for (Map.Entry<I, Double> entry : userPredictMap.entrySet()) {
             I item = entry.getKey();
@@ -150,8 +151,8 @@ public class SlopeOne<U, I, T extends Number> {
         }
 
         recommendedItemsList = targetUserCleanMap.keySet().stream()
-                .filter(f -> !targetUserRates.containsKey(f))
-                .sorted(Comparator.comparingDouble(targetUserCleanMap::get).reversed())
+                .filter(item -> !targetUserRates.containsKey(item))
+                .sorted(Comparator.comparing(targetUserCleanMap::get, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 }
