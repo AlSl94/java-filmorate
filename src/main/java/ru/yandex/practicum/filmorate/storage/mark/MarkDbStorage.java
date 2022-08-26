@@ -91,16 +91,4 @@ public class MarkDbStorage implements MarkStorage {
                 "WHERE FILM_ID = ?";
         return jdbcTemplate.queryForObject(sqlQuery, Double.class, filmId);
     }
-
-//    public Collection<Film> getFilmsWithHigherMarkAsTarget(double targetMark) {
-//        if (targetMark > 0.0) {
-//            Collection<Film> allFilms = filmStorage.findAll();
-//            return allFilms.stream()
-//                    .filter(film -> film.getAverageMark() > targetMark)
-//                    .sorted(Comparator.comparingDouble(Film::getAverageMark))
-//                    .collect(Collectors.toList());
-//        } else {
-//            return Collections.emptyList();
-//        }
-//    }
 }

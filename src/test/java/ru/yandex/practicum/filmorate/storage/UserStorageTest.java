@@ -36,7 +36,7 @@ import java.util.List;
         createFilms(11);
         createMarks();
 
-        List<Long> expectedFilmsIds = List.of(5L, 8L, 10L, 6L, 7L, 9L);
+        List<Long> expectedFilmsIds = List.of(5L, 8L, 10L, 6L);
         Collection<Film> expected = new ArrayList<>();
         for (Long filmId : expectedFilmsIds) {
             expected.add(filmStorage.findFilmById(filmId));

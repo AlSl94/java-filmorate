@@ -28,7 +28,8 @@ public class FriendService {
      * @param friendId айди второго пользователя, которого добавляем в друзья к первому
      */
     public void addFriend(Long id, Long friendId) {
-        userStorage.checkUserExistence(id, friendId);
+        userStorage.checkUserExistence(id);
+        userStorage.checkUserExistence(friendId);
         friendStorage.addFriend(id, friendId);
     }
 
@@ -38,7 +39,8 @@ public class FriendService {
      * @param friendId айди друга
      */
     public void removeFriend(Long id, Long friendId) {
-        userStorage.checkUserExistence(id, friendId);
+        userStorage.checkUserExistence(id);
+        userStorage.checkUserExistence(friendId);
         friendStorage.removeFriend(id, friendId);
     }
 
@@ -59,7 +61,8 @@ public class FriendService {
      * @return коллекция с общими друзьями двух пользователей
      */
     public Collection<User> commonFriends(Long id, Long friendId) {
-        userStorage.checkUserExistence(id, friendId);
+        userStorage.checkUserExistence(id);
+        userStorage.checkUserExistence(friendId);
         return friendStorage.commonFriends(id, friendId);
     }
 }

@@ -20,6 +20,4 @@ public interface UserStorage {
     Collection<Film> getRecommendations(Long id);
 
     void checkUserExistence(Long id);
-
-    void checkUserExistence(Long id, Long friendId);
 }

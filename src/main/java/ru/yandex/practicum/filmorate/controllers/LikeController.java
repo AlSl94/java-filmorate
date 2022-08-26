@@ -37,7 +37,7 @@ public class LikeController {
         log.info("Удален лайк у фильма с id: {}, от пользователя c id: {}", filmId, userId);
     }
 
-    @GetMapping(value = "/popular")
+    @GetMapping(value = "/like/popular/")
     public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count,
                                             @RequestParam(required = false) Long genreId,
                                             @RequestParam(required = false) Integer year) {
