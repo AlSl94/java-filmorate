@@ -43,7 +43,7 @@ class MarkServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 10);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 5);
 
-        Double filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        Double filmScore = markDbStorage.averageFilmRating(dieHard.getId());
 
         assertThat(filmScore).isEqualTo(7.5);
     }
@@ -58,11 +58,11 @@ class MarkServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 10);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 4);
 
-        Double filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        Double filmScore = markDbStorage.averageFilmRating(dieHard.getId());
         assertThat(filmScore).isEqualTo(7);
 
         markService.removeFilmScore(dieHard.getId(), userTwo.getId());
-        filmScore = markDbStorage.averageFilmScore(dieHard.getId());
+        filmScore = markDbStorage.averageFilmRating(dieHard.getId());
         assertThat(filmScore).isEqualTo(10);
     }
 

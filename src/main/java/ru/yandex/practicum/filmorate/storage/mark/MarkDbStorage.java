@@ -85,7 +85,7 @@ public class MarkDbStorage implements MarkStorage {
     }
 
     @Override
-    public Double averageFilmScore(Long filmId) {
+    public Double averageFilmRating(Long filmId) {
         final String sqlQuery = "SELECT AVG(MARK) as avg_score " +
                 "FROM MARKS " +
                 "WHERE FILM_ID = ?";

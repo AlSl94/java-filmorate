@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.WrongParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.mark.MarkStorage;
 import ru.yandex.practicum.filmorate.utilites.SlopeOne;
 
 import java.sql.ResultSet;
@@ -19,11 +20,13 @@ import java.util.stream.Collectors;
 @Component
 public class UserDbStorage implements UserStorage{
     private final FilmStorage filmStorage;
+    private final MarkStorage markStorage;
     private final JdbcTemplate jdbcTemplate;
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmStorage filmStorage) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmStorage filmStorage, MarkStorage markStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmStorage = filmStorage;
+        this.markStorage = markStorage;
     }
 
     @Override
@@ -86,7 +89,11 @@ public class UserDbStorage implements UserStorage{
         Map<Long, Map<Long, Double>> similarUsersRates = getUsersRates(usersWithSimilarInterestsIds);
 
         List<Long> recommendation = new SlopeOne<>(similarUsersRates, targetUserRates).getRecommendations();
-        return recommendation.stream().map(filmStorage::findFilmById).collect(Collectors.toList());
+        return recommendation.stream()
+                .map(filmStorage::findFilmById)
+                .filter(film -> markStorage.averageFilmRating(film.getId())
+                        >= markStorage.MARK_AT_WHICH_POSITIVE_RATING_STARTS)
+                .collect(Collectors.toList());
     }
 
     @Override
