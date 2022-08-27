@@ -36,10 +36,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findAll() {
         final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, MR.MPA as MPA, f.RELEASE_DATE, " +
-                "f.DURATION,  ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                "f.DURATION, f.average_mark " +
                 "FROM FILMS AS f " +
                 "JOIN MPA_RATING AS MR on MR.MPA_ID = f.MPA_ID " +
-                "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                 "GROUP BY F.FILM_ID";
         List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         films.forEach(f -> f.setDirectors(directorStorage.directorsByFilm(f.getId())));
@@ -101,7 +100,6 @@ public class FilmDbStorage implements FilmStorage {
                 , film.getDuration()
                 , film.getReleaseDate()
                 , film.getId());
-
         if (updatedRows == 0) {
             throw new WrongParameterException("film.id не найден");
         }
@@ -140,10 +138,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film findFilmById(Long id) {
         Film film;
         final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID, mr.MPA as MPA, " +
-                "f.RELEASE_DATE, f.DURATION, ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                "f.RELEASE_DATE, f.DURATION, f.average_mark " +
                 "FROM FILMS AS f " +
                 "JOIN MPA_RATING AS mr on mr.MPA_ID = f.MPA_ID " +
-                "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                 "WHERE f.FILM_ID = ? " +
                 "GROUP BY F.FILM_ID";
         try {
@@ -163,13 +160,11 @@ public class FilmDbStorage implements FilmStorage {
                 List<Film> filmsByYear;
                 final String sqlQueryByYear =
                         "SELECT f.film_id, f.name, f.description, f.mpa_id, mr.mpa, f.release_date, f.duration, " +
-                                "ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                                "f.AVERAGE_MARK " +
                                 "FROM FILMS AS f " +
                                 "JOIN MPA_RATING AS mr on mr.MPA_ID = f.MPA_ID " +
                                 "INNER JOIN film_director AS fd on f.film_id = fd.film_id " +
-                                "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                                 "WHERE fd.director_id = ? " +
-                                "GROUP BY F.FILM_ID " +
                                 "ORDER BY f.RELEASE_DATE";
                 filmsByYear = jdbcTemplate.query(sqlQueryByYear, this::mapRowToFilm, id);
 
@@ -182,14 +177,12 @@ public class FilmDbStorage implements FilmStorage {
             case "rating":
                 List<Film> filmsByMarks;
                 final String sqlQueryByMarks = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
-                        "mr.MPA, f.DURATION, f.RELEASE_DATE, ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                        "mr.MPA, f.DURATION, f.RELEASE_DATE, f.AVERAGE_MARK " +
                         "FROM FILMS as f " +
                         "JOIN MPA_RATING mr on mr.MPA_ID = f.MPA_ID " +
                         "INNER JOIN film_director fd on f.FILM_ID = fd.FILM_ID " +
-                        "LEFT JOIN marks m on f.film_id = m.film_id " +
                         "WHERE fd.DIRECTOR_ID = ? " +
-                        "GROUP BY f.FILM_ID " +
-                        "ORDER BY AVG(m.MARK) DESC";
+                        "ORDER BY f.AVERAGE_MARK DESC";
                 filmsByMarks = jdbcTemplate.query(sqlQueryByMarks, this::mapRowToFilm, id);
                     if (filmsByMarks.isEmpty()) {
                         throw new WrongParameterException("director.id не найден или у него нет фильмов");
@@ -207,37 +200,31 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> searchedFilms;
         if (by.contains("director") && by.contains("title")) {
             final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
-                    "mr.MPA, f.DURATION, f.RELEASE_DATE, ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE, f.AVERAGE_MARK " +
                     "FROM films AS f " +
                     "JOIN MPA_RATING AS MR on MR.MPA_ID = f.MPA_ID " +
                     "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                     "WHERE f.NAME ilike '%' || ? || '%' OR d.DIRECTOR_NAME ilike '%' || ? || '%' " +
-                    "GROUP BY f.film_id " +
-                    "ORDER BY AVG(M.MARK) DESC";
+                    "ORDER BY f.AVERAGE_MARK DESC";
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query, query);
         } else if (by.contains("director")) {
             final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
-                    "mr.MPA, f.DURATION, f.RELEASE_DATE, ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE, f.AVERAGE_MARK " +
                     "FROM films as f " +
                     "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
                     "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
                     "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                     "WHERE d.DIRECTOR_NAME ilike '%' || ? || '%' " +
-                    "GROUP BY f.film_id " +
-                    "ORDER BY AVG(M.MARK) DESC";
+                    "ORDER BY f.AVERAGE_MARK DESC";
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
         } else { //Тогда поиск по названию
             final String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.MPA_ID as MPA_ID, " +
-                    "mr.MPA, f.DURATION, f.RELEASE_DATE, ROUND(IFNULL(AVG(M.MARK), 0), 1) AS MARK " +
+                    "mr.MPA, f.DURATION, f.RELEASE_DATE, f.AVERAGE_MARK " +
                     "FROM films as f " +
                     "JOIN MPA_RATING MR on MR.MPA_ID = f.MPA_ID " +
-                    "LEFT JOIN MARKS M on f.FILM_ID = M.FILM_ID " +
                     "WHERE f.NAME ilike '%' || ? || '%' " +
-                    "GROUP BY f.film_id " +
-                    "ORDER BY AVG(M.MARK) DESC";
+                    "ORDER BY f.AVERAGE_MARK DESC";
             searchedFilms = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, query);
         }
         searchedFilms.forEach(f -> f.setGenres(loadFilmGenre(f.getId())));
@@ -285,7 +272,7 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(new Mpa(rs.getShort("mpa_id"), rs.getString("mpa")))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getDouble("duration"))
-                .mark(rs.getDouble("mark"))
+                .averageMark(rs.getDouble("average_mark"))
                 .build();
     }
 }
