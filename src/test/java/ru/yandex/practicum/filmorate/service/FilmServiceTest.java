@@ -104,8 +104,8 @@ class FilmServiceTest {
     void getFilmsByDirectorByRatingTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(8);
-        dieHard2.setMark(7);
+        dieHard.setAverageMark(8);
+        dieHard2.setAverageMark(7);
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
@@ -118,8 +118,8 @@ class FilmServiceTest {
         assertThat(filmsByLikes.get(0)).isEqualTo(dieHard);
         assertThat(filmsByLikes.get(1)).isEqualTo(dieHard2);
 
-        dieHard.setMark(8);
-        dieHard2.setMark(8.5);
+        dieHard.setAverageMark(8);
+        dieHard2.setAverageMark(8.5);
 
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 8);
         markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 10);
@@ -144,8 +144,8 @@ class FilmServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 6);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 5);
 
-        dieHard2.setMark(8.5);
-        dieHard.setMark(5.5);
+        dieHard2.setAverageMark(8.5);
+        dieHard.setAverageMark(5.5);
 
         List<Film> commonFilms = (List<Film>) filmService.findCommonFilms(userOne.getId(), userTwo.getId());
 
@@ -157,8 +157,8 @@ class FilmServiceTest {
     void searchFilmWithDirectorOnlyTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(8);
-        dieHard2.setMark(9);
+        dieHard.setAverageMark(8);
+        dieHard2.setAverageMark(9);
 
         User userOne = userService.create(users().get(0));
 
@@ -177,8 +177,8 @@ class FilmServiceTest {
     void searchFilmWithTitleOnlyTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(8);
-        dieHard2.setMark(5);
+        dieHard.setAverageMark(8);
+        dieHard2.setAverageMark(5);
 
         User userOne = userService.create(users().get(0));
 
@@ -197,8 +197,8 @@ class FilmServiceTest {
     void searchFilmWithDirectorAndTitleTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(8);
-        dieHard2.setMark(5);
+        dieHard.setAverageMark(8);
+        dieHard2.setAverageMark(5);
 
         User userOne = userService.create(users().get(0));
 
