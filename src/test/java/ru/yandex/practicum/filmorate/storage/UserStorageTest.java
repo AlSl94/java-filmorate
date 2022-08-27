@@ -23,7 +23,7 @@ import java.util.List;
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-    class UserStorageTest {
+class UserStorageTest {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final MarkStorage markStorage;
@@ -86,7 +86,7 @@ import java.util.List;
             String description = String.format("desc%s", i);
             filmStorage.add(new Film(null, name, description, LocalDate.of(1990, 1, 1),
                     new Mpa((short) 1, ""), 24, List.of(new Director(1, "director")),
-                    List.of(new Genre(1, null)),0.0));
+                    List.of(new Genre(1, null)), 0.0));
         }
     }
 
