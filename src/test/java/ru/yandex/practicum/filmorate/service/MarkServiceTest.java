@@ -70,8 +70,8 @@ class MarkServiceTest {
     void getBestFilmsByGenresTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(7.5);
-        dieHard2.setMark(8);
+        dieHard.setAverageMark(7.5);
+        dieHard2.setAverageMark(8);
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
@@ -89,7 +89,7 @@ class MarkServiceTest {
 
         markService.scoreFilm(dieHard.getId(), userThree.getId(), 10);
 
-        dieHard.setMark(8.3);
+        dieHard.setAverageMark(8.3);
 
         bestFilmsByGenre = (List<Film>) markService.getBestFilms(2, 5L, null);
 
@@ -100,7 +100,7 @@ class MarkServiceTest {
     void getBestFilmsByYearTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(7.5);
+        dieHard.setAverageMark(7.5);
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
@@ -122,8 +122,8 @@ class MarkServiceTest {
     void getBestFilmsByGenresAndYearTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
-        dieHard.setMark(7.5);
-        dieHard2.setMark(8);
+        dieHard.setAverageMark(7.5);
+        dieHard2.setAverageMark(8);
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));

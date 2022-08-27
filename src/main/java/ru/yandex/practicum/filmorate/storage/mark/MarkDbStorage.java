@@ -26,12 +26,14 @@ public class MarkDbStorage implements MarkStorage {
     public void scoreFilm(Long filmId, Long userId, Integer mark) {
         final String sqlQuery = "MERGE INTO MARKS VALUES (?, ?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId, mark);
+        updateFilmRating(filmId);
     }
 
     @Override
     public void removeFilmScore(Long filmId, Long userId) {
         final String sqlQuery = "DELETE FROM MARKS WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
+        updateFilmRating(filmId);
     }
 
     @Override
@@ -86,9 +88,18 @@ public class MarkDbStorage implements MarkStorage {
 
     @Override
     public Double averageFilmRating(Long filmId) {
-        final String sqlQuery = "SELECT AVG(MARK) as avg_score " +
+        final String sqlQuery = "SELECT ROUND(AVG(MARK), 1) as avg_score " +
                 "FROM MARKS " +
                 "WHERE FILM_ID = ?";
         return jdbcTemplate.queryForObject(sqlQuery, Double.class, filmId);
+    }
+
+    private void updateFilmRating(Long filmId) {
+        final String sqlUpdateQuery = "UPDATE FILMS " +
+                "SET AVERAGE_MARK = " +
+                "ROUND ((SELECT AVG(MARK) " +
+                "FROM MARKS WHERE FILM_ID = ?), 1) " +
+                "WHERE FILM_ID = ?";
+        jdbcTemplate.update(sqlUpdateQuery, filmId, filmId);
     }
 }
