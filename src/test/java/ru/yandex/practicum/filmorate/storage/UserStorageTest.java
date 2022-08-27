@@ -85,7 +85,8 @@ import java.util.List;
             String name = String.format("film%s", i);
             String description = String.format("desc%s", i);
             filmStorage.add(new Film(null, name, description, LocalDate.of(1990, 1, 1),
-                    new Mpa((short) 1, ""), 24, List.of(new Director(1, "director")), List.of(new Genre(1, null))));
+                    new Mpa((short) 1, ""), 24, List.of(new Director(1, "director")),
+                    List.of(new Genre(1, null)),0.0));
         }
     }
 
