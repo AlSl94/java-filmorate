@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS mpa_rating (
 );
 
 CREATE TABLE IF NOT EXISTS directors (
-    director_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    director_name    varchar(255)
+    director_id   int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    director_name varchar(255)
 );
 
 CREATE TABLE IF NOT EXISTS films
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS marks
 (
     film_id bigint REFERENCES films (film_id) ON DELETE CASCADE,
     user_id bigint REFERENCES users (user_id) ON DELETE CASCADE,
-    mark smallint CHECK(mark between 1 and 10) NOT NULL,
+    mark    smallint CHECK(mark between 1 and 10) NOT NULL,
     PRIMARY KEY (user_id, film_id)
 );
 
@@ -101,5 +101,5 @@ CREATE TABLE IF NOT EXISTS events
     entity_id       bigint NOT NULL,
     type_id         smallint NOT NULL REFERENCES event_types(type_id),
     operation_id    smallint NOT NULL REFERENCES event_operations(operation_id),
-    event_timestamp timestamp NOT NULL
+    event_timestamp timestamp without time zone DEFAULT now() NOT NULL
 );

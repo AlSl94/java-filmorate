@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.Collection;
 
 @Component
@@ -23,9 +22,9 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public void createEvent(long userId, long entityId, int eventTypeId, int operationId) {
-        final String sqlQuery = "INSERT INTO events (user_id, entity_id, type_id, operation_id, event_timestamp) " +
-                "VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, entityId, eventTypeId, operationId, Instant.now());
+        final String sqlQuery = "INSERT INTO events (user_id, entity_id, type_id, operation_id) " +
+                "VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, entityId, eventTypeId, operationId);
     }
 
     @Override
