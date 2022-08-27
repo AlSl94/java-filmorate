@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS directors (
     director_name varchar(255)
 );
 
+CREATE INDEX ON directors (director_name);
+
 CREATE TABLE IF NOT EXISTS films
 (
     film_id      bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -33,6 +35,8 @@ CREATE TABLE IF NOT EXISTS films
     release_date date,
     average_mark double
 );
+
+CREATE INDEX ON films (name);
 
 CREATE TABLE IF NOT EXISTS film_director (
     film_id     bigint REFERENCES films(film_id) ON DELETE CASCADE,
