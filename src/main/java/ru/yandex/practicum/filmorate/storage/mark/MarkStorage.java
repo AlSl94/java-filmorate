@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 
 public interface MarkStorage {
+    Double MARK_AT_WHICH_POSITIVE_RATING_STARTS = 6.0;
 
     void scoreFilm(Long filmId, Long userId, Integer mark);
 
