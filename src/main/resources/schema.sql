@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS films
     description  varchar(200),
     mpa_id       smallint REFERENCES mpa_rating (mpa_id),
     duration     float,
-    release_date date
+    release_date date,
+    average_mark double
 );
 
 CREATE TABLE IF NOT EXISTS film_director (
