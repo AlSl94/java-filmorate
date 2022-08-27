@@ -150,11 +150,11 @@ class ReviewLikeServiceTest {
         films.add(new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
                 Collections.singletonList(directorService.findDirectorById(1)),
-                List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5)), 0.0));
         films.add(new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
                 Collections.singletonList(directorService.findDirectorById(1)),
-                List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5)), 0.0));
         return films;
     }
 }

@@ -134,6 +134,6 @@ class ReviewServiceTest {
         return new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
                 Collections.singletonList(directorService.findDirectorById(1)),
-                List.of(genreService.getGenreById(3), genreService.getGenreById(5)));
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5)), 0.0);
     }
 }

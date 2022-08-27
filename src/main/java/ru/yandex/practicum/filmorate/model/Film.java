@@ -28,4 +28,5 @@ public class Film {
     private double duration;
     private List<Director> directors = new ArrayList<>();
     private List<Genre> genres = new ArrayList<>();
+    private double mark;
 }

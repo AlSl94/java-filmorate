@@ -81,7 +81,7 @@ class FilmServiceTest {
     void updateTest() {
         Film updatedFilm = new Film(1L, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
-                List.of(new Director(1, "Вася Спилберг")), null);
+                List.of(new Director(1, "Вася Спилберг")), null, 0.0);
 
         Film dieHard = filmService.add(films().get(0));
         assertThat(filmService.findFilmById(dieHard.getId()).getName()).isEqualTo("Крепкий орешек");
@@ -104,6 +104,8 @@ class FilmServiceTest {
     void getFilmsByDirectorByRatingTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
+        dieHard.setMark(8);
+        dieHard2.setMark(7);
 
         User userOne = userService.create(users().get(0));
         User userTwo = userService.create(users().get(1));
@@ -115,6 +117,9 @@ class FilmServiceTest {
 
         assertThat(filmsByLikes.get(0)).isEqualTo(dieHard);
         assertThat(filmsByLikes.get(1)).isEqualTo(dieHard2);
+
+        dieHard.setMark(8);
+        dieHard2.setMark(8.5);
 
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 8);
         markService.scoreFilm(dieHard2.getId(), userTwo.getId(), 10);
@@ -139,6 +144,9 @@ class FilmServiceTest {
         markService.scoreFilm(dieHard.getId(), userOne.getId(), 6);
         markService.scoreFilm(dieHard.getId(), userTwo.getId(), 5);
 
+        dieHard2.setMark(8.5);
+        dieHard.setMark(5.5);
+
         List<Film> commonFilms = (List<Film>) filmService.findCommonFilms(userOne.getId(), userTwo.getId());
 
         assertThat(commonFilms).hasSize(2);
@@ -149,6 +157,8 @@ class FilmServiceTest {
     void searchFilmWithDirectorOnlyTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
+        dieHard.setMark(8);
+        dieHard2.setMark(9);
 
         User userOne = userService.create(users().get(0));
 
@@ -167,6 +177,8 @@ class FilmServiceTest {
     void searchFilmWithTitleOnlyTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
+        dieHard.setMark(8);
+        dieHard2.setMark(5);
 
         User userOne = userService.create(users().get(0));
 
@@ -185,6 +197,8 @@ class FilmServiceTest {
     void searchFilmWithDirectorAndTitleTest() {
         Film dieHard = filmService.add(films().get(0));
         Film dieHard2 = filmService.add(films().get(1));
+        dieHard.setMark(8);
+        dieHard2.setMark(5);
 
         User userOne = userService.create(users().get(0));
 
@@ -217,11 +231,11 @@ class FilmServiceTest {
         films.add(new Film(null, "Крепкий орешек", "Фильм о лысом парне",
                 LocalDate.of(1988, 7, 12), mpaService.getMpaById(4), 2.13,
                 Collections.singletonList(directorService.findDirectorById(1)),
-                List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5)), 0.0));
         films.add(new Film(null, "Крепкий орешек 2", "Фильм о лысом парне 2",
                 LocalDate.of(1990, 7, 2), mpaService.getMpaById(5), 2.04,
                 Collections.singletonList(directorService.findDirectorById(1)),
-                List.of(genreService.getGenreById(3), genreService.getGenreById(5))));
+                List.of(genreService.getGenreById(3), genreService.getGenreById(5)), 0.0));
         return films;
     }
 }
