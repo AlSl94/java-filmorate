@@ -41,46 +41,38 @@ public class MarkDbStorage implements MarkStorage {
         List<Long> bestFilmIds;
         if (genreId != null && year != null) {
             final String sqlQuery = "SELECT F.FILM_ID FROM FILMS AS F " +
-                    "LEFT JOIN MARKS AS M ON F.FILM_ID = M.FILM_ID " +
                     "LEFT JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID " +
                     "WHERE GENRE_ID = ? AND YEAR(F.RELEASE_DATE) = ? " +
-                    "GROUP BY F.FILM_ID " +
-                    "ORDER BY AVG(m.MARK) DESC " +
+                    "ORDER BY f.AVERAGE_MARK DESC " +
                     "LIMIT ?";
             bestFilmIds = jdbcTemplate.queryForList(sqlQuery, Long.class, genreId, year, count);
             log.info("Получен топ {} фильмов по по оценкам " +
                     "+ фильтры: id жанра {}, год {}", count, genreId, year);
         } else if (genreId != null) {
             final String sqlQuery = "SELECT F.FILM_ID FROM FILMS AS F " +
-                    "LEFT JOIN MARKS AS M ON F.FILM_ID = M.FILM_ID " +
                     "LEFT JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID " +
                     "WHERE GENRE_ID = ? " +
-                    "GROUP BY F.FILM_ID " +
-                    "ORDER BY AVG(m.MARK) DESC " +
+                    "ORDER BY f.AVERAGE_MARK DESC " +
                     "LIMIT ?";
             bestFilmIds = jdbcTemplate.queryForList(sqlQuery, Long.class, genreId, count);
             log.info("Получен топ {} фильмов по оценкам " +
                     "+ фильтры: id жанра {}", count, genreId);
         } else if (year != null) {
             final String sqlQuery = "SELECT F.FILM_ID FROM FILMS AS F " +
-                    "LEFT JOIN MARKS AS M ON F.FILM_ID = M.FILM_ID " +
                     "WHERE YEAR(F.RELEASE_DATE) = ? " +
                     "GROUP BY F.FILM_ID " +
-                    "ORDER BY AVG(m.MARK) DESC " +
+                    "ORDER BY f.AVERAGE_MARK DESC " +
                     "LIMIT ?";
             bestFilmIds = jdbcTemplate.queryForList(sqlQuery, Long.class, year, count);
             log.info("Получен топ {} фильмов по оценкам " +
                     "+ фильтры: по году {}", count, year);
         } else {
             final String sqlQuery = "SELECT F.FILM_ID FROM FILMS AS F " +
-                    "LEFT JOIN MARKS AS M ON F.FILM_ID = M.FILM_ID " +
-                    "GROUP BY F.FILM_ID " +
-                    "ORDER BY AVG(m.MARK) DESC " +
+                    "ORDER BY f.AVERAGE_MARK DESC " +
                     "LIMIT ?";
             bestFilmIds = jdbcTemplate.queryForList(sqlQuery, Long.class, count);
             log.info("Получен топ {} фильмов по оценкам, без фильтров", count);
         }
-
         return bestFilmIds.stream()
                 .map(filmStorage::findFilmById)
                 .collect(Collectors.toList());
