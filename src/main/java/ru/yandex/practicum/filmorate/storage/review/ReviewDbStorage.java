@@ -71,7 +71,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review getReviewById(Long id) {
         checkReviewExists(id);
         final String sqlQuery = "SELECT REVIEWS.*, " +
-                "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
+                "IFNULL(SUM(RL.IS_LIKE = true), 0) - IFNULL(SUM(RL.IS_LIKE = false), 0) AS USEFUL FROM REVIEWS " +
                 "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                 "WHERE REVIEWS.REVIEW_ID = ? " +
                 "GROUP BY REVIEWS.REVIEW_ID ";
@@ -83,19 +83,19 @@ public class ReviewDbStorage implements ReviewStorage {
         Collection<Review> reviewCollection;
         if (filmId != null) {
             final String sqlQuery = "SELECT REVIEWS.*, " +
-                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
+                    "IFNULL(SUM(RL.IS_LIKE = true), 0) - IFNULL(SUM(RL.IS_LIKE = false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "WHERE REVIEWS.FILM_ID = ? " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
+                    "ORDER BY USEFUL DESC " +
                     "LIMIT ?";
             reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, filmId, limit);
         } else {
             final String sqlQuery = "SELECT REVIEWS.*, " +
-                    "IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) AS USEFUL FROM REVIEWS " +
+                    "IFNULL(SUM(RL.IS_LIKE = true), 0) - IFNULL(SUM(RL.IS_LIKE = false), 0) AS USEFUL FROM REVIEWS " +
                     "LEFT JOIN REVIEW_LIKES AS RL on REVIEWS.REVIEW_ID = RL.REVIEW_ID " +
                     "GROUP BY REVIEWS.REVIEW_ID " +
-                    "ORDER BY IFNULL(SUM(RL.IS_LIKE=true), 0) - IFNULL(SUM(RL.IS_LIKE=false), 0) DESC " +
+                    "ORDER BY USEFUL DESC " +
                     "LIMIT ?";
             reviewCollection = jdbcTemplate.query(sqlQuery, this::mapRowToReview, limit);
         }
